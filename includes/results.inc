@@ -1005,6 +1005,14 @@ class IslandoraSolrFacets {
         $bucket = ($label ? $label : $bucket);
       }
 
+      // Replace labels for boolean values if necessary.
+      if ($bucket == 'true' && isset($this->settings['solr_field_settings']['boolean_facet_true_replacement']) && !empty($this->settings['solr_field_settings']['boolean_facet_true_replacement'])) {
+        $bucket = $this->settings['solr_field_settings']['boolean_facet_true_replacement'];
+      }
+      if ($bucket == 'false' && isset($this->settings['solr_field_settings']['boolean_facet_false_replacement']) && !empty($this->settings['solr_field_settings']['boolean_facet_false_replacement'])) {
+        $bucket = $this->settings['solr_field_settings']['boolean_facet_false_replacement'];
+      }
+
       // Current URL query.
       $fq = isset($islandora_solr_query->solrParams['fq']) ? $islandora_solr_query->solrParams['fq'] : array();
       // 1: Check minimum count.

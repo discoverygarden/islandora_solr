@@ -255,14 +255,22 @@ function islandora_solr_get_date_format_facets() {
  * Function used with optional i18n_string integration.
  */
 function islandora_solr_translate_field_labels(array &$records) {
+  $to_i18nize = array(
+    'label',
+    'boolean_facet_true_replacement',
+    'boolean_facet_false_replacement',
+  );
   foreach ($records as &$record) {
     $settings = &$record['solr_field_settings'];
-    if (isset($settings['label'])) {
-      $string_id = format_string("islandora_solr:field_settings:@type:label:@field", array(
-        '@type' => $record['field_type'],
-        '@field' => $record['solr_field'],
-      ));
-      $settings['label'] = i18n_string_translate($string_id, $settings['label']);
+    foreach ($to_i18nize as $string_type) {
+      if (isset($settings[$string_type])) {
+        $string_id = format_string("islandora_solr:field_settings:@type:@string:@field", array(
+          '@type' => $record['field_type'],
+          '@string' => $string_type,
+          '@field' => $record['solr_field'],
+        ));
+        $settings[$string_type] = i18n_string_translate($string_id, $settings[$string_type]);
+      }
     }
   }
 }

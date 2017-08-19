@@ -599,11 +599,42 @@ function islandora_solr_is_date_field($solr_field) {
     'org.apache.solr.schema.DateField',
     'org.apache.solr.schema.TrieDateField',
   );
+  return islandora_solr_is_typed_field($solr_field, $date_types);
+}
+
+/**
+ * Check the field type against boolean-type fields.
+ *
+ * @param string $solr_field
+ *   The Solr field name.
+ *
+ * @return bool
+ *   Whether the field is a boolean type.
+ */
+function islandora_solr_is_boolean_field($solr_field) {
+  $bool_types = array(
+    'org.apache.solr.schema.BoolField',
+  );
+  return islandora_solr_is_typed_field($solr_field, $bool_types);
+}
+
+/**
+ * Check the field type against an array of types.
+ *
+ * @param string $solr_field
+ *   The Solr field name.
+ * @param array $types
+ *   A list of Solr field type classes to check against.
+ *
+ * @return bool
+ *   Whether the field type is in the provided list.
+ */
+function islandora_solr_is_typed_field($solr_field, $types) {
   $luke_result = islandora_solr_get_luke(NULL, $solr_field);
   $type = (isset($luke_result['fields'][$solr_field]['type']) ? $luke_result['fields'][$solr_field]['type'] : FALSE);
   if ($type) {
     $class = islandora_solr_get_type_class($type);
-    return in_array($class, $date_types);
+    return in_array($class, $types);
   }
   return FALSE;
 }
