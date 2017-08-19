@@ -14,11 +14,11 @@ This module requires the following modules/libraries:
 * [Apache Solr](https://lucene.apache.org/solr/) - 4.2 or higher.
 
 ## Installation
- 
+
  Install as usual, see [this](https://drupal.org/documentation/install/modules-themes/modules-7) for further information.
- 
+
 ## Configuration
- 
+
 Select and configure your prefered display handlers in Administration » Islandora » Solr Index » Solr Settings (admin/islandora/search/islandora_solr/settings).
 
 ## Documentation
@@ -26,17 +26,11 @@ Select and configure your prefered display handlers in Administration » Islando
 Further documentation for this module is available at [our wiki](https://wiki.duraspace.org/display/ISLANDORA/Islandora+Solr+Search).
 
 ## Troubleshooting/Issues
- 
+
  Having problems or solved a problem? Check out the Islandora google groups for a solution.
- 
+
  * [Islandora Group](https://groups.google.com/forum/?hl=en&fromgroups#!forum/islandora)
  * [Islandora Dev Group](https://groups.google.com/forum/?hl=en&fromgroups#!forum/islandora-dev)
- 
-## Maintainers/Sponsors
-
-Current maintainers:
-
-* [Nelson Hart](https://github.com/nhart)
 
 ## Development
 
