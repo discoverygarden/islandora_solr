@@ -25,8 +25,8 @@ class IslandoraSolrAdminSettings extends FormBase {
   // @FIXME
 // drupal_set_title() has been removed. There are now a few ways to set the title
 // dynamically, depending on the situation.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2067859
 // drupal_set_title(t('Solr settings'));
 
@@ -581,6 +581,15 @@ class IslandoraSolrAdminSettings extends FormBase {
       drupal_set_message(t('Error: the settings have not been saved.'), 'error');
     }
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    module_load_include('inc', 'islandora_solr', 'includes/admin.inc');
+    _islandora_solr_admin_settings_submit($form, $form_state);
+    parent::submitForm($form, $form_state);
   }
 
 }

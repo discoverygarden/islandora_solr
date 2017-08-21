@@ -198,5 +198,14 @@ class IslandoraSolrAdminIndexSettings extends FormBase {
     return $form;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    module_load_include('inc', 'islandora_solr', 'includes/admin.inc');
+    _islandora_solr_admin_index_settings_submit($form, $form_state);
+    parent::submitForm($form, $form_state);
+  }
+
 }
 ?>
