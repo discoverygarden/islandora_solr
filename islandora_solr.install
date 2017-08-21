@@ -5,6 +5,9 @@
  * Implementations of installation hooks.
  */
 
+use Drupal\Core\Url;
+use Drupal\Core\Link;
+
 /**
  * Implements hook_requirements().
  */
@@ -36,12 +39,12 @@ function islandora_solr_requirements($phase) {
  */
 function islandora_solr_install() {
   $t = 't';
-  // @FIXME
-// url() expects a route name or an external URI.
-// $message = $t('Islandora Solr <a href="!link">configuration page</a>.', array(
-//     '!link' => url('admin/settings/islandora_solr'),
-//   ));
-
+  $message = $t(
+    'Islandora Solr @link',
+    array(
+      '@link' => Link::fromTextAndUrl($t('configuration page'), Url::fromRoute('islandora_solr.admin_settings'))->toString(),
+    )
+  );
   drupal_set_message(\Drupal\Component\Utility\Xss::filter($message));
 }
 
