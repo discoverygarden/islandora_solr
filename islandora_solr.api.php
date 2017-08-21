@@ -217,12 +217,15 @@ function hook_islandora_solr_facet_bucket_classes_alter(&$buckets, &$query_proce
     $value['attr']['class'][] = "use-ajax";
 
     // Update the href to point to another modules menu callback.
-    $value['attr']['href'] = url(
-      "mymodules/superduper/callback",
-      array(
-        'query' => $value['query'],
-      )
-    );
+    // @FIXME
+// url() expects a route name or an external URI.
+// $value['attr']['href'] = url(
+//       "mymodules/superduper/callback",
+//       array(
+//         'query' => $value['query'],
+//       )
+//     );
+
   }
   unset($value);
 }

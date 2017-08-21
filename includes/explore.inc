@@ -15,13 +15,17 @@
 function islandora_solr_explore_generate_links() {
   $output = '';
   $links = array();
-  $expore_config = variable_get('islandora_solr_explore_config', array());
+  // @FIXME
+// Could not extract the default value because it is either indeterminate, or
+// not scalar. You'll need to provide a default value in
+// config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
+$expore_config = \Drupal::config('islandora_solr.settings')->get('islandora_solr_explore_config');
   if (!empty($expore_config)) {
     $qp = new IslandoraSolrQueryProcessor();
     $qp->buildQuery('*:*');
     $qp->solrParams['fl'] = '*';
     $qp->solrParams['facet.limit'] = 100000;
-    $qp->solrParams['facet.mincount'] = variable_get('islandora_solr_facet_min_limit', '2');
+    $qp->solrParams['facet.mincount'] = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_min_limit');
     $qp->solrParams['facet.field'] = array();
     $qp->solrParams['fl'] = 'PID';
     foreach ($expore_config as $index => $option) {
@@ -30,21 +34,33 @@ function islandora_solr_explore_generate_links() {
     $qp->executeQuery(FALSE);
     foreach ($expore_config as $index => $option) {
       $url = htmlspecialchars(urlencode($option['filter']));
-      $links[] = l(
-        htmlentities($option['label']),
-        "islandora/search/$url",
-        array()
-      ) . '&nbsp;<span>(' . htmlentities($qp->islandoraSolrResult['facet_counts']['facet_queries'][$option['filter']]) . ')</span>';
+      // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// $links[] = l(
+//         htmlentities($option['label']),
+//         "islandora/search/$url",
+//         array()
+//       ) . '&nbsp;<span>(' . htmlentities($qp->islandoraSolrResult['facet_counts']['facet_queries'][$option['filter']]) . ')</span>';
+
     }
   }
 
   if (!empty($links)) {
-    $output = theme('item_list', array(
-    'items' => $links,
-    'title' => NULL,
-    'type' => 'ul',
-    'attributes' => array('class' => 'islandora-solr-explore'),
-    ));
+    // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $output = theme('item_list', array(
+//     'items' => $links,
+//     'title' => NULL,
+//     'type' => 'ul',
+//     'attributes' => array('class' => 'islandora-solr-explore'),
+//     ));
+
   }
 
   return $output;
@@ -59,7 +75,7 @@ function islandora_solr_explore_test_facet_query($query) {
   $qp->solrParams['fq'] = $query;
   $qp->solrParams['fl'] = '*';
   $qp->solrParams['facet.limit'] = 1;
-  $qp->solrParams['facet.mincount'] = variable_get('islandora_solr_facet_min_limit', '2');
+  $qp->solrParams['facet.mincount'] = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_min_limit');
   $qp->solrParams['facet.field'] = array();
   $qp->solrParams['fl'] = 'PID';
   $qp->executeQuery(FALSE);

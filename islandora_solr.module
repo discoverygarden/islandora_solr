@@ -254,15 +254,23 @@ function islandora_solr_islandora_solr_primary_display() {
  */
 function islandora_solr($query = NULL, $params = NULL) {
   global $_islandora_solr_queryclass;
-  drupal_add_css(drupal_get_path('module', 'islandora_solr') . '/css/islandora_solr.theme.css');
+  // @FIXME
+// The Assets API has totally changed. CSS, JavaScript, and libraries are now
+// attached directly to render arrays using the #attached property.
+// 
+// 
+// @see https://www.drupal.org/node/2169605
+// @see https://www.drupal.org/node/2408597
+// drupal_add_css(drupal_get_path('module', 'islandora_solr') . '/css/islandora_solr.theme.css');
+
 
   // Url parameters.
   if ($params === NULL) {
     $params = $_GET;
   }
   // Get profiles.
-  $primary_profiles = module_invoke_all('islandora_solr_primary_display');
-  $secondary_profiles = module_invoke_all('islandora_solr_secondary_display');
+  $primary_profiles = \Drupal::moduleHandler()->invokeAll('islandora_solr_primary_display');
+  $secondary_profiles = \Drupal::moduleHandler()->invokeAll('islandora_solr_secondary_display');
 
   // Get the preferred display profile.
   // Order:
@@ -271,7 +279,11 @@ function islandora_solr($query = NULL, $params = NULL) {
   // - Third choice is the base IslandoraSolrResults.
   $enabled_profiles = array();
   // Get enabled displays.
-  $primary_display_array = variable_get('islandora_solr_primary_display_table', array());
+  // @FIXME
+// Could not extract the default value because it is either indeterminate, or
+// not scalar. You'll need to provide a default value in
+// config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
+$primary_display_array = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display_table');
   // If it's set, we take these values.
   if (isset($primary_display_array['enabled'])) {
     foreach ($primary_display_array['enabled'] as $key => $value) {
@@ -287,11 +299,11 @@ function islandora_solr($query = NULL, $params = NULL) {
     $islandora_solr_primary_display = $params['display'];
   }
   else {
-    $islandora_solr_primary_display = variable_get('islandora_solr_primary_display', 'default');
+    $islandora_solr_primary_display = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display');
     // Unset invalid parameter.
     unset($params['display']);
   }
-  $params['islandora_solr_search_navigation'] = variable_get('islandora_solr_search_navigation', FALSE);
+  $params['islandora_solr_search_navigation'] = \Drupal::config('islandora_solr.settings')->get('islandora_solr_search_navigation');
 
   // !!! Set the global variable. !!!
   $_islandora_solr_queryclass = new IslandoraSolrQueryProcessor();
@@ -312,7 +324,7 @@ function islandora_solr($query = NULL, $params = NULL) {
     $profile = $primary_profiles[$islandora_solr_primary_display];
   }
   else {
-    drupal_set_message(check_plain(t('There is an error in the Solr search configuration: the display profile is not found.')), 'error');
+    drupal_set_message(\Drupal\Component\Utility\Html::escape(t('There is an error in the Solr search configuration: the display profile is not found.')), 'error');
     $profile = $primary_profiles['default'];
   }
 
@@ -344,9 +356,9 @@ function islandora_solr($query = NULL, $params = NULL) {
   }
 
   // Debug dump.
-  if (variable_get('islandora_solr_debug_mode', 0)) {
+  if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode')) {
     $message = t('Parameters: <br /><pre>!debug</pre>', array('!debug' => print_r($_islandora_solr_queryclass->solrParams, TRUE)));
-    drupal_set_message(filter_xss($message, array('pre', 'br')), 'status');
+    drupal_set_message(\Drupal\Component\Utility\Xss::filter($message, array('pre', 'br')), 'status');
   }
   return $output;
 }
@@ -460,17 +472,17 @@ function islandora_solr_features_api() {
  */
 function islandora_solr_check_dismax($reset = FALSE) {
   $cache_id = 'islandora_solr_dismax';
-  $cache = $reset ? FALSE : cache_get($cache_id);
+  $cache = $reset ? FALSE : \Drupal::cache()->get($cache_id);
 
   if (!$cache) {
     module_load_include('inc', 'islandora_solr', 'includes/admin');
-    $solr_url = variable_get('islandora_solr_url', 'localhost:8080/solr');
-    $handler = variable_get('islandora_solr_request_handler', FALSE);
+    $solr_url = \Drupal::config('islandora_solr.settings')->get('islandora_solr_url');
+    $handler = \Drupal::config('islandora_solr.settings')->get('islandora_solr_request_handler');
     $dismax = _islandora_solr_check_dismax($solr_url, $handler);
-    cache_set($cache_id, $dismax, 'cache', CACHE_TEMPORARY);
+    \Drupal::cache('cache')->set($cache_id, $dismax, CACHE_TEMPORARY);
 
     // XXX: This Drupal variable should be deprecated.
-    variable_set('islandora_solr_dismax_allowed', $dismax);
+    \Drupal::configFactory()->getEditable('islandora_solr.settings')->set('islandora_solr_dismax_allowed', $dismax)->save();
 
     return $dismax;
   }
@@ -501,13 +513,21 @@ function islandora_solr_islandora_object_purged($pid) {
   // index.  Useful for pages that may rely on a solr query for displaying data
   // and require the index update to be instantaneous so that the object is not
   // included in any query results immediately after a purge.
-  if (variable_get('islandora_solr_force_update_index_after_object_purge', 0) == 1) {
+  if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_force_update_index_after_object_purge') == 1) {
     $options = array(
       'method' => 'POST',
       'data' => "<update><delete><id>{$pid}</id></delete><commit/></update>",
       'headers' => array('Content-Type' => 'text/xml; charset=UTF-8'),
     );
-    $response = drupal_http_request(variable_get('islandora_solr_url', 'localhost:8080/solr') . '/update', $options);
+    // @FIXME
+// drupal_http_request() has been replaced by the Guzzle HTTP client, which is bundled
+// with Drupal core.
+// 
+// 
+// @see https://www.drupal.org/node/1862446
+// @see http://docs.guzzlephp.org/en/latest
+// $response = drupal_http_request(\Drupal::config('islandora_solr.settings')->get('islandora_solr_url') . '/update', $options);
+
   }
 }
 
@@ -515,7 +535,7 @@ function islandora_solr_islandora_object_purged($pid) {
  * Implements hook_islandora_basic_collection_build_manage_object().
  */
 function islandora_solr_islandora_basic_collection_build_manage_object($form_state, $object) {
-  if (variable_get('islandora_solr_individual_collection_sorting', FALSE)) {
+  if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_individual_collection_sorting')) {
     module_load_include('inc', 'islandora_solr', 'includes/collection_sort.form');
     $form_state['manage_collection_object']['manage_collection_solr_sort'] = array(
       '#id' => 'manage-collection-solr-sort',
@@ -523,7 +543,7 @@ function islandora_solr_islandora_basic_collection_build_manage_object($form_sta
       '#access' => TRUE,
       '#type' => 'fieldset',
       '#title' => t('Set Solr Sort String'),
-      'form' => drupal_get_form('islandora_solr_manage_collection_sort_form', $object),
+      'form' => \Drupal::formBuilder()->getForm('islandora_solr_manage_collection_sort_form', $object),
     );
     return $form_state;
   }
@@ -543,28 +563,28 @@ function islandora_solr_form_islandora_basic_collection_admin_alter(&$form, &$fo
     '#title' => t('Sort field for collection query'),
     '#size' => 100,
     '#description' => t('One or more non-multivalued Solr fields to sort by when using the Solr collection query backend (by convention, multivalued fields have names that contain "_m" plus another letter at the end of their Solr names). Add " asc" or " desc" after each fieldname. If this setting is empty, the Solr default query sort will be used.'),
-    '#default_value' => variable_get('islandora_solr_collection_sort', ''),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_collection_sort'),
     '#states' => $states,
   );
   $form['display_generation_fieldset']['islandora_collection_display']['islandora_solr_individual_collection_sorting'] = array(
     '#type' => 'checkbox',
     '#title' => t('Allow individual sort strings per-collection'),
     '#description' => t('Allows per-collection sort strings to be configured. These sort strings can be set on the collection configuration page for individual collection objects.'),
-    '#default_value' => variable_get('islandora_solr_individual_collection_sorting', FALSE),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_individual_collection_sorting'),
     '#states' => $states,
   );
   $form['display_generation_fieldset']['islandora_collection_display']['islandora_solr_collection_sort_block_override'] = array(
     '#type' => 'checkbox',
     '#title' => t('Allow Solr sort block to override collection sort'),
     '#description' => t('Allows Solr sort block to override collection and default collection sort settings.'),
-    '#default_value' => variable_get('islandora_solr_collection_sort_block_override', FALSE),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_collection_sort_block_override'),
     '#states' => $states,
   );
   $form['display_generation_fieldset']['islandora_collection_display']['islandora_solr_collection_result_limit_block_override'] = array(
     '#type' => 'checkbox',
     '#title' => t('Allow Solr result limit block to override collection limit'),
     '#description' => t('Allows Solr result limit block to override the default collection limit.'),
-    '#default_value' => variable_get('islandora_solr_collection_result_limit_block_override', FALSE),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_collection_result_limit_block_override'),
     '#states' => $states,
   );
 }

@@ -81,7 +81,7 @@ function islandora_solr_check_http($url) {
 function islandora_solr_get_luke($solr_url = NULL, $field = NULL, $num_terms = 0, $show_schema = FALSE) {
   if (!$solr_url) {
     // Create URL.
-    $solr_url = variable_get('islandora_solr_url', 'localhost:8080/solr');
+    $solr_url = \Drupal::config('islandora_solr.settings')->get('islandora_solr_url');
   }
   // If Solr is available get Luke.
   if (islandora_solr_ping($solr_url)) {
@@ -106,12 +106,23 @@ function islandora_solr_get_luke($solr_url = NULL, $field = NULL, $num_terms = 0
       $luke_query['show'] = 'schema';
     }
     // Generate nice URL.
-    $luke_url = url($luke_url, array('absolute' => TRUE, 'query' => $luke_query));
+    // @FIXME
+// url() expects a route name or an external URI.
+// $luke_url = url($luke_url, array('absolute' => TRUE, 'query' => $luke_query));
+
     // Need to set a timeout greater than the default 30 seconds as some indexes
     // could contain a lot of fields and the Luke needs longer to respond in
     // kind.
-    $timeout = variable_get('islandora_solr_luke_timeout', '45');
-    $r = drupal_http_request($luke_url, array('timeout' => $timeout));
+    $timeout = \Drupal::config('islandora_solr.settings')->get('islandora_solr_luke_timeout');
+    // @FIXME
+// drupal_http_request() has been replaced by the Guzzle HTTP client, which is bundled
+// with Drupal core.
+// 
+// 
+// @see https://www.drupal.org/node/1862446
+// @see http://docs.guzzlephp.org/en/latest
+// $r = drupal_http_request($luke_url, array('timeout' => $timeout));
+
     if ($r->code / 100 === 2) {
       $luke_json = $r->data;
       // Parse JSON.

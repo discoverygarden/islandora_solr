@@ -77,7 +77,7 @@ class IslandoraSolrQueryProcessor {
    */
   public function buildAndExecuteQuery($query, $params = NULL, $alter_results = TRUE) {
     // Set empty string.
-    if (variable_get('islandora_solr_request_handler', '') == 'standard') {
+    if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_request_handler') == 'standard') {
       if (!$query || $query == ' ') {
         $query = '%252F';
       }
@@ -125,7 +125,7 @@ class IslandoraSolrQueryProcessor {
       // So we can allow empty queries to dismax.
       $this->solrQuery = ' ';
       // Set base query.
-      $this->internalSolrQuery = variable_get('islandora_solr_base_query', '*:*');
+      $this->internalSolrQuery = \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_query');
 
       // We must also undo dismax if it has been set.
       $this->solrDefType = NULL;
@@ -155,7 +155,7 @@ class IslandoraSolrQueryProcessor {
       }
     }
     else {
-      $base_sort = variable_get('islandora_solr_base_sort', '');
+      $base_sort = \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_sort');
       $base_sort = trim($base_sort);
       if (!empty($base_sort)) {
         $this->solrParams['sort'] = $base_sort;
@@ -168,14 +168,14 @@ class IslandoraSolrQueryProcessor {
       $this->display = $this->internalSolrParams['display'];
     }
     else {
-      $this->display = variable_get('islandora_solr_primary_display', 'default');
+      $this->display = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display');
     }
 
     // Get pager variable.
     $start_page = isset($_GET['page']) ? $_GET['page'] : 0;
 
     // Set results limit.
-    $this->solrLimit = isset($this->internalSolrParams['limit']) ? $this->internalSolrParams['limit'] : variable_get('islandora_solr_num_of_results', 20);
+    $this->solrLimit = isset($this->internalSolrParams['limit']) ? $this->internalSolrParams['limit'] : \Drupal::config('islandora_solr.settings')->get('islandora_solr_num_of_results');
 
     // Set solr start.
     $this->solrStart = max(0, $start_page) * $this->solrLimit;
@@ -187,12 +187,12 @@ class IslandoraSolrQueryProcessor {
     // Set params.
     $params_array = array(
       'facet' => 'true',
-      'facet.mincount' => variable_get('islandora_solr_facet_min_limit', '2'),
-      'facet.limit' => variable_get('islandora_solr_facet_max_limit', '20'),
+      'facet.mincount' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_min_limit'),
+      'facet.limit' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_max_limit'),
       'facet.field' => explode(',', $facet_fields),
     );
 
-    $request_handler = variable_get('islandora_solr_request_handler', FALSE);
+    $request_handler = \Drupal::config('islandora_solr.settings')->get('islandora_solr_request_handler');
     if ($request_handler) {
       $params_array['qt'] = $request_handler;
     }
@@ -237,13 +237,13 @@ class IslandoraSolrQueryProcessor {
     }
 
     // Determine the default facet sort order.
-    $default_sort = (variable_get('islandora_solr_facet_max_limit', '20') <= 0 ? 'index' : 'count');
+    $default_sort = (\Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_max_limit') <= 0 ? 'index' : 'count');
 
     $facet_sort_array = array();
     foreach (array_merge($facet_array, $facet_dates) as $key => $value) {
       if (isset($value['solr_field_settings']['sort_by']) && $value['solr_field_settings']['sort_by'] != $default_sort) {
         // If the sort doesn't match default then specify it in the parameters.
-        $facet_sort_array["f.{$key}.facet.sort"] = check_plain($value['solr_field_settings']['sort_by']);
+        $facet_sort_array["f.{$key}.facet.sort"] = \Drupal\Component\Utility\Html::escape($value['solr_field_settings']['sort_by']);
       }
     }
     $params_array = array_merge($params_array, $facet_sort_array);
@@ -266,7 +266,7 @@ class IslandoraSolrQueryProcessor {
     $this->solrParams = array_merge($this->solrParams, $params_array);
 
     // Set base filters.
-    $base_filters = preg_split("/\\r\\n|\\n|\\r/", variable_get('islandora_solr_base_filter', ''), -1, PREG_SPLIT_NO_EMPTY);
+    $base_filters = preg_split("/\\r\\n|\\n|\\r/", \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_filter'), -1, PREG_SPLIT_NO_EMPTY);
 
     // Adds ability for modules to include facets which will not show up in
     // breadcrumb trail.
@@ -285,7 +285,7 @@ class IslandoraSolrQueryProcessor {
     }
 
     // Restrict results based on specified namespaces.
-    $namespace_list = trim(variable_get('islandora_solr_namespace_restriction', ''));
+    $namespace_list = trim(\Drupal::config('islandora_solr.settings')->get('islandora_solr_namespace_restriction'));
     if ($namespace_list) {
       $namespaces = preg_split('/[,|\s]/', $namespace_list);
       $namespace_array = array();
@@ -296,17 +296,17 @@ class IslandoraSolrQueryProcessor {
     }
 
     if (isset($this->internalSolrParams['type']) && ($this->internalSolrParams['type'] == "dismax" || $this->internalSolrParams['type'] == "edismax")) {
-      if (variable_get('islandora_solr_use_ui_qf', FALSE) || !islandora_solr_check_dismax()) {
+      if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_use_ui_qf') || !islandora_solr_check_dismax()) {
         // Put our "qf" in if we are configured to, or we have none from the
         // request handler.
-        $this->solrParams['qf'] = variable_get('islandora_solr_query_fields', 'dc.title^5 dc.subject^2 dc.description^2 dc.creator^2 dc.contributor^1 dc.type');
+        $this->solrParams['qf'] = \Drupal::config('islandora_solr.settings')->get('islandora_solr_query_fields');
       }
     }
 
     // Invoke a hook for third-party modules to alter the parameters.
     // The hook implementation needs to specify that it takes a reference.
-    module_invoke_all('islandora_solr_query', $this);
-    drupal_alter('islandora_solr_query', $this);
+    \Drupal::moduleHandler()->invokeAll('islandora_solr_query', [$this]);
+    \Drupal::moduleHandler()->alter('islandora_solr_query', $this);
 
     // Reset solrStart incase the number of results (ie. $this->solrLimit) is
     // modified.
@@ -330,7 +330,7 @@ class IslandoraSolrQueryProcessor {
    */
   public function executeQuery($alter_results = TRUE, $use_post = FALSE) {
     // Init Apache_Solr_Service object.
-    $path_parts = parse_url(variable_get('islandora_solr_url', 'localhost:8080/solr'));
+    $path_parts = parse_url(\Drupal::config('islandora_solr.settings')->get('islandora_solr_url'));
     $solr = new Apache_Solr_Service($path_parts['host'], $path_parts['port'], $path_parts['path'] . '/');
     $solr->setCreateDocuments(0);
 
@@ -341,27 +341,27 @@ class IslandoraSolrQueryProcessor {
       $results = $solr->search($solr_query, $this->solrStart, $this->solrLimit, $this->solrParams, $method);
     }
     catch (Exception $e) {
-      drupal_set_message(check_plain(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error');
+      drupal_set_message(\Drupal\Component\Utility\Html::escape(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error');
     }
 
     $object_results = array();
     if (isset($results)) {
       $solr_results = json_decode($results->getRawResponse(), TRUE);
       // Invoke a hook for third-party modules to be notified of the result.
-      module_invoke_all('islandora_solr_query_result', $solr_results);
+      \Drupal::moduleHandler()->invokeAll('islandora_solr_query_result', [$solr_results]);
       // Create results tailored for Islandora's use.
       $object_results = $solr_results['response']['docs'];
-      $content_model_solr_field = variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms');
-      $datastream_field = variable_get('islandora_solr_datastream_id_field', 'fedora_datastreams_ms');
-      $object_label = variable_get('islandora_solr_object_label_field', 'fgs_label_s');
+      $content_model_solr_field = \Drupal::config('islandora_solr.settings')->get('islandora_solr_content_model_field');
+      $datastream_field = \Drupal::config('islandora_solr.settings')->get('islandora_solr_datastream_id_field');
+      $object_label = \Drupal::config('islandora_solr.settings')->get('islandora_solr_object_label_field');
       if (!empty($object_results)) {
         if (isset($this->internalSolrParams['islandora_solr_search_navigation']) && $this->internalSolrParams['islandora_solr_search_navigation']) {
-          $id = bin2hex(drupal_random_bytes(10));
-          $page_params = drupal_get_query_parameters();
+          $id = bin2hex(\Drupal\Component\Utility\Crypt::randomBytes(10));
+          $page_params = \Drupal\Component\Utility\UrlHelper::filterQueryParameters();
           $search_nav_qp = $this;
           $search_nav_qp->islandoraSolrResult = NULL;
           $_SESSION['islandora_solr_search_nav_params'][$id] = array(
-            'path' => current_path(),
+            'path' => \Drupal\Core\Url::fromRoute("<current>")->toString(),
             'query' => $this->solrQuery,
             'query_internal' => $this->internalSolrQuery,
             'limit' => $this->solrLimit,
@@ -405,7 +405,7 @@ class IslandoraSolrQueryProcessor {
           else {
             $object_results[$object_index]['thumbnail_url'] = drupal_get_path('module', 'islandora_solr') . '/images/defaultimg.png';
           }
-          if (variable_get('islandora_solr_search_navigation', FALSE)) {
+          if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_search_navigation')) {
             $url_params['solr_nav']['offset'] = $object_index;
           }
           $object_results[$object_index]['object_url_params'] = $url_params;
@@ -422,12 +422,12 @@ class IslandoraSolrQueryProcessor {
                 // Regex out the info:fedora/ from the content model.
                 $cmodel_name = preg_replace('/info\:fedora\//', '', $content_model_uri, 1);
                 $hook_list = islandora_build_hook_list('islandora_solr_object_result', array($cmodel_name));
-                drupal_alter($hook_list, $object_results[$object_index], $this);
+                \Drupal::moduleHandler()->alter($hook_list, $object_results[$object_index], $this);
               }
             }
           }
           // Hook to alter everything.
-          drupal_alter('islandora_solr_results', $object_results, $this);
+          \Drupal::moduleHandler()->alter('islandora_solr_results', $object_results, $this);
           // Additional Solr doc preparation. Includes field permissions and
           // limitations.
           $object_results = $this->prepareSolrDoc($object_results);
@@ -457,7 +457,7 @@ class IslandoraSolrQueryProcessor {
    */
   public function prepareSolrDoc($object_results) {
     // Optionally limit results to values given.
-    $limit_results = variable_get('islandora_solr_limit_result_fields', 0);
+    $limit_results = \Drupal::config('islandora_solr.settings')->get('islandora_solr_limit_result_fields');
     // Look for fields with no permission.
     $fields_all = islandora_solr_get_fields('result_fields', FALSE);
     $fields_filtered = islandora_solr_get_fields('result_fields');

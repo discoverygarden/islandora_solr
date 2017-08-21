@@ -27,11 +27,11 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
    */
   public function printCSV($islandora_solr_query) {
     global $base_url;
-    $redirect = drupal_parse_url(request_uri());
+    $redirect = \Drupal\Component\Utility\UrlHelper::parse(request_uri());
     // We want to unset the display profile of CSV, but keep everything else.
     $params = $redirect['query'];
     unset($params['solr_profile']);
-    $redirect_url = current_path();
+    $redirect_url = \Drupal\Core\Url::fromRoute("<current>")->toString();
     batch_set($this->batchSolrResults($islandora_solr_query));
     batch_process(array(
       $redirect_url,
@@ -77,7 +77,7 @@ function islandora_solr_config_csv_batch_update_operation($islandora_solr_query,
   $sandbox = &$context['sandbox'];
 
   if (!isset($sandbox['offset'])) {
-    $csv_file_uri = drupal_tempnam('temporary://', 'csv');
+    $csv_file_uri = \Drupal::service("file_system")->tempnam('temporary://', 'csv');
     $context['results']['islandora_solr_csv_file'] = $csv_file_uri;
     $sandbox['offset'] = 0;
     $context['results']['islandora_solr_csv_headers'] = array();
@@ -133,13 +133,13 @@ function islandora_solr_config_csv_batch_update_operation($islandora_solr_query,
  *   The operations array from the batch.
  */
 function islandora_solr_config_csv_download_csv($success, $results, $operations) {
-  global $user;
+  $user = \Drupal::currentUser();
   $export_uri = 'public://csv_export_' . time() . '.csv';
   // We register this file into Drupal so it will be deleted.
   $file = new stdClass();
   $file->fid = NULL;
   $file->uri = $export_uri;
-  $file->filename = drupal_basename($export_uri);
+  $file->filename = \Drupal::service("file_system")->basename($export_uri);
   $file->filemime = file_get_mimetype($file->uri);
   $file->uid = $user->uid;
   $fp = fopen($export_uri, 'w');
@@ -150,7 +150,10 @@ function islandora_solr_config_csv_download_csv($success, $results, $operations)
   fclose($fp);
   fclose($tmp_file);
   file_unmanaged_delete($results['islandora_solr_csv_file']);
-  drupal_set_message(filter_xss(t('The exported results CSV is available for download !url.', array(
-    '!url' => l(t('here'), file_create_url($export_uri)),
-  ))));
+  // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// drupal_set_message(\Drupal\Component\Utility\Xss::filter(t('The exported results CSV is available for download !url.', array(
+//     '!url' => l(t('here'), file_create_url($export_uri)),
+//   ))));
+
 }

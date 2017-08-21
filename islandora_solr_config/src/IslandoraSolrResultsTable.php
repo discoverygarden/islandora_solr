@@ -1,10 +1,5 @@
 <?php
-
-/**
- * @file
- * Contains methods to search solr and display results. Depends on
- * Apache_Solr_Php client.
- */
+namespace Drupal\islandora_solr_config;
 
 /**
  * Extension of IslandoraSolrResults to create an alternative display type.

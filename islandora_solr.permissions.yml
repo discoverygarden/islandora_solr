@@ -1,0 +1,6 @@
+'search islandora solr':
+  title: 'Search the Solr index'
+  description: 'Search for objects in the repository using Solr. This permission exposes the search blocks and allows you to see search results.'
+'administer islandora solr':
+  title: 'Administer Solr'
+  description: 'Administer settings for the Solr client.'

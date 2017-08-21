@@ -16,6 +16,11 @@ function islandora_solr_config_uninstall() {
     'islandora_solr_table_profile_table_class',
   );
   foreach ($variables as $variable) {
-    variable_del($variable);
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// variable_del($variable);
+
   }
 }

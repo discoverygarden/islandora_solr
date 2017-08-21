@@ -38,7 +38,7 @@ function islandora_solr_get_fields($field_type = NULL, $filter = TRUE, $simplifi
   }
   catch (Exception $e) {
     if ($e->errorInfo[0] == '42S02') {
-      drupal_set_message(t('Islandora Solr fields table not found. Try running <a href="@update_url">update.php</a>.', array('@update_url' => url('update.php'))), 'error');
+      drupal_set_message(t('Islandora Solr fields table not found. Try running <a href="@update_url">update.php</a>.', array('@update_url' => \Drupal\Core\Url::fromRoute('system.db_update'))), 'error');
     }
     else {
       drupal_set_message($e->getMessage(), 'error');
@@ -54,7 +54,7 @@ function islandora_solr_get_fields($field_type = NULL, $filter = TRUE, $simplifi
     $records = _islandora_solr_filter_fields($records);
   }
 
-  if (module_exists('i18n_string')) {
+  if (\Drupal::moduleHandler()->moduleExists('i18n_string')) {
     islandora_solr_translate_field_labels($records);
   }
 
@@ -85,7 +85,7 @@ function islandora_solr_get_fields($field_type = NULL, $filter = TRUE, $simplifi
  * @see islandora_solr_get_fields()
  */
 function _islandora_solr_filter_fields($records = array()) {
-  global $user;
+  $user = \Drupal::currentUser();
 
   // No checks for user 1.
   if ($user->uid == 1) {
@@ -288,7 +288,7 @@ function islandora_solr_translate_field_labels(array &$records) {
  */
 function islandora_solr_get_collection_sort_string($pid, $use_fallbacks = FALSE) {
   // Try to get the collection sort entry for this collection, if enabled.
-  if (variable_get('islandora_solr_individual_collection_sorting', FALSE)) {
+  if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_individual_collection_sorting')) {
     $query = db_select('islandora_solr_collection_sort_strings', 'ss')
       ->fields('ss', array('sort_string'))
       ->condition('collection_pid', $pid, '=')
@@ -302,11 +302,11 @@ function islandora_solr_get_collection_sort_string($pid, $use_fallbacks = FALSE)
 
   // Fall back, if wanted.
   if ($use_fallbacks) {
-    $sort = variable_get('islandora_solr_collection_sort', '');
+    $sort = \Drupal::config('islandora_solr.settings')->get('islandora_solr_collection_sort');
     if (!empty($sort)) {
       return $sort;
     }
-    $sort = variable_get('islandora_solr_base_sort', '');
+    $sort = \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_sort');
     if (!empty($sort)) {
       return $sort;
     }

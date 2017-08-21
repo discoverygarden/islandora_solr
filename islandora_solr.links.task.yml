@@ -1,0 +1,12 @@
+islandora_solr.admin_index_settings:
+  route_name: islandora_solr.admin_index_settings
+  title: 'Solr index'
+  base_route: islandora_solr.admin_index_settings
+islandora_solr.admin_settings:
+  route_name: islandora_solr.admin_settings
+  title: 'Solr settings'
+  base_route: islandora_solr.admin_index_settings
+islandora_solr.admin_breadcrumbs_settings:
+  route_name: islandora_solr.admin_breadcrumbs_settings
+  title: 'Solr breadcrumbs'
+  base_route: islandora_solr.admin_index_settings

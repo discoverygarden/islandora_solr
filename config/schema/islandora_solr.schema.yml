@@ -1,0 +1,86 @@
+islandora_solr.settings:
+  type: mapping
+  label: Settings
+  mapping:
+    islandora_solr_url:
+      type: string
+    islandora_solr_luke_timeout:
+      type: string
+    islandora_solr_debug_mode:
+      type: integer
+    islandora_solr_facet_date_start:
+      type: string
+    islandora_solr_facet_date_end:
+      type: string
+    islandora_solr_facet_date_gap:
+      type: string
+    islandora_solr_facet_date_format:
+      type: string
+    islandora_solr_breadcrumbs_add_collection_query:
+      type: boolean
+    islandora_solr_breadcrumbs_parents:
+      type: string
+    islandora_solr_search_truncated_field_value_separator:
+      type: string
+    islandora_solr_search_field_value_separator:
+      type: string
+    islandora_solr_member_of_field:
+      type: string
+    islandora_solr_member_of_collection_field:
+      type: string
+    islandora_solr_collection_result_limit_block_override:
+      type: boolean
+    islandora_solr_num_of_results:
+      type: string
+    islandora_solr_collection_sort_block_override:
+      type: boolean
+    islandora_solr_base_filter:
+      type: string
+    islandora_solr_individual_collection_sorting:
+      type: boolean
+    islandora_solr_collection_sort:
+      type: string
+    islandora_solr_base_sort:
+      type: string
+    islandora_solr_facet_min_limit:
+      type: string
+    islandora_solr_primary_display:
+      type: string
+    islandora_solr_search_navigation:
+      type: boolean
+    islandora_solr_request_handler:
+      type: boolean
+    islandora_solr_force_update_index_after_object_purge:
+      type: integer
+    islandora_solr_base_query:
+      type: string
+    islandora_solr_facet_max_limit:
+      type: string
+    islandora_solr_namespace_restriction:
+      type: string
+    islandora_solr_use_ui_qf:
+      type: boolean
+    islandora_solr_query_fields:
+      type: string
+    islandora_solr_content_model_field:
+      type: string
+    islandora_solr_datastream_id_field:
+      type: string
+    islandora_solr_object_label_field:
+      type: string
+    islandora_solr_limit_result_fields:
+      type: integer
+    islandora_solr_human_friendly_query_block:
+      type: boolean
+    islandora_solr_facet_soft_limit:
+      type: string
+    islandora_solr_search_boolean:
+      type: string
+    islandora_solr_allow_preserve_filters:
+      type: boolean
+    islandora_solr_advanced_search_block_lucene_syntax_escape:
+      type: boolean
+    islandora_solr_base_advanced:
+      type: boolean
+    islandora_solr_breadcrumbs_parent_fields:
+      type: string
