@@ -46,30 +46,6 @@ function islandora_solr_install() {
 }
 
 /**
- * Implements hook_uninstall().
- *
- * If making changes to the islandora_solr_admin_settings() form, add
- * variables to the islandora_solr_serch_settings_variables() array.
- */
-function islandora_solr_uninstall() {
-  // Removing variables.
-  $variables = array_merge(islandora_solr_search_settings_variables(), array(
-    'islandora_solr_url',
-    'islandora_solr_dismax_allowed',
-    'islandora_solr_collection_sort',
-    'islandora_solr_collection_sort_block_override',
-    'islandora_solr_individual_collection_sorting',
-    'islandora_solr_force_update_index_after_object_purge',
-    'islandora_solr_search_field_value_separator',
-    'islandora_solr_search_truncated_field_value_separator',
-    'islandora_solr_collection_result_limit_block_override',
-    'islandora_solr_breadcrumbs_parent_fields',
-    'islandora_solr_breadcrumbs_add_collection_query',
-  ));
-  array_walk($variables, 'variable_del');
-}
-
-/**
  * Implements hook_schema().
  */
 function islandora_solr_schema() {
