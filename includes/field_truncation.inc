@@ -94,7 +94,7 @@ EOXML;
    *   The remaining truncation length.
    */
   protected function truncateText($text, $remaining) {
-    return truncate_utf8(
+    return \Drupal\Component\Utility\Unicode::truncate(
       $text,
       $remaining,
       $this->wordSafe,
@@ -138,7 +138,7 @@ EOXML;
         case XML_TEXT_NODE:
         case XML_CDATA_SECTION_NODE:
           $current = $child->nodeValue;
-          $current_length = drupal_strlen($current);
+          $current_length = \Drupal\Component\Utility\Unicode::strlen($current);
 
           $this->writer->text($this->truncateText($current, $remaining));
           $remaining -= $current_length;

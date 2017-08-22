@@ -1,0 +1,48 @@
+islandora_solr.islandora_solr:
+  path: /islandora/search
+  defaults:
+    _title: 'Search results'
+    _controller: '\Drupal\islandora_solr\Controller\DefaultController::islandora_solr'
+  requirements:
+    _permission: 'search islandora solr'
+islandora_solr.admin_index_settings:
+  path: /admin/islandora/search/islandora_solr/index
+  defaults:
+    _title: 'Solr index'
+    _form: \Drupal\islandora_solr\Form\IslandoraSolrAdminIndexSettings
+  requirements:
+    _permission: 'administer islandora solr'
+islandora_solr.admin_settings:
+  path: /admin/islandora/search/islandora_solr/settings
+  defaults:
+    _title: 'Solr settings'
+    _form: \Drupal\islandora_solr\Form\IslandoraSolrAdminSettings
+  requirements:
+    _permission: 'administer islandora solr'
+islandora_solr.admin_breadcrumbs_settings:
+  path: /admin/islandora/search/islandora_solr/breadcrumbs
+  defaults:
+    _title: 'Solr breadcrumbs'
+    _form: \Drupal\islandora_solr\Form\IslandoraSolrAdminBreadcrumbsSettings
+  requirements:
+    _permission: 'administer islandora solr'
+islandora_solr.admin_settings_field:
+  path: /islandora_solr/field
+  defaults:
+    _title: 'Result field'
+  requirements:
+    _permission: 'administer islandora solr'
+islandora_solr.autocomplete_luke:
+  path: /islandora_solr/autocomplete_luke
+  defaults:
+    _title: 'Islandora Solr Luke autocomplete'
+    _controller: '\Drupal\islandora_solr\Controller\DefaultController::_islandora_solr_autocomplete_luke'
+  requirements:
+    _permission: 'administer islandora solr'
+islandora_solr.admin_settings_default_confirm_form:
+  path: /admin/islandora/search/islandora_solr/settings/confirmation
+  defaults:
+    _title: 'Default settings restore'
+    _form: \Drupal\islandora_solr\Form\IslandoraSolrAdminSettingsDefaultConfirmForm
+  requirements:
+    _permission: 'administer islandora solr'

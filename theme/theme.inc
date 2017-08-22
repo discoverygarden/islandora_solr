@@ -66,14 +66,26 @@ function template_preprocess_islandora_solr(&$variables) {
   $results = $variables['results'];
   foreach ($results as $key => $result) {
     // Thumbnail.
-    $path = url($result['thumbnail_url'], array('query' => $result['thumbnail_url_params']));
+    // @FIXME
+// url() expects a route name or an external URI.
+// $path = url($result['thumbnail_url'], array('query' => $result['thumbnail_url_params']));
+
     $image_params = array(
       'path' => $path,
     );
     if (isset($result['object_label'])) {
       $image_params['alt'] = $result['object_label'];
     }
-    $image = theme('image', $image_params);
+    // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $image = theme('image', $image_params);
+
     $options = array('html' => TRUE);
     if (isset($result['object_label'])) {
       $options['attributes']['title'] = $result['object_label'];
@@ -85,7 +97,10 @@ function template_preprocess_islandora_solr(&$variables) {
       $options['fragment'] = $result['object_url_fragment'];
     }
     // Thumbnail link.
-    $variables['results'][$key]['thumbnail'] = l($image, $result['object_url'], $options);
+    // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// $variables['results'][$key]['thumbnail'] = l($image, $result['object_url'], $options);
+
   }
 }
 

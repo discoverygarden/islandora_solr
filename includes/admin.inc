@@ -18,7 +18,7 @@ function islandora_solr_admin_index_settings($form, &$form_state) {
 
   $solr_url = !empty($form_state['values']['islandora_solr_url']) ?
     $form_state['values']['islandora_solr_url'] :
-    variable_get('islandora_solr_url', 'localhost:8080/solr');
+    \Drupal::config('islandora_solr.settings')->get('islandora_solr_url');
 
   // Solr connect triggering handler is dismax or not set on page load.
   if ((isset($form_state['triggering_element']) &&
@@ -29,12 +29,12 @@ function islandora_solr_admin_index_settings($form, &$form_state) {
     // Check for the PHP Solr lib class.
     if (!class_exists('Apache_Solr_Service')) {
       $message = t('This module requires the <a href="!url">Apache Solr PHP Client</a>. Please install the client in the root directory of this module before continuing.', array('!url' => 'http://code.google.com/p/solr-php-client'));
-      drupal_set_message(check_plain($message));
+      drupal_set_message(\Drupal\Component\Utility\Html::escape($message));
       return;
     }
 
     // Get request handler.
-    $handler = !empty($form_state['values']['islandora_solr_request_handler']) ? $form_state['values']['islandora_solr_request_handler'] : variable_get('islandora_solr_request_handler', FALSE);
+    $handler = !empty($form_state['values']['islandora_solr_request_handler']) ? $form_state['values']['islandora_solr_request_handler'] : \Drupal::config('islandora_solr.settings')->get('islandora_solr_request_handler');
 
     if (strpos($solr_url, 'https://') !== FALSE && strpos($solr_url, 'https://') == 0) {
       $confirmation_message = format_string('<img src="@image_url"/>!message', array(
@@ -55,29 +55,35 @@ function islandora_solr_admin_index_settings($form, &$form_state) {
       }
       // Get confirmation message.
       if ($solr_avail) {
-        $confirmation_message = format_string('<img src="@image_url"/>!message', array(
-          '@image_url' => file_create_url('misc/watchdog-ok.png'),
-          '!message' => t('Successfully connected to Solr server at !link. <sub>(!ms ms)</sub>', array(
-            '!link' => l($solr_url, islandora_solr_check_http($solr_url), array(
-              'attributes' => array(
-                'target' => '_blank',
-              ),
-            )),
-            '!ms' => number_format($solr_avail, 2),
-          )),
-        ));
+        // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// $confirmation_message = format_string('<img src="@image_url"/>!message', array(
+//           '@image_url' => file_create_url('misc/watchdog-ok.png'),
+//           '!message' => t('Successfully connected to Solr server at !link. <sub>(!ms ms)</sub>', array(
+//             '!link' => l($solr_url, islandora_solr_check_http($solr_url), array(
+//               'attributes' => array(
+//                 'target' => '_blank',
+//               ),
+//             )),
+//             '!ms' => number_format($solr_avail, 2),
+//           )),
+//         ));
+
       }
       else {
-        $confirmation_message = format_string('<img src="@image_url"/>!message', array(
-          '@image_url' => file_create_url('misc/watchdog-error.png'),
-          '!message' => t('Unable to connect to Solr server at !link.', array(
-            '!link' => l($solr_url, islandora_solr_check_http($solr_url), array(
-              'attributes' => array(
-                'target' => '_blank',
-              ),
-            )),
-          )),
-        ));
+        // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// $confirmation_message = format_string('<img src="@image_url"/>!message', array(
+//           '@image_url' => file_create_url('misc/watchdog-error.png'),
+//           '!message' => t('Unable to connect to Solr server at !link.', array(
+//             '!link' => l($solr_url, islandora_solr_check_http($solr_url), array(
+//               'attributes' => array(
+//                 'target' => '_blank',
+//               ),
+//             )),
+//           )),
+//         ));
+
       }
     }
   }
@@ -146,7 +152,7 @@ function islandora_solr_admin_index_settings($form, &$form_state) {
     '#title' => t('Force update of Solr index after an object is deleted'),
     '#weight' => 5,
     '#description' => t('If checked, deleting objects will also force their removal from the Solr index. <br/><strong>Note:</strong> When active, UI consistency will be increased on any pages using Solr queries for display. This setting is not appropriate for every installation (e.g., on sites with a large volume of Solr commits that hit execution limits, or where the Solr index is not directly writable from Drupal).'),
-    '#default_value' => variable_get('islandora_solr_force_update_index_after_object_purge', 0),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_force_update_index_after_object_purge'),
   );
 
   // Actions.
@@ -193,16 +199,16 @@ function _islandora_solr_admin_index_settings_submit($form, &$form_state) {
 
   switch ($op) {
     case 'edit-submit':
-      variable_set('islandora_solr_url', $form_state['values']['islandora_solr_url']);
-      variable_set('islandora_solr_request_handler', $form_state['values']['islandora_solr_request_handler']);
-      variable_set('islandora_solr_force_update_index_after_object_purge', $form_state['values']['islandora_solr_force_update_index_after_object_purge']);
+      \Drupal::configFactory()->getEditable('islandora_solr.settings')->set('islandora_solr_url', $form_state['values']['islandora_solr_url'])->save();
+      \Drupal::configFactory()->getEditable('islandora_solr.settings')->set('islandora_solr_request_handler', $form_state['values']['islandora_solr_request_handler'])->save();
+      \Drupal::configFactory()->getEditable('islandora_solr.settings')->set('islandora_solr_force_update_index_after_object_purge', $form_state['values']['islandora_solr_force_update_index_after_object_purge'])->save();
       drupal_set_message(t('The Solr configuration options have been saved.'));
       break;
 
     case 'edit-reset':
-      variable_del('islandora_solr_url');
-      variable_del('islandora_solr_request_handler');
-      variable_del('islandora_solr_force_update_index_after_object_purge');
+      \Drupal::config('islandora_solr.settings')->clear('islandora_solr_url')->save();
+      \Drupal::config('islandora_solr.settings')->clear('islandora_solr_request_handler')->save();
+      \Drupal::config('islandora_solr.settings')->clear('islandora_solr_force_update_index_after_object_purge')->save();
       drupal_set_message(t('The configuration options have been reset to their default values.'));
       break;
   }
@@ -225,7 +231,14 @@ function _islandora_solr_admin_index_settings_submit($form, &$form_state) {
  */
 function islandora_solr_admin_settings($form, &$form_state) {
   // Add admin form css.
-  drupal_set_title(t('Solr settings'));
+  // @FIXME
+// drupal_set_title() has been removed. There are now a few ways to set the title
+// dynamically, depending on the situation.
+// 
+// 
+// @see https://www.drupal.org/node/2067859
+// drupal_set_title(t('Solr settings'));
+
 
   $form['#attached'] = array(
     'css' => array(
@@ -261,9 +274,13 @@ function islandora_solr_admin_settings($form, &$form_state) {
   );
 
   // Get the table settings.
-  $primary_display_array = variable_get('islandora_solr_primary_display_table', array());
+  // @FIXME
+// Could not extract the default value because it is either indeterminate, or
+// not scalar. You'll need to provide a default value in
+// config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
+$primary_display_array = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display_table');
   // Get all defined primary displays.
-  $profiles = module_invoke_all("islandora_solr_primary_display");
+  $profiles = \Drupal::moduleHandler()->invokeAll("islandora_solr_primary_display");
 
   // If any primary display profiles are found.
   if (!empty($profiles)) {
@@ -316,16 +333,19 @@ function islandora_solr_admin_settings($form, &$form_state) {
         '#attributes' => array('class' => array('solr-weight')),
       );
       // Configuration URL.
-      $form['display_profiles']['islandora_solr_primary_display_table']['configuration'][$machine_name] = array(
-        '#type' => 'item',
-        '#markup' => (isset($profile['configuration']) && $profile['configuration'] != '') ? l(t('configure'), $profile['configuration']) : '',
-      );
+      // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// $form['display_profiles']['islandora_solr_primary_display_table']['configuration'][$machine_name] = array(
+//         '#type' => 'item',
+//         '#markup' => (isset($profile['configuration']) && $profile['configuration'] != '') ? l(t('configure'), $profile['configuration']) : '',
+//       );
+
     }
     // Default display.
     $form['display_profiles']['islandora_solr_primary_display_table']['default'] = array(
       '#type' => 'radios',
       '#options' => $options,
-      '#default_value' => variable_get('islandora_solr_primary_display', 'default'),
+      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display'),
     );
     // Enabled display.
     $form['display_profiles']['islandora_solr_primary_display_table']['enabled'] = array(
@@ -336,17 +356,21 @@ function islandora_solr_admin_settings($form, &$form_state) {
   }
 
   // Secondary profiles.
-  $profiles = module_invoke_all("islandora_solr_secondary_display");
+  $profiles = \Drupal::moduleHandler()->invokeAll("islandora_solr_secondary_display");
   ksort($profiles);
   foreach ($profiles as $machine_name => $profile) {
     $islandora_solr_secondary_display_options[$machine_name] = $profile['name'];
   }
   if (!empty($islandora_solr_secondary_display_options)) {
-    $form['display_profiles']['islandora_solr_secondary_display'] = array(
+    // @FIXME
+// Could not extract the default value because it is either indeterminate, or
+// not scalar. You'll need to provide a default value in
+// config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
+$form['display_profiles']['islandora_solr_secondary_display'] = array(
       '#type' => 'checkboxes',
       '#title' => t('Secondary display profiles'),
       '#options' => $islandora_solr_secondary_display_options,
-      '#default_value' => variable_get('islandora_solr_secondary_display', array()),
+      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_secondary_display'),
       '#description' => "Enabled secondary output/download types for search results.",
     );
   }
@@ -381,7 +405,7 @@ function islandora_solr_admin_settings($form, &$form_state) {
     '#type' => 'checkbox',
     '#title' => t('Limit results to fields listed above?'),
     '#return_value' => 1,
-    '#default_value' => variable_get('islandora_solr_limit_result_fields', 0),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_limit_result_fields'),
     '#description' => t('If checked, results displayed will be limited to the fields specified above. The order of the display fields is only enforced when this is enabled.<br /><strong>Note:</strong> some display profiles may not honour this value.'),
   );
   $form['islandora_solr_tabs']['default_display_settings']['islandora_solr_num_of_results'] = array(
@@ -389,32 +413,36 @@ function islandora_solr_admin_settings($form, &$form_state) {
     '#title' => t('Results per page'),
     '#size' => 5,
     '#description' => t('Default number of results to show per page.'),
-    '#default_value' => variable_get('islandora_solr_num_of_results', '20'),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_num_of_results'),
   );
-  $form['islandora_solr_tabs']['default_display_settings']['islandora_solr_num_of_results_advanced'] = array(
+  // @FIXME
+// Could not extract the default value because it is either indeterminate, or
+// not scalar. You'll need to provide a default value in
+// config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
+$form['islandora_solr_tabs']['default_display_settings']['islandora_solr_num_of_results_advanced'] = array(
     '#type' => 'textfield',
     '#title' => t('Advanced results per page'),
     '#size' => 5,
     '#description' => t('Comma seperated list of integers to increase or decrease results per page.'),
-    '#default_value' => implode(',', variable_get('islandora_solr_num_of_results_advanced', array())),
+    '#default_value' => implode(',', \Drupal::config('islandora_solr.settings')->get('islandora_solr_num_of_results_advanced')),
   );
   $form['islandora_solr_tabs']['default_display_settings']['islandora_solr_search_navigation'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable search navigation block'),
     '#description' => t('Add navigation params to object links.'),
-    '#default_value' => variable_get('islandora_solr_search_navigation', FALSE),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_search_navigation'),
   );
   $form['islandora_solr_tabs']['default_display_settings']['islandora_solr_search_field_value_separator'] = array(
     '#type' => 'textfield',
     '#title' => t('Field value separator'),
     '#description' => t('Characters to separate values in multivalued fields. If left empty it will default to @value.', array('@value' => '", "')),
-    '#default_value' => variable_get('islandora_solr_search_field_value_separator', ', '),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_search_field_value_separator'),
   );
   $form['islandora_solr_tabs']['default_display_settings']['islandora_solr_search_truncated_field_value_separator'] = array(
     '#type' => 'textfield',
     '#title' => t('Truncated field value separator'),
     '#description' => t('Characters to separate truncated values in multivalued fields. If left empty it will default to line break.'),
-    '#default_value' => variable_get('islandora_solr_search_truncated_field_value_separator', "<br />"),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_search_truncated_field_value_separator'),
   );
   // Sort settings.
   $form['islandora_solr_tabs']['sort'] = array(
@@ -472,21 +500,21 @@ function islandora_solr_admin_settings($form, &$form_state) {
     '#title' => t('Minimum limit'),
     '#size' => 5,
     '#description' => t('The minimum number of results required to display a facet'),
-    '#default_value' => variable_get('islandora_solr_facet_min_limit', '2'),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_min_limit'),
   );
   $form['islandora_solr_tabs']['facet_settings']['islandora_solr_facet_soft_limit'] = array(
     '#type' => 'textfield',
     '#title' => t('Soft limit'),
     '#size' => 5,
     '#description' => t('The number of results which should be displayed initially. If there are more, then the a "Show more" button will allow the rest up to the value below to be displayed. Use 0 to disable.'),
-    '#default_value' => variable_get('islandora_solr_facet_soft_limit', '10'),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_soft_limit'),
   );
   $form['islandora_solr_tabs']['facet_settings']['islandora_solr_facet_max_limit'] = array(
     '#type' => 'textfield',
     '#title' => t('Maximum limit'),
     '#size' => 5,
     '#description' => t('The maximum number of terms that should be returned to the user. For example, if there are 100 possible subjects in a faceted result you may wish to only return the top 10.'),
-    '#default_value' => variable_get('islandora_solr_facet_max_limit', '20'),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_max_limit'),
   );
 
   // Advanced search block.
@@ -522,7 +550,7 @@ function islandora_solr_admin_settings($form, &$form_state) {
   $form['islandora_solr_tabs']['advanced_search_block']['islandora_solr_search_boolean'] = array(
     '#type' => 'radios',
     '#title' => t('Default boolean operator'),
-    '#default_value' => variable_get('islandora_solr_search_boolean', 'user'),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_search_boolean'),
     '#options' => array(
       'user' => t('User-configurable'),
       'AND' => t('AND'),
@@ -533,13 +561,13 @@ function islandora_solr_admin_settings($form, &$form_state) {
   $form['islandora_solr_tabs']['advanced_search_block']['islandora_solr_allow_preserve_filters'] = array(
     '#type' => 'checkbox',
     '#title' => t('Allow Preservation of Filters'),
-    '#default_value' => variable_get('islandora_solr_allow_preserve_filters', FALSE),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_allow_preserve_filters'),
     '#description' => t('Allow users to preserve filters when changing their search.'),
   );
   $form['islandora_solr_tabs']['advanced_search_block']['islandora_solr_human_friendly_query_block'] = array(
     '#type' => 'checkbox',
     '#title' => t('Human-friendly Current Query'),
-    '#default_value' => variable_get('islandora_solr_human_friendly_query_block', TRUE),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_human_friendly_query_block'),
     '#description' => t('Use labels instead of raw field names when displaying an advanced search in the Current Query block.'),
   );
 
@@ -547,13 +575,17 @@ function islandora_solr_admin_settings($form, &$form_state) {
     '#title' => t('Escape Lucene special characters'),
     '#description' => t('Allow the use of lucene syntax string escaping on search terms'),
     '#type' => 'checkbox',
-    '#default_value' => variable_get('islandora_solr_advanced_search_block_lucene_syntax_escape', FALSE),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_advanced_search_block_lucene_syntax_escape'),
   );
 
-  $form['islandora_solr_tabs']['advanced_search_block']['islandora_solr_advanced_search_block_lucene_regex_default'] = array(
+  // @FIXME
+// Could not extract the default value because it is either indeterminate, or
+// not scalar. You'll need to provide a default value in
+// config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
+$form['islandora_solr_tabs']['advanced_search_block']['islandora_solr_advanced_search_block_lucene_regex_default'] = array(
     '#type' => 'textfield',
     '#title' => t('Default regular expression evaluated on search term'),
-    '#default_value' => variable_get('islandora_solr_advanced_search_block_lucene_regex_default', ISLANDORA_SOLR_QUERY_FACET_LUCENE_ESCAPE_REGEX_DEFAULT),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_advanced_search_block_lucene_regex_default'),
     '#description' => t(
       "The default regular expression, used to escape characters when found in search terms. Defaults to @regex",
       array(
@@ -577,7 +609,7 @@ function islandora_solr_admin_settings($form, &$form_state) {
   $form['islandora_solr_tabs']['query_defaults']['islandora_solr_namespace_restriction'] = array(
     '#type' => 'textarea',
     '#title' => t('Limit results to specific namespaces'),
-    '#default_value' => variable_get('islandora_solr_namespace_restriction', ''),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_namespace_restriction'),
     '#description' => t("Enter a space- or comma-separated list of namespaces (for example, 'demo, default') to restrict results to PIDs within those namespaces."),
   );
   $form['islandora_solr_tabs']['query_defaults']['islandora_solr_base_query'] = array(
@@ -588,13 +620,13 @@ function islandora_solr_admin_settings($form, &$form_state) {
       Setting a useful default query allows the use of Solr to browse without having to enter a query.
       This may be used in conjunction with a background filter below.<br />
       Consider using <strong>fgs_createdDate_dt:[* TO NOW]</strong> or <strong>*:*</strong><br />'),
-    '#default_value' => variable_get('islandora_solr_base_query', '*:*'),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_query'),
   );
   $form['islandora_solr_tabs']['query_defaults']['islandora_solr_base_advanced'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use default query for empty advanced searches too'),
     '#description' => t('When selected, an empty advanced search will perform the same as an empty simple search. If not selected, empty advanced searches will search *:*'),
-    '#default_value' => variable_get('islandora_solr_base_advanced', FALSE),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_advanced'),
   );
   $form['islandora_solr_tabs']['query_defaults']['islandora_solr_base_sort'] = array(
     '#type' => 'textfield',
@@ -604,20 +636,20 @@ function islandora_solr_admin_settings($form, &$form_state) {
     For example: <strong>fgs_createdDate_dt desc</strong>.<br /><strong>Note:</strong> only single-valued fields are sortable.
     For more information, check the <a href="!url">Solr documentation</a>.',
       array('!url' => 'http://wiki.apache.org/solr/CommonQueryParameters#sort')),
-    '#default_value' => variable_get('islandora_solr_base_sort', ''),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_sort'),
   );
   $form['islandora_solr_tabs']['query_defaults']['islandora_solr_base_filter'] = array(
     '#type' => 'textarea',
     '#title' => t('Solr base filter'),
     '#description' => t('Lists base filters that are appended to all user queries. This may be used to filter results and facilitate null-query browsing. Enter one filter per line. <br />
       These filters will be applied to all queries in addition to any user-selected facet filters'),
-    '#default_value' => variable_get('islandora_solr_base_filter', ''),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_filter'),
     '#wysiwyg' => FALSE,
   );
   $form['islandora_solr_tabs']['query_defaults']['islandora_solr_query_fields'] = array(
     '#type' => 'textarea',
     '#title' => t('Query fields'),
-    '#default_value' => variable_get('islandora_solr_query_fields', 'dc.title^5 dc.subject^2 dc.description^2 dc.creator^2 dc.contributor^1 dc.type'),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_query_fields'),
     '#description' => t('<a href="@url" target="_blank" title="Solr query fields documentation">Query fields</a> to use for DisMax (simple) searches.', array(
       '@url' => 'http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29',
     )),
@@ -625,7 +657,7 @@ function islandora_solr_admin_settings($form, &$form_state) {
   $form['islandora_solr_tabs']['query_defaults']['islandora_solr_use_ui_qf'] = array(
     '#type' => 'checkbox',
     '#title' => t('Prefer defined query fields?'),
-    '#default_value' => variable_get('islandora_solr_use_ui_qf', FALSE),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_use_ui_qf'),
     '#description' => t('Use the above "@qf" by default; otherwise, they will only be used as a fallback in the case there are none defined in the selected request handler.', array(
       '@qf' => t('Query fields'),
     )),
@@ -644,7 +676,7 @@ function islandora_solr_admin_settings($form, &$form_state) {
     '#title' => t('Content model Solr field'),
     '#size' => 30,
     '#description' => t('Solr field containing the content model URIs. This should be a multivalued string field'),
-    '#default_value' => variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_content_model_field'),
     '#required' => TRUE,
   );
   // Present datastreams Solr field.
@@ -655,7 +687,7 @@ function islandora_solr_admin_settings($form, &$form_state) {
     '#description' => t('Solr field containing the populated datastream IDs.
       This should be a multivalued string field. If this field is not populated,
       the DSID of TN will be assumed valid for thumbnails.'),
-    '#default_value' => variable_get('islandora_solr_datastream_id_field', 'fedora_datastreams_ms'),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_datastream_id_field'),
     '#required' => TRUE,
   );
   // Label Solr field.
@@ -664,7 +696,7 @@ function islandora_solr_admin_settings($form, &$form_state) {
     '#title' => t('Object label Solr field'),
     '#size' => 30,
     '#description' => t("The Solr field containing an object's label. This should be a single valued string field."),
-    '#default_value' => variable_get('islandora_solr_object_label_field', 'fgs_label_s'),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_object_label_field'),
     '#required' => TRUE,
   );
   // The isMemberOf Solr field.
@@ -673,7 +705,7 @@ function islandora_solr_admin_settings($form, &$form_state) {
     '#title' => t('The isMemberOf Solr field'),
     '#size' => 30,
     '#description' => t("The Solr field containing an object's isMemberOf relationship"),
-    '#default_value' => variable_get('islandora_solr_member_of_field', 'RELS_EXT_isMemberOf_uri_ms'),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_field'),
     '#required' => TRUE,
   );
   // The isMemberOfCollection Solr field.
@@ -682,7 +714,7 @@ function islandora_solr_admin_settings($form, &$form_state) {
     '#title' => t('The isMemberOfCollection Solr field'),
     '#size' => 30,
     '#description' => t("The Solr field containing an object's isMemberOfCollection relationship"),
-    '#default_value' => variable_get('islandora_solr_member_of_collection_field', 'RELS_EXT_isMemberOfCollection_uri_ms'),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_collection_field'),
     '#required' => TRUE,
   );
   // Miscellaneous.
@@ -697,7 +729,7 @@ function islandora_solr_admin_settings($form, &$form_state) {
     '#type' => 'checkbox',
     '#title' => t('Debug mode?'),
     '#return_value' => 1,
-    '#default_value' => variable_get('islandora_solr_debug_mode', 0),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode'),
     '#description' => t('Dumps Solr queries to the screen for testing. Warning: if you have the Drupal Apache Solr module enabled alongside this one, the debug function will not work.'),
     '#weight' => 6,
   );
@@ -707,7 +739,7 @@ function islandora_solr_admin_settings($form, &$form_state) {
     '#title' => t('Solr Luke timeout'),
     '#size' => 10,
     '#description' => t("Number of seconds to set timeout for retrieving fields from Solr's Luke interface. Increase this if autocomplete fields containing Solr field names time out."),
-    '#default_value' => variable_get('islandora_solr_luke_timeout', '45'),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_luke_timeout'),
     '#required' => TRUE,
   );
 
@@ -891,7 +923,7 @@ function islandora_solr_admin_settings_fields(&$form_state, &$terms, $field_type
       // Get field + dialog values and merge.
       $values = $form_state['values']['islandora_solr_' . $field_type]['terms'][$field];
       $solr_field = $form_state['values']['islandora_solr_' . $field_type]['terms'][$field]['solr_field'];
-      $solr_field_settings = (array) drupal_array_get_nested_value($form_state, array(
+      $solr_field_settings = (array) \Drupal\Component\Utility\NestedArray::getValue($form_state, array(
         'solr_field_settings',
         'islandora_solr_' . $field_type,
         $solr_field,
@@ -1077,22 +1109,25 @@ function islandora_solr_admin_breadcrumbs_settings(array $form, array &$form_sta
     '#type' => 'fieldset',
     '#title' => t('Breadcrumbs'),
   );
-  $form['islandora_solr_breadcrumbs_admin']['admin'] = array(
-    '#type' => 'markup',
-    '#markup' => l(t('Enable Islandora Solr for Breadcrumbs'), 'admin/islandora/configure'),
-  );
+  // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// $form['islandora_solr_breadcrumbs_admin']['admin'] = array(
+//     '#type' => 'markup',
+//     '#markup' => l(t('Enable Islandora Solr for Breadcrumbs'), 'admin/islandora/configure'),
+//   );
+
   $form['islandora_solr_breadcrumbs_admin']['islandora_solr_breadcrumbs_parent_fields'] = array(
     '#type' => 'textarea',
     '#title' => t('Solr Parent Fields'),
     '#description' => t('A list of Solr fields containing the PIDs of parent objects,
     one per line. Will search top to bottom and stop on the first hit.'),
-    '#default_value' => variable_get('islandora_solr_breadcrumbs_parent_fields', "RELS_EXT_isMemberOfCollection_uri_ms\r\nRELS_EXT_isMemberOf_uri_ms"),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_parent_fields'),
   );
   $form['islandora_solr_breadcrumbs_admin']['islandora_solr_breadcrumbs_add_collection_query'] = array(
     '#type' => 'checkbox',
     '#title' => t('Append query breadcrumbs to collection breadcrumbs'),
     '#description' => t('Appends any additional available breadcrumbs, such as facet breadcrumbs, to the standard collection hierarchy breadcrumbs, if using the Solr collection query backend.'),
-    '#default_value' => variable_get('islandora_solr_breadcrumbs_add_collection_query', FALSE),
+    '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_add_collection_query'),
   );
   return system_settings_form($form);
 }
@@ -1119,24 +1154,24 @@ function theme_islandora_solr_admin_fields($variables) {
   // If no_fields is set, we don't render all the fields.
   if (isset($form['no_fields'])) {
     $row = array();
-    $row[] = array('data' => drupal_render($form['no_fields']), 'colspan' => 10);
+    $row[] = array('data' => \Drupal::service("renderer")->render($form['no_fields']), 'colspan' => 10);
 
     // Add to rows.
     $rows[] = array('data' => $row);
   }
   else {
     foreach ($form['terms'] as $key => $element) {
-      if (is_array($element) && element_child($key)) {
+      if (is_array($element) && \Drupal\Core\Render\Element::child($key)) {
         $row = array();
-        $row[] = array('data' => drupal_render($form['terms'][$key]['draggable_handler']), 'class' => 'islandora-solr-multiple-drag');
-        $row[] = array('data' => drupal_render($form['terms'][$key]['solr_field_render']), 'class' => 'islandora-solr-solr-field-render');
-        $row[] = array('data' => drupal_render($form['terms'][$key]['solr_field_settings']), 'class' => 'islandora-solr-solr-field-settings');
-        $row[] = array('data' => drupal_render($form['terms'][$key]['weight']));
-        $row[] = array('data' => drupal_render($form['terms'][$key]['configure']), 'class' => 'islandora-solr-operations');
-        $row[] = array('data' => drupal_render($form['terms'][$key]['configure_button']), 'class' => 'islandora-solr-operations islandora-solr-operations-hidden');
-        $row[] = array('data' => drupal_render($form['terms'][$key]['remove']), 'class' => 'islandora-solr-operations');
-        $row[] = array('data' => drupal_render($form['terms'][$key]['remove_button']), 'class' => 'islandora-solr-operations islandora-solr-operations-hidden');
-        $row[] = array('data' => drupal_render($form['terms'][$key]['dialog_button']), 'class' => 'islandora-solr-operations islandora-solr-operations-hidden');
+        $row[] = array('data' => \Drupal::service("renderer")->render($form['terms'][$key]['draggable_handler']), 'class' => 'islandora-solr-multiple-drag');
+        $row[] = array('data' => \Drupal::service("renderer")->render($form['terms'][$key]['solr_field_render']), 'class' => 'islandora-solr-solr-field-render');
+        $row[] = array('data' => \Drupal::service("renderer")->render($form['terms'][$key]['solr_field_settings']), 'class' => 'islandora-solr-solr-field-settings');
+        $row[] = array('data' => \Drupal::service("renderer")->render($form['terms'][$key]['weight']));
+        $row[] = array('data' => \Drupal::service("renderer")->render($form['terms'][$key]['configure']), 'class' => 'islandora-solr-operations');
+        $row[] = array('data' => \Drupal::service("renderer")->render($form['terms'][$key]['configure_button']), 'class' => 'islandora-solr-operations islandora-solr-operations-hidden');
+        $row[] = array('data' => \Drupal::service("renderer")->render($form['terms'][$key]['remove']), 'class' => 'islandora-solr-operations');
+        $row[] = array('data' => \Drupal::service("renderer")->render($form['terms'][$key]['remove_button']), 'class' => 'islandora-solr-operations islandora-solr-operations-hidden');
+        $row[] = array('data' => \Drupal::service("renderer")->render($form['terms'][$key]['dialog_button']), 'class' => 'islandora-solr-operations islandora-solr-operations-hidden');
 
         // Add to rows.
         $rows[] = array('data' => $row, 'class' => array('draggable'));
@@ -1161,7 +1196,7 @@ function theme_islandora_solr_admin_fields($variables) {
   $rows_controls[] = array(
     'data' => array(
       array(
-        'data' => drupal_render($form['add_solr_field']) . drupal_render($form['add_more']),
+        'data' => \Drupal::service("renderer")->render($form['add_solr_field']) . \Drupal::service("renderer")->render($form['add_more']),
         'colspan' => 10,
       ),
     ),
@@ -1171,22 +1206,47 @@ function theme_islandora_solr_admin_fields($variables) {
 
   // Render form.
   $output = '';
-  $output .= theme('table', array(
-    'header' => $header,
-    'rows' => $rows,
-    'attributes' => array(
-      'id' => 'islandora-solr-' . $field_type_class,
-      'class' => array('islandora-solr-fields-table'),
-    ),
-  ));
-  $output .= theme('table', array(
-    'header' => array(),
-    'rows' => $rows_controls,
-    'attributes' => array('class' => array('islandora-solr-table-controls')),
-  ));
+  // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $output .= theme('table', array(
+//     'header' => $header,
+//     'rows' => $rows,
+//     'attributes' => array(
+//       'id' => 'islandora-solr-' . $field_type_class,
+//       'class' => array('islandora-solr-fields-table'),
+//     ),
+//   ));
+
+  // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $output .= theme('table', array(
+//     'header' => array(),
+//     'rows' => $rows_controls,
+//     'attributes' => array('class' => array('islandora-solr-table-controls')),
+//   ));
+
   $output .= drupal_render_children($form);
   // Add tabledrag features.
-  drupal_add_tabledrag('islandora-solr-' . $field_type_class, 'order', 'sibling', 'solr-weight-' . $field_type_class);
+  // @FIXME
+// TableDrag is now attached with the #tabledrag property of certain render
+// arrays. drupal_add_tabledrag() is now internal and should never be called directly.
+// 
+// 
+// @see https://www.drupal.org/node/2160571
+// drupal_add_tabledrag('islandora-solr-' . $field_type_class, 'order', 'sibling', 'solr-weight-' . $field_type_class);
+
 
   return $output;
 }
@@ -1206,12 +1266,12 @@ function theme_islandora_solr_admin_fields($variables) {
 function theme_islandora_solr_admin_primary_display($variables) {
   $form = $variables['form'];
 
-  $default = variable_get('islandora_solr_primary_display', 'default');
+  $default = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display');
   $rows = array();
 
   foreach ($form['name'] as $key => $element) {
     // Do not take form control structures.
-    if (is_array($element) && element_child($key)) {
+    if (is_array($element) && \Drupal\Core\Render\Element::child($key)) {
       // Disable checkbox for the default display, because it cannot be
       // disabled.
       if ($key == $default) {
@@ -1219,12 +1279,12 @@ function theme_islandora_solr_admin_primary_display($variables) {
         $form['enabled'][$key]['#checked'] = TRUE;
       }
       $row = array();
-      $row[] = array('data' => drupal_render($form['default'][$key]));
-      $row[] = array('data' => drupal_render($form['enabled'][$key]));
-      $row[] = array('data' => drupal_render($form['name'][$key]), 'title' => $key);
-      $row[] = array('data' => drupal_render($form['machine_name'][$key]));
-      $row[] = array('data' => drupal_render($form['weight'][$key]));
-      $row[] = array('data' => drupal_render($form['configuration'][$key]));
+      $row[] = array('data' => \Drupal::service("renderer")->render($form['default'][$key]));
+      $row[] = array('data' => \Drupal::service("renderer")->render($form['enabled'][$key]));
+      $row[] = array('data' => \Drupal::service("renderer")->render($form['name'][$key]), 'title' => $key);
+      $row[] = array('data' => \Drupal::service("renderer")->render($form['machine_name'][$key]));
+      $row[] = array('data' => \Drupal::service("renderer")->render($form['weight'][$key]));
+      $row[] = array('data' => \Drupal::service("renderer")->render($form['configuration'][$key]));
 
       // Add to rows.
       $rows[] = array('data' => $row, 'class' => array('draggable'));
@@ -1248,15 +1308,31 @@ function theme_islandora_solr_admin_primary_display($variables) {
 
   // Render form.
   $output = '';
-  $output .= theme('table', array(
-    'header' => $header,
-    'rows' => $rows,
-    'attributes' => array('id' => 'solr-primary-display-table'),
-  ));
+  // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $output .= theme('table', array(
+//     'header' => $header,
+//     'rows' => $rows,
+//     'attributes' => array('id' => 'solr-primary-display-table'),
+//   ));
+
   $output .= drupal_render_children($form);
 
   // Add tabledrag features.
-  drupal_add_tabledrag('solr-primary-display-table', 'order', 'sibling', 'solr-weight');
+  // @FIXME
+// TableDrag is now attached with the #tabledrag property of certain render
+// arrays. drupal_add_tabledrag() is now internal and should never be called directly.
+// 
+// 
+// @see https://www.drupal.org/node/2160571
+// drupal_add_tabledrag('solr-primary-display-table', 'order', 'sibling', 'solr-weight');
+
 
   return $output;
 }
@@ -1308,12 +1384,12 @@ function _islandora_solr_admin_settings_submit($form, &$form_state) {
     // XXX: Using the translated string seems like a Bad Idea™.
     case t('Save Solr configuration'):
       // Save primary display table.
-      $old_default = variable_get('islandora_solr_primary_display', 'default');
+      $old_default = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display');
       $new_default = $form_state['values']['islandora_solr_primary_display_table']['default'];
       // Make default enabled.
       $form_state['values']['islandora_solr_primary_display_table']['enabled'][$new_default] = $new_default;
       $form_state['values']['islandora_solr_primary_display_table']['enabled'][$old_default] = $old_default;
-      variable_set('islandora_solr_primary_display', $new_default);
+      \Drupal::configFactory()->getEditable('islandora_solr.settings')->set('islandora_solr_primary_display', $new_default)->save();
 
       // Prepare all field variables to be saved to the DB.
       $insert_values = array();
@@ -1349,7 +1425,7 @@ function _islandora_solr_admin_settings_submit($form, &$form_state) {
                 }
               }
             }
-            if (module_exists('i18n_string')) {
+            if (\Drupal::moduleHandler()->moduleExists('i18n_string')) {
               $to_i18nize = array(
                 'label',
                 'boolean_facet_true_replacement',
@@ -1400,7 +1476,12 @@ function _islandora_solr_admin_settings_submit($form, &$form_state) {
           $value = array_keys(array_filter($value));
         }
         // Set variables.
-        variable_set($key, $value);
+        // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// variable_set($key, $value);
+
       }
 
       drupal_set_message(t('The Solr configuration options have been saved.'));
@@ -1461,7 +1542,7 @@ function _islandora_solr_get_handlers($solr_url) {
  */
 function _islandora_solr_update_solr_url($form, $form_state) {
   unset($form_state['submit_handlers']);
-  form_execute_handlers('submit', $form, $form_state);
+  \Drupal::formBuilder()->executeSubmitHandlers($form, $form_state);
   $form_state['rebuild'] = TRUE;
 
   return $form['solr_ajax_wrapper'];
@@ -1479,7 +1560,7 @@ function _islandora_solr_update_solr_url($form, $form_state) {
  */
 function _islandora_solr_admin_refresh($form, &$form_state) {
   unset($form_state['submit_handlers']);
-  form_execute_handlers('submit', $form, $form_state);
+  \Drupal::formBuilder()->executeSubmitHandlers($form, $form_state);
   $form_state['rebuild'] = TRUE;
 }
 
@@ -1637,8 +1718,8 @@ function _islandora_solr_admin_settings_field_configure($form, &$form_state) {
   $title = t('Configure field:') . ' ' . $solr_field;
   $commands[] = ajax_command_invoke('#islandora-solr-admin-dialog-title', 'html', array($title));
   // Dialog body.
-  $form = drupal_get_form($form_function, $variables);
-  $body = drupal_render($form);
+  $form = \Drupal::formBuilder()->getForm($form_function, $variables);
+  $body = \Drupal::service("renderer")->render($form);
   $commands[] = ajax_command_invoke('#islandora-solr-admin-dialog-body', 'html', array($body));
   // Attach behaviors (re-attaches javascript).
   $commands[] = ajax_command_invoke(NULL, 'islandoraSolrAttachBehaviors', array());
@@ -1718,7 +1799,23 @@ function _islandora_solr_handle_solr_field_settings($solr_field_settings = NULL,
         break;
 
       case 'facet_fields':
-        $fields = drupal_map_assoc(array(
+        $fields = array_combine(array(
+          'label',
+          'range_facet_select',
+          'range_facet_variable_gap',
+          'range_facet_start',
+          'range_facet_end',
+          'range_facet_gap',
+          'date_facet_format',
+          'range_facet_slider_enabled',
+          'range_facet_slider_color',
+          'date_filter_datepicker_enabled',
+          'date_filter_datepicker_range',
+          'pid_object_label',
+          'boolean_facet_true_replacement',
+          'boolean_facet_false_replacement',
+          'sort_by',
+        ), array(
           'label',
           'range_facet_select',
           'range_facet_variable_gap',
@@ -1863,7 +1960,7 @@ function islandora_solr_get_admin_permissions_fieldset($permissions, $permission
  *   This parameter contains default values to be passed from the main form.
  */
 function islandora_solr_admin_settings_result_fields($form, &$form_state, $variables) {
-  form_load_include($form_state, 'inc', 'islandora_solr', 'includes/admin');
+  $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
 
   $form_state['dialog'] = $variables;
 
@@ -2029,7 +2126,7 @@ function islandora_solr_append_permissions_and_actions($values, &$form, $default
  *   This parameter contains default values to be passed from the main form.
  */
 function islandora_solr_admin_settings_search_or_sort_fields($form, &$form_state, $variables) {
-  form_load_include($form_state, 'inc', 'islandora_solr', 'includes/admin');
+  $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
 
   $form_state['dialog'] = $variables;
 
@@ -2056,7 +2153,7 @@ function islandora_solr_admin_settings_search_or_sort_fields($form, &$form_state
  *   This parameter contains default values to be passed from the main form.
  */
 function islandora_solr_admin_settings_facet_fields($form, &$form_state, $variables) {
-  form_load_include($form_state, 'inc', 'islandora_solr', 'includes/admin');
+  $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
 
   $form_state['dialog'] = $variables;
 
@@ -2313,7 +2410,15 @@ function islandora_solr_get_solrconfig_xml($solr_url) {
       $url = "http://$url";
     }
 
-    $req = drupal_http_request($url);
+    // @FIXME
+// drupal_http_request() has been replaced by the Guzzle HTTP client, which is bundled
+// with Drupal core.
+// 
+// 
+// @see https://www.drupal.org/node/1862446
+// @see http://docs.guzzlephp.org/en/latest
+// $req = drupal_http_request($url);
+
     if ($req->code / 100 === 2) {
       $xml[$solr_url] = simplexml_load_string($req->data);
       islandora_solr_resolve_xincludes($xml[$solr_url], (strpos($solr_url, 'http') === 0 ? '' : 'http://') . $solr_url);

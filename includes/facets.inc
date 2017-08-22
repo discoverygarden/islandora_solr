@@ -194,7 +194,7 @@ function islandora_solr_date_filter_form_submit($form, &$form_state) {
   global $_islandora_solr_queryclass;
 
   $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : array();
-  $path = current_path();
+  $path = \Drupal\Core\Url::fromRoute("<current>")->toString();
   $facet_field = $form_state['values']['date_filter_facet_field'];
   $form_key = $form_state['triggering_element']['#form_key'];
 
@@ -275,9 +275,18 @@ function islandora_solr_range_slider_form($form, &$form_state, $elements) {
     'range_from' => format_date(strtotime(trim($from_default['date'])) + 1, 'custom', $date_format, 'UTC'),
     'range_to' => format_date(strtotime(trim($to_default['date'])), 'custom', $date_format, 'UTC'),
   );
-  $form['markup'] = array(
-    '#markup' => theme('islandora_solr_range_slider', $slider_variables),
-  );
+  // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $form['markup'] = array(
+//     '#markup' => theme('islandora_solr_range_slider', $slider_variables),
+//   );
+
   // Hidden from.
   $form['range_slider_hidden_from'] = array(
     '#type' => 'hidden',
@@ -347,7 +356,7 @@ function islandora_solr_range_slider_form_submit($form, &$form_state) {
   // Set variables.
   global $_islandora_solr_queryclass;
   $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : array();
-  $path = current_path();
+  $path = \Drupal\Core\Url::fromRoute("<current>")->toString();
   $form_key = $form_state['triggering_element']['#form_key'];
 
   $term = $form_state['values']['range_slider_term'];

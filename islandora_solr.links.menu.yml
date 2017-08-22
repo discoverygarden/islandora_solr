@@ -1,0 +1,4 @@
+islandora_solr.admin_index_settings:
+  route_name: islandora_solr.admin_index_settings
+  title: 'Solr index'
+  description: 'Configure Solr index.'

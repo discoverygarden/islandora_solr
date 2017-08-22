@@ -15,7 +15,12 @@
 <?php if (empty($rows)): ?>
   <p class="no-results"><?php print t('Sorry, but your search returned no results.'); ?></p>
 <?php else: ?>
-  <table class="<?php print variable_get('islandora_solr_table_profile_table_class', ''); ?>">
+  <table class="<?php // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// print variable_get('islandora_solr_table_profile_table_class', '');
+ ?>">
     <?php foreach($header as $key => $value):?>
       <th>
         <?php print $value; ?>

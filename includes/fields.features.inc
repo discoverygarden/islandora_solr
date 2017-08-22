@@ -70,7 +70,7 @@ function islandora_solr_serialize_solr_field_settings($field) {
  * Implements hook_features_rebuild().
  */
 function islandora_solr_fields_features_rebuild($module_name) {
-  $values = module_invoke($module_name, 'islandora_solr_fields_features_default_fields');
+  $values = \Drupal::moduleHandler()->invoke($module_name, 'islandora_solr_fields_features_default_fields');
   if (!empty($values)) {
     // Get rid of old/existing values.
     db_delete('islandora_solr_fields')

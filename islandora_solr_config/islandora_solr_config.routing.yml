@@ -1,0 +1,14 @@
+islandora_solr_config.admin_rss_settings:
+  path: /admin/islandora/search/islandora_solr/rss
+  defaults:
+    _title: 'RSS settings'
+    _form: \Drupal\islandora_solr_config\Form\IslandoraSolrConfigAdminRssSettings
+  requirements:
+    _permission: 'administer islandora solr'
+islandora_solr_config.admin_table_profile_settings:
+  path: /admin/islandora/search/islandora_solr/table_profile
+  defaults:
+    _title: 'Table Profile Settings'
+    _form: \Drupal\islandora_solr_config\Form\IslandoraSolrConfigAdminTableProfileSettings
+  requirements:
+    _permission: 'administer islandora solr'

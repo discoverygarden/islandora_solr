@@ -1,0 +1,41 @@
+islandora_solr_url: 'localhost:8080/solr'
+islandora_solr_luke_timeout: '45'
+islandora_solr_debug_mode: 0
+islandora_solr_facet_date_start: NOW/YEAR-20YEARS
+islandora_solr_facet_date_end: NOW
+islandora_solr_facet_date_gap: +1YEAR
+islandora_solr_facet_date_format: 'Y'
+islandora_solr_breadcrumbs_add_collection_query: false
+islandora_solr_breadcrumbs_parents: "RELS_EXT_isMemberOfCollection_uri_ms\r\nRELS_EXT_isMemberOf_uri_ms"
+islandora_solr_search_truncated_field_value_separator: '<br />'
+islandora_solr_search_field_value_separator: ', '
+islandora_solr_member_of_field: RELS_EXT_isMemberOf_uri_ms
+islandora_solr_member_of_collection_field: RELS_EXT_isMemberOfCollection_uri_ms
+islandora_solr_collection_result_limit_block_override: false
+islandora_solr_num_of_results: '20'
+islandora_solr_collection_sort_block_override: false
+islandora_solr_base_filter: ''
+islandora_solr_individual_collection_sorting: false
+islandora_solr_collection_sort: ''
+islandora_solr_base_sort: ''
+islandora_solr_facet_min_limit: '2'
+islandora_solr_primary_display: default
+islandora_solr_search_navigation: false
+islandora_solr_request_handler: false
+islandora_solr_force_update_index_after_object_purge: 0
+islandora_solr_base_query: '*:*'
+islandora_solr_facet_max_limit: '20'
+islandora_solr_namespace_restriction: ''
+islandora_solr_use_ui_qf: false
+islandora_solr_query_fields: 'dc.title^5 dc.subject^2 dc.description^2 dc.creator^2 dc.contributor^1 dc.type'
+islandora_solr_content_model_field: RELS_EXT_hasModel_uri_ms
+islandora_solr_datastream_id_field: fedora_datastreams_ms
+islandora_solr_object_label_field: fgs_label_s
+islandora_solr_limit_result_fields: 0
+islandora_solr_human_friendly_query_block: true
+islandora_solr_facet_soft_limit: '10'
+islandora_solr_search_boolean: user
+islandora_solr_allow_preserve_filters: false
+islandora_solr_advanced_search_block_lucene_syntax_escape: false
+islandora_solr_base_advanced: false
+islandora_solr_breadcrumbs_parent_fields: "RELS_EXT_isMemberOfCollection_uri_ms\r\nRELS_EXT_isMemberOf_uri_ms"

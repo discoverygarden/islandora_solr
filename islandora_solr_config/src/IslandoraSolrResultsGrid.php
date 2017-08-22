@@ -1,9 +1,5 @@
 <?php
-
-/**
- * @file
- * Class override for grid display
- */
+namespace Drupal\islandora_solr_config;
 
 /**
  * Extension of IslandoraSolrResults to create an alternative display type.

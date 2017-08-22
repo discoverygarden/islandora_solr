@@ -1,0 +1,8 @@
+name: 'Islandora Solr display profiles'
+description: 'Display profiles for Islandora Solr (Grid, Table and CSV).'
+dependencies:
+  - islandora_solr
+package: 'Islandora Search'
+core: 8.x
+php: '5.5.9'
+type: module

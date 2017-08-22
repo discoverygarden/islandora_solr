@@ -1,4 +1,4 @@
-# Islandora Solr Search [![Build Status](https://travis-ci.org/Islandora/islandora_solr_search.png?branch=7.x)](https://travis-ci.org/Islandora/islandora_solr_search)
+# Islandora Solr Search
 
 ## Introduction
 
@@ -13,11 +13,11 @@ This module requires the following modules/libraries:
 * [Apache Solr](https://lucene.apache.org/solr/) - 4.2 or higher.
 
 ## Installation
- 
+
  Install as usual, see [this](https://drupal.org/documentation/install/modules-themes/modules-7) for further information.
- 
+
 ## Configuration
- 
+
 Set the 'Solr URL' and select a 'Request handler' in Administration » Islandora » Solr Index (admin/islandora/search/islandora_solr).
 
 ![Configuration](http://i.imgur.com/qhELL78.png)
@@ -35,31 +35,17 @@ To enable breadcrumbs, browse to Administration » Islandora » Configuration an
 Further documentation for this module is available at [our wiki](https://wiki.duraspace.org/display/ISLANDORA/Islandora+Solr+Search).
 
 ## Troubleshooting/Issues
- 
+
  Having problems or solved a problem? Check out the Islandora google groups for a solution.
- 
+
  * [Islandora Group](https://groups.google.com/forum/?hl=en&fromgroups#!forum/islandora)
  * [Islandora Dev Group](https://groups.google.com/forum/?hl=en&fromgroups#!forum/islandora-dev)
- 
-## FAQ
 
-Q. Why are some dates not rendered correctly?
- 
-A. On 32 bit systems, the PHP function `strtotime()` has a limited range. Typically from Fri, 13 Dec 1901 20:45:54 UTC to Tue, 19 Jan 2038 03:14:07 UTC. For more info see [this](http://php.net/manual/en/function.strtotime.php#refsect1-function.strtotime-notes).
+## FAQ
 
 Q: Why can't I connect to Solr via https?
 
 A: The Apache Solr PHP Client that we use does not support https connections to Solr. [ISLANDORA-646](https://jira.duraspace.org/browse/ISLANDORA-646) seeks to remedy this.
-
-Q: Advanced search on PID worked in 6.x. Why do I get no results for the same search in 7.x?
-
-A: In 7.x the colon in a PID must be escaped (i.e., islandora:34 becomes islandora\:34) or the entire query must be wrapped in quotation marks  (i,e., "islandora:34").
-
-## Maintainers/Sponsors
-
-Current maintainers:
-
-* [Nelson Hart](https://github.com/nhart)
 
 ## Development
 

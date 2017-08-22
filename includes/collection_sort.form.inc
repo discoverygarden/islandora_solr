@@ -22,8 +22,8 @@ function islandora_solr_manage_collection_sort_form(array $form, array &$form_st
   module_load_include('inc', 'islandora_solr', 'includes/db');
   $current_default = islandora_solr_get_collection_sort_string($object->id);
   $form_state['collection'] = $object->id;
-  $collection_sort = variable_get('islandora_solr_collection_sort', '');
-  $base_sort = variable_get('islandora_solr_base_sort', '');
+  $collection_sort = \Drupal::config('islandora_solr.settings')->get('islandora_solr_collection_sort');
+  $base_sort = \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_sort');
   return array(
     '#action' => request_uri() . '#manage-collection-solr-sort',
     'collection_sort_string' => array(

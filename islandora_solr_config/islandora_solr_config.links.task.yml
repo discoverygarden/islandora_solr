@@ -1,0 +1,6 @@
+islandora_solr_config.admin_rss_settings:
+  route_name: islandora_solr_config.admin_rss_settings
+  title: 'RSS settings'
+islandora_solr_config.admin_table_profile_settings:
+  route_name: islandora_solr_config.admin_table_profile_settings
+  title: 'Table Profile Settings'
