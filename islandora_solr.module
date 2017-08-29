@@ -382,17 +382,12 @@ function islandora_solr_features_api() {
 function islandora_solr_check_dismax($reset = FALSE) {
   $cache_id = 'islandora_solr_dismax';
   $cache = $reset ? FALSE : \Drupal::cache()->get($cache_id);
-
   if (!$cache) {
     module_load_include('inc', 'islandora_solr', 'includes/admin');
     $solr_url = \Drupal::config('islandora_solr.settings')->get('islandora_solr_url');
     $handler = \Drupal::config('islandora_solr.settings')->get('islandora_solr_request_handler');
     $dismax = _islandora_solr_check_dismax($solr_url, $handler);
-    \Drupal::cache('cache')->set($cache_id, $dismax, CACHE_TEMPORARY);
-
-    // XXX: This Drupal variable should be deprecated.
-    \Drupal::configFactory()->getEditable('islandora_solr.settings')->set('islandora_solr_dismax_allowed', $dismax)->save();
-
+    \Drupal::cache()->set($cache_id, $dismax);
     return $dismax;
   }
   else {

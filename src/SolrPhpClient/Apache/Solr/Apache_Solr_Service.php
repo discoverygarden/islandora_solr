@@ -2,6 +2,9 @@
 // @codingStandardsIgnoreStart
 // XXX: This is an included library... Should have minimal changes from
 // upstream.
+
+namespace Drupal\islandora_solr\SolrPhpClient\Apache\Solr;
+
 /**
  * Copyright (c) 2007-2009, Conduit Internet Technologies, Inc.
  * All rights reserved.
@@ -41,8 +44,8 @@
 
 // See Issue #1 (http://code.google.com/p/solr-php-client/issues/detail?id=1)
 // Doesn't follow typical include path conventions, but is more convenient for users
-require_once(dirname(__FILE__) . '/Document.php');
-require_once(dirname(__FILE__) . '/Response.php');
+require_once(dirname(__FILE__) . '/Apache_Solr_Document.php');
+require_once(dirname(__FILE__) . '/Apache_Solr_Response.php');
 
 /**
  * Starting point for the Solr API. Represents a Solr server resource and has
@@ -328,7 +331,7 @@ class Apache_Solr_Service
 			// use the default timeout pulled from default_socket_timeout otherwise
 			stream_context_set_option($this->_getContext, 'http', 'timeout', $this->_defaultTimeout);
 		}
-		
+
 		// Islandora: dump solr query address in debug mode
 		if ( \Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode') ) // @FIXME
 // l() expects a Url object, created from a route name or external URI.

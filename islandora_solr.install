@@ -14,18 +14,14 @@ use Drupal\Core\Link;
 function islandora_solr_requirements($phase) {
   $t = 't';
   $requirements = array();
-
-  // @todo Figure out if in the install file we should load this manually or if
-  //   it loads it from the .info file.
-  module_load_include('php', 'islandora_solr', 'SolrPhpClient/Apache/Solr/Service');
-
+  require_once dirname(__FILE__) . '/src/SolrPhpClient/Apache/Solr/Apache_Solr_Service.php';
   if ($phase == 'install') {
-    if (!class_exists('Apache_Solr_Service')) {
+    if (!class_exists('Drupal\islandora_solr\SolrPhpClient\Apache\Solr\Apache_Solr_Service')) {
       $requirements['islandora_solr'] = array(
         'title' => $t('Missing Apache Client'),
-        'description' => $t('This module requires the !client_link.  Please install the client in the root directory of this module before continuing.', array(
-          '!client_link' => \Drupal::l($t('Apache Solr PHP Client'), \Drupal\Core\Url::fromUri('http://code.google.com/p/solr-php-client')),
-        )),
+        'description' => $t('This module requires the <a href="@url">Apache Solr PHP Client</a>. Please install the client in the root directory of this module before continuing.', [
+          '@url' => 'http://code.google.com/p/solr-php-client',
+        ]),
         'severity' => REQUIREMENT_ERROR,
       );
     }

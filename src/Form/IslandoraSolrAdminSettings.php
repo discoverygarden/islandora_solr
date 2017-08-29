@@ -7,11 +7,10 @@
 
 namespace Drupal\islandora_solr\Form;
 
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
+use Drupal\islandora\Form\IslandoraModuleHandlerAdminForm;
 
-class IslandoraSolrAdminSettings extends FormBase {
+class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
 
   /**
    * {@inheritdoc}
@@ -20,18 +19,18 @@ class IslandoraSolrAdminSettings extends FormBase {
     return 'islandora_solr_admin_settings';
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEditableConfigNames() {
+    return ['islandora_solr.settings'];
+  }
+
+
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    module_load_include('inc', 'islandora', 'includes/utilities');
     // Add admin form css.
-  // @FIXME
-// drupal_set_title() has been removed. There are now a few ways to set the title
-// dynamically, depending on the situation.
-//
-//
-// @see https://www.drupal.org/node/2067859
-// drupal_set_title(t('Solr settings'));
-
-
-    $form['#attached'] = [
+    /*$form['#attached'] = [
       'css' => [
         drupal_get_path('module', 'islandora_solr') . '/css/islandora_solr.admin.css'
         ],
@@ -39,7 +38,7 @@ class IslandoraSolrAdminSettings extends FormBase {
       'js' => [
         drupal_get_path('module', 'islandora_solr') . '/js/islandora_solr.admin.js'
         ],
-    ];
+    ];*/
     $form['islandora_solr_tabs'] = [
       '#type' => 'vertical_tabs',
       '#weight' => 5,
@@ -53,24 +52,32 @@ class IslandoraSolrAdminSettings extends FormBase {
     ];
     // Primary displays.
     $form['display_profiles']['islandora_solr_primary_display_table'] = [
-      '#type' => 'item',
-      '#title' => t('Primary display profiles'),
-      '#description' => t('Preferred normal display profile for search results. These may be provided by third-party modules.'),
-      // This attribute is important to return the submitted values in a deeper
-      // nested arrays in.
-    '#tree' => TRUE,
-      '#theme' => 'islandora_solr_admin_primary_display',
+      '#type' => 'table',
+      '#header' => [
+        'default' => $this->t('Default'),
+        'enabled' => $this->t('Enabled'),
+        'name' => $this->t('Name'),
+        'machine' => $this->t('Machine-Readable Name'),
+        'configuration' => $this->t('Configuration'),
+        'weight' => $this->t('Weight'),
+      ],
+      '#tabledrag' => array(
+        array(
+          'action' => 'order',
+          'relationship' => 'sibling',
+          'group' => 'islandora-solr-primary-display-table-order-weight',
+        ),
+      ),
     ];
-
-    // Get the table settings.
-    // @FIXME
-    // Could not extract the default value because it is either indeterminate, or
-    // not scalar. You'll need to provide a default value in
-    // config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
+    // XXX: Hidden to store the value of the default because tableselects are
+    // still a bastard with values inside of them.
+    $form['islandora_solr_primary_table_default_choice'] = [
+      '#type' => 'value',
+    ];
     $primary_display_array = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display_table');
-    // Get all defined primary displays.
-    $profiles = \Drupal::moduleHandler()->invokeAll("islandora_solr_primary_display");
 
+    // Get all defined primary displays.
+    $profiles = $this->moduleHandler->invokeAll("islandora_solr_primary_display");
     // If any primary display profiles are found.
     if (!empty($profiles)) {
       $profiles_sorted = [];
@@ -92,73 +99,83 @@ class IslandoraSolrAdminSettings extends FormBase {
           $primary_display_array['weight'][$key] = end($weight) + 1;
         }
       }
-        // Or else use the default.
+      // Or else use the default.
       else {
         // Only apply when there's no sort variable available.
-      // Sort by key.
+        // Sort by key.
         ksort($profiles);
         $profiles_sorted = $profiles;
       }
-
       // Table loop.
       foreach ($profiles_sorted as $machine_name => $profile) {
-        // Incremetally add every display profile to the options array.
-        $options[$machine_name] = '';
+        // Default display logic for re-use.
+        $default = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display');
 
-        // Human name.
-        $form['display_profiles']['islandora_solr_primary_display_table']['name'][$machine_name] = [
-          '#type' => 'item',
-          '#markup' => $profile['name'],
-        ];
-        // Machine name.
-        $form['display_profiles']['islandora_solr_primary_display_table']['machine_name'][$machine_name] = [
-          '#type' => 'item',
-          '#markup' => $machine_name,
-        ];
-        // Weight.
-        $form['display_profiles']['islandora_solr_primary_display_table']['weight'][$machine_name] = [
-          '#type' => 'weight',
-          '#default_value' => (isset($primary_display_array['weight'][$machine_name])) ? $primary_display_array['weight'][$machine_name] : 0,
-          '#attributes' => [
-            'class' => [
-              'solr-weight'
-              ]
+        $default_enabled = isset($primary_display_array['enabled'][$machine_name]) ? $primary_display_array['enabled'][$machine_name] : FALSE;
+        if ($default == $machine_name) {
+          $default_enabled = TRUE;
+        }
+        $form['display_profiles']['islandora_solr_primary_display_table'][$machine_name] = [
+          'default' => [
+            '#type' => 'radio',
+            '#title' => $this->t('Default'),
+            '#title_display' => 'invisible',
+            '#name' => 'islandora_solr_primary_table_default_choice',
+            '#return_value' => $machine_name,
+            '#default_value' => $default == $machine_name ? $default : NULL,
+            '#states' => [
+              'disabled' => [
+                ":input[name='islandora_solr_primary_display_table[{$machine_name}][enabled]']" => [
+                  'checked' => FALSE,
+                ],
+              ],
             ],
+          ],
+          'enabled' => [
+            '#type' => 'checkbox',
+            '#title' => $this->t('Enabled'),
+            '#title_display' => 'invisible',
+            '#default_value' => $default_enabled,
+            '#states' => [
+              'disabled' => [
+                ':input[name="islandora_solr_primary_table_default_choice"]' => [
+                  'value' => $machine_name,
+                ],
+              ],
+            ],
+          ],
+          'name' => [
+            '#plain_text' => $profile['name'],
+          ],
+          'machine' => [
+            '#plain_text' => $machine_name,
+          ],
+          'weight' => [
+            '#type' => 'weight',
+            '#title' => t('Weight for @title', array('@title' => $profile['name'])),
+            '#title_display' => 'invisible',
+            '#default_value' => isset($primary_display_array['weight'][$machine_name]) ? $primary_display_array['weight'][$machine_name] : 0,
+            // Classify the weight element for #tabledrag.
+            '#attributes' => array('class' => array('islandora-solr-primary-display-table-order-weight')),
+          ],
         ];
-        // Configuration URL.
-        // @FIXME
-        // l() expects a Url object, created from a route name or external URI.
-        // $form['display_profiles']['islandora_solr_primary_display_table']['configuration'][$machine_name] = array(
-        //         '#type' => 'item',
-        //         '#markup' => (isset($profile['configuration']) && $profile['configuration'] != '') ? l(t('configure'), $profile['configuration']) : '',
-        //       );
-
+        $form['display_profiles']['islandora_solr_primary_display_table'][$machine_name]['#attributes']['class'][] = 'draggable';
+        if (isset($profile['configuration'])) {
+          $form['display_profiles']['islandora_solr_primary_display_table'][$machine_name]['configuration'] = [
+            '#title' => $this->t('configure'),
+            '#type' => 'link',
+            '#url' => islandora_get_url_from_path_or_route($profile['configuration']),
+          ];
+        }
       }
-      // Default display.
-      $form['display_profiles']['islandora_solr_primary_display_table']['default'] = [
-        '#type' => 'radios',
-        '#options' => $options,
-        '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display'),
-      ];
-      // Enabled display.
-      $form['display_profiles']['islandora_solr_primary_display_table']['enabled'] = [
-        '#type' => 'checkboxes',
-        '#options' => $options,
-        '#default_value' => (!empty($primary_display_array)) ? $primary_display_array['enabled'] : [],
-      ];
     }
-
     // Secondary profiles.
-    $profiles = \Drupal::moduleHandler()->invokeAll("islandora_solr_secondary_display");
+    $profiles = $this->moduleHandler->invokeAll("islandora_solr_secondary_display");
     ksort($profiles);
     foreach ($profiles as $machine_name => $profile) {
       $islandora_solr_secondary_display_options[$machine_name] = $profile['name'];
     }
     if (!empty($islandora_solr_secondary_display_options)) {
-      // @FIXME
-// Could not extract the default value because it is either indeterminate, or
-// not scalar. You'll need to provide a default value in
-// config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
       $form['display_profiles']['islandora_solr_secondary_display'] = [
         '#type' => 'checkboxes',
         '#title' => t('Secondary display profiles'),
@@ -169,7 +186,7 @@ class IslandoraSolrAdminSettings extends FormBase {
     }
 
     // Default display settings.
-    $form['islandora_solr_tabs']['default_display_settings'] = [
+    /*$form['islandora_solr_tabs']['default_display_settings'] = [
       '#type' => 'fieldset',
       '#title' => t('Default display settings'),
       '#collapsible' => TRUE,
@@ -188,7 +205,7 @@ class IslandoraSolrAdminSettings extends FormBase {
     ];
 
     // Create terms/fields.
-    islandora_solr_admin_settings_fields($form_state, $terms, 'result_fields');
+    //islandora_solr_admin_settings_fields($form_state, $terms, 'result_fields');
 
     // Result fields.
     $form['islandora_solr_tabs']['default_display_settings']['islandora_solr_result_fields'] = $terms;
@@ -261,7 +278,7 @@ class IslandoraSolrAdminSettings extends FormBase {
     ];
 
     // Create terms/fields.
-    islandora_solr_admin_settings_fields($form_state, $sort_terms, 'sort_fields');
+    //islandora_solr_admin_settings_fields($form_state, $sort_terms, 'sort_fields');
 
     // Sort fields.
     $form['islandora_solr_tabs']['sort']['islandora_solr_sort_fields'] = $sort_terms;
@@ -287,7 +304,7 @@ class IslandoraSolrAdminSettings extends FormBase {
     ];
 
     // Create terms/fields.
-    islandora_solr_admin_settings_fields($form_state, $facet_terms, 'facet_fields');
+    //islandora_solr_admin_settings_fields($form_state, $facet_terms, 'facet_fields');
 
     // Facet fields.
     $form['islandora_solr_tabs']['facet_settings']['islandora_solr_facet_fields'] = $facet_terms;
@@ -337,7 +354,7 @@ class IslandoraSolrAdminSettings extends FormBase {
     ];
 
     // Create terms/fields.
-    islandora_solr_admin_settings_fields($form_state, $search_terms, 'search_fields');
+    //islandora_solr_admin_settings_fields($form_state, $search_terms, 'search_fields');
 
     // Search fields.
     $form['islandora_solr_tabs']['advanced_search_block']['islandora_solr_search_fields'] = $search_terms;
@@ -575,22 +592,38 @@ class IslandoraSolrAdminSettings extends FormBase {
       '#submit' => [
         '_islandora_solr_admin_settings_submit'
         ],
-    ];
+    ];*/
 
-    if (!empty($_POST) && $form_state->getErrors()) {
+    /*if (!empty($_POST) && $form_state->getErrors()) {
       drupal_set_message(t('Error: the settings have not been saved.'), 'error');
-    }
-    return $form;
+    }*/
+    return parent::buildForm($form, $form_state);
   }
 
   /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    module_load_include('inc', 'islandora_solr', 'includes/admin.inc');
-    _islandora_solr_admin_settings_submit($form, $form_state);
+    //module_load_include('inc', 'islandora_solr', 'includes/admin.inc');
+    //_islandora_solr_admin_settings_submit($form, $form_state);
+    // XXX: To preserve backwards compatability of the primary display table
+    // need to munge the data into the Drupal 7 form.
+    $munged_config = [
+      'weight' => [],
+      'default' => $form_state->getValue('islandora_solr_primary_table_default_choice'),
+      'enabled' => [],
+    ];
+    foreach ($form_state->getValue('islandora_solr_primary_display_table') as $key => $values) {
+      $munged_config['weight'][$key] = $values['weight'];
+      $munged_config['enabled'][$key] = $values['enabled'];
+    }
+    $this->config('islandora_solr.settings')
+      ->set('islandora_solr_primary_display_table', $munged_config)
+      ->set('islandora_solr_secondary_display', $form_state->getValue('islandora_solr_secondary_display'))
+      ->set('islandora_solr_primary_display', $form_state->getValue('islandora_solr_primary_table_default_choice'))
+      ->save();
     parent::submitForm($form, $form_state);
   }
 
 }
-?>
+

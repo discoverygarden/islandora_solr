@@ -7,11 +7,12 @@
 
 namespace Drupal\islandora_solr\Form;
 
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
+use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 
-class IslandoraSolrAdminIndexSettings extends FormBase {
+class IslandoraSolrAdminIndexSettings extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
@@ -20,89 +21,74 @@ class IslandoraSolrAdminIndexSettings extends FormBase {
     return 'islandora_solr_admin_index_settings';
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEditableConfigNames() {
+    return ['islandora_solr.settings'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    // Check for the PHP Solr lib class.
+    if (!class_exists('Drupal\islandora_solr\SolrPhpClient\Apache\Solr\Apache_Solr_Service')) {
+      drupal_set_message(t('This module requires the <a href="@url">Apache Solr PHP Client</a>. Please install the client in the root directory of this module before continuing.', [
+        '@url' => 'http://code.google.com/p/solr-php-client',
+      ]), 'error');
+      return array();
+    }
     // Add admin form CSS.
-    $form['#attached'] = [
-      'css' => [
-        drupal_get_path('module', 'islandora_solr') . '/css/islandora_solr.admin.css'
-        ]
-      ];
+    $form['#attached']['library'][] = 'islandora_solr/islandora-solr-admin';
 
-    $solr_url = $form_state->getValue(['islandora_solr_url']) ?
-      $form_state->getValue(['islandora_solr_url']) :
-      \Drupal::config('islandora_solr.settings')->get('islandora_solr_url');
-
+    $solr_url = $form_state->getValue(['islandora_solr_url']) ? $form_state->getValue(['islandora_solr_url']) : \Drupal::config('islandora_solr.settings')->get('islandora_solr_url');
     // Solr connect triggering handler is dismax or not set on page load.
-    if ((!$form_state->getTriggeringElement() && (($form_state->getTriggeringElement() == 'islandora_solr_url') || ($form_state->getTriggeringElement() == 'islandora_solr_request_handler'))) || $form_state->getTriggeringElement()) {
+    // Get request handler.
+    $handler = $form_state->getValue(['islandora_solr_request_handler']) ? $form_state->getValue(['islandora_solr_request_handler']) : \Drupal::config('islandora_solr.settings')->get('islandora_solr_request_handler');
 
-      // Check for the PHP Solr lib class.
-      if (!class_exists('Apache_Solr_Service')) {
-        $message = t('This module requires the <a href="!url">Apache Solr PHP Client</a>. Please install the client in the root directory of this module before continuing.', [
-          '!url' => 'http://code.google.com/p/solr-php-client'
-          ]);
-        drupal_set_message(\Drupal\Component\Utility\Html::escape($message));
-        return;
-      }
+    if (strpos($solr_url, 'https://') !== FALSE && strpos($solr_url, 'https://') == 0) {
+      $confirmation_message = $this->t('Islandora does not support SSL connections to Solr.');
+      $status_image = '/core/misc/icons/e32700/error.svg';
+      $solr_avail = FALSE;
+    }
+    else {
+      // Check if Solr is available.
+      $solr_avail = islandora_solr_ping($solr_url);
+      $full_url = Url::fromUri(islandora_solr_check_http($solr_url));
+      $full_url->setOptions(array(
+        'attributes' => array(
+          'target' => '_blank',
+        ),
+      ));
+      // If solr is available, get the request handlers.
+      if ($solr_avail) {
+        // Find request handlers (~500ms).
+        $handlers = $this->getHandlers($solr_url);
 
-      // Get request handler.
-      $handler = $form_state->getValue(['islandora_solr_request_handler']) ? $form_state->getValue(['islandora_solr_request_handler']) : \Drupal::config('islandora_solr.settings')->get('islandora_solr_request_handler');
-
-      if (strpos($solr_url, 'https://') !== FALSE && strpos($solr_url, 'https://') == 0) {
-        $confirmation_message = format_string('<img src="@image_url"/>!message', [
-          '@image_url' => file_create_url('misc/watchdog-error.png'),
-          '!message' => t('Islandora does not support SSL connections to Solr.'),
-        ]);
-        $solr_avail = FALSE;
+        // Get confirmation message.
+        $confirmation_message = t('Successfully connected to Solr server at @link. <sub>(@ms ms)</sub>', array(
+          '@link' => Link::fromTextAndUrl($solr_url, $full_url)->toString(),
+          '@ms' => number_format($solr_avail, 2),
+        ));
+        $status_image = '/core/misc/icons/73b355/check.svg';
       }
       else {
-        // Check if Solr is available.
-        $solr_avail = islandora_solr_ping($solr_url);
-
-        $dismax_allowed = FALSE;
-        // If solr is available, get the request handlers.
-        if ($solr_avail) {
-          // Find request handlers (~500ms).
-          $handlers = _islandora_solr_get_handlers($solr_url);
-        }
-        // Get confirmation message.
-        if ($solr_avail) {
-          // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// $confirmation_message = format_string('<img src="@image_url"/>!message', array(
-//           '@image_url' => file_create_url('misc/watchdog-ok.png'),
-//           '!message' => t('Successfully connected to Solr server at !link. <sub>(!ms ms)</sub>', array(
-//             '!link' => l($solr_url, islandora_solr_check_http($solr_url), array(
-//               'attributes' => array(
-//                 'target' => '_blank',
-//               ),
-//             )),
-//             '!ms' => number_format($solr_avail, 2),
-//           )),
-//         ));
-
-        }
-        else {
-          // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// $confirmation_message = format_string('<img src="@image_url"/>!message', array(
-//           '@image_url' => file_create_url('misc/watchdog-error.png'),
-//           '!message' => t('Unable to connect to Solr server at !link.', array(
-//             '!link' => l($solr_url, islandora_solr_check_http($solr_url), array(
-//               'attributes' => array(
-//                 'target' => '_blank',
-//               ),
-//             )),
-//           )),
-//         ));
-
-        }
+        $confirmation_message = t('Unable to connect to Solr server at @link.', array(
+          '@link' => Link::fromTextAndUrl($solr_url, $full_url)->toString(),
+        ));
+        $status_image = '/core/misc/icons/e32700/error.svg';
       }
     }
+
     // AJAX wrapper for URL checking.
     $form['solr_ajax_wrapper'] = [
       '#prefix' => '<div id="solr-url">',
       '#suffix' => '</div>',
-      '#type' => 'fieldset',
+      'solr_available' => [
+        '#type' => 'value',
+        '#value' => $solr_avail ? TRUE : FALSE,
+      ],
     ];
     // Solr URL.
     $form['solr_ajax_wrapper']['islandora_solr_url'] = [
@@ -114,31 +100,20 @@ class IslandoraSolrAdminIndexSettings extends FormBase {
       '#default_value' => $solr_url,
       '#required' => TRUE,
       '#ajax' => [
-        'callback' => '_islandora_solr_update_solr_url',
-        'wrapper' => 'solr-url',
-        'effect' => 'fade',
+        'callback' => '::updateUrlDiv',
         'event' => 'blur',
-        'progress' => [
-          'type' => 'throbber'
-          ],
+        'disable-refocus' => TRUE,
+        'wrapper' => 'solr-url',
       ],
     ];
 
-    // Hidden submit button.
-    $form['solr_ajax_wrapper']['refresh_page'] = [
-      '#type' => 'submit',
-      '#value' => t('Test connection'),
-      '#attributes' => [
-        'class' => [
-          'refresh-button'
-          ]
-        ],
-      '#submit' => ['_islandora_solr_admin_refresh'],
-    ];
     // Confirmation message.
-    $form['solr_ajax_wrapper']['infobox'] = [
-      '#type' => 'item',
-      '#markup' => isset($confirmation_message) ? $confirmation_message : $form_state->get(['complete form', 'solr_ajax_wrapper', 'infobox', '#markup']),
+    $form['solr_ajax_wrapper']['image'] = array(
+      '#theme' => 'image',
+      '#uri' => $status_image,
+    );
+    $form['solr_ajax_wrapper']['message'] = [
+      '#markup' => $confirmation_message,
     ];
 
     // Don't show form item if no request handlers are found.
@@ -147,65 +122,90 @@ class IslandoraSolrAdminIndexSettings extends FormBase {
         '#type' => 'select',
         '#title' => t('Request handler'),
         '#options' => $handlers,
-        '#description' => t('Request handlers, as defined by <a href="!url">solrconfig.xml</a>.', [
-          '!url' => 'http://wiki.apache.org/solr/SolrConfigXml'
-          ]),
+        '#description' => $this->t('Request handlers, as defined by <a href="@url">solrconfig.xml</a>.', [
+          '@url' => 'http://wiki.apache.org/solr/SolrConfigXml',
+        ]),
         '#default_value' => $handler,
-        '#ajax' => [
-          'callback' => '_islandora_solr_update_solr_url',
-          'wrapper' => 'solr-url',
-          'effect' => 'fade',
-          'event' => 'change',
-          'progress' => [
-            'type' => 'throbber'
-            ],
-        ],
       ];
     }
-    $form['solr_ajax_wrapper']['islandora_solr_available'] = [
-      '#type' => 'hidden',
-      '#value' => $solr_avail ? 1 : 0,
-    ];
 
     // Solr force delete from index during object purge.
-    $form['solr_ajax_wrapper']['islandora_solr_force_update_index_after_object_purge'] = [
+    $form['islandora_solr_force_update_index_after_object_purge'] = [
       '#type' => 'checkbox',
       '#title' => t('Force update of Solr index after an object is deleted'),
       '#weight' => 5,
       '#description' => t('If checked, deleting objects will also force their removal from the Solr index. <br/><strong>Note:</strong> When active, UI consistency will be increased on any pages using Solr queries for display. This setting is not appropriate for every installation (e.g., on sites with a large volume of Solr commits that hit execution limits, or where the Solr index is not directly writable from Drupal).'),
       '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_force_update_index_after_object_purge'),
     ];
+    return parent::buildForm($form, $form_state);
+  }
 
-    // Actions.
-    $form['actions'] = ['#type' => 'actions'];
-    $form['actions']['submit'] = [
-      '#type' => 'submit',
-      '#value' => t('Save Solr configuration'),
-      '#weight' => 0,
-      '#submit' => [
-        '_islandora_solr_admin_index_settings_submit'
-        ],
-      '#validate' => ['_islandora_solr_admin_index_settings_validate'],
-    ];
-    $form['actions']['reset'] = [
-      '#type' => 'submit',
-      '#value' => t('Reset to defaults'),
-      '#weight' => 1,
-      '#submit' => [
-        '_islandora_solr_admin_index_settings_submit'
-        ],
-    ];
-    return $form;
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    if ($form_state->getValue('solr_available') == FALSE) {
+      return $form_state->setError($form['solr_ajax_wrapper']['islandora_solr_url'], $this->t('Please enter a valid Solr URL.'));
+    }
   }
 
   /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    module_load_include('inc', 'islandora_solr', 'includes/admin.inc');
-    _islandora_solr_admin_index_settings_submit($form, $form_state);
+    $this->config('islandora_solr.settings')
+      ->set('islandora_solr_url', $form_state->getValue('islandora_solr_url'))
+      ->set('islandora_solr_request_handler', $form_state->getValue('islandora_solr_request_handler'))
+      ->set('islandora_solr_force_update_index_after_object_purge', $form_state->getValue('islandora_solr_force_update_index_after_object_purge'))
+      ->save();
+    // Force renewal of the cached value, as the request handler might have
+    // changed.
+    islandora_solr_check_dismax(TRUE);
     parent::submitForm($form, $form_state);
   }
 
+  /**
+   * Get available handlers.
+   *
+   * @param string $solr_url
+   *   URL which points to Solr.
+   *
+   * @return array
+   *   An associative array mapping the names of all request handlers found in
+   *   the solrconfig.xml of the Solr instance to themselves.
+   */
+  public function getHandlers($solr_url) {
+    module_load_include('inc', 'islandora_solr', 'includes/utilities');
+    $xml = islandora_solr_get_solrconfig_xml($solr_url);
+    $handlers = array(
+      FALSE => t('Let Solr decide'),
+    );
+    if ($xml) {
+      $xpath = '//requestHandler[@class="solr.SearchHandler" and not(starts-with(@name, "/")) and not(@name="dismax") and not(@name="partitioned")]';
+      foreach ($xml->xpath($xpath) as $handler) {
+        $handler_name = (string) $handler['name'];
+        $handlers[$handler_name] = $handler_name;
+      }
+    }
+    else {
+      drupal_set_message(t('Error retrieving @file from Solr.', array('@file' => 'solrconfig.xml')), 'warning');
+    }
+    return $handlers;
+  }
+
+  /**
+   * Updates the URL wrapper for the admin form.
+   *
+   * @param array $form
+   *   The Drupal form being configured.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Object containing the state of the form.
+   *
+   * @return array
+   *   Renderable portion of the form to be updated.
+   */
+  public function updateUrlDiv(array $form, FormStateInterface $form_state) {
+    return $form['solr_ajax_wrapper'];
+  }
+
 }
-?>

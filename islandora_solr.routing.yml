@@ -6,14 +6,14 @@ islandora_solr.islandora_solr:
   requirements:
     _permission: 'search islandora solr'
 islandora_solr.admin_index_settings:
-  path: /admin/islandora/search/islandora_solr/index
+  path: /admin/config/islandora/search
   defaults:
     _title: 'Solr index'
     _form: \Drupal\islandora_solr\Form\IslandoraSolrAdminIndexSettings
   requirements:
     _permission: 'administer islandora solr'
 islandora_solr.admin_settings:
-  path: /admin/islandora/search/islandora_solr/settings
+  path: /admin/config/islandora/search/settings
   defaults:
     _title: 'Solr settings'
     _form: \Drupal\islandora_solr\Form\IslandoraSolrAdminSettings

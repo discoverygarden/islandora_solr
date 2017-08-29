@@ -1,5 +1,7 @@
 <?php
 
+use Drupal\islandora_solr\SolrPhpClient\Apache\Solr\Apache_Solr_Service;
+
 /**
  * @file
  * Contains helper functions for Solr Luke.
@@ -117,8 +119,8 @@ function islandora_solr_get_luke($solr_url = NULL, $field = NULL, $num_terms = 0
     // @FIXME
 // drupal_http_request() has been replaced by the Guzzle HTTP client, which is bundled
 // with Drupal core.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/1862446
 // @see http://docs.guzzlephp.org/en/latest
 // $r = drupal_http_request($luke_url, array('timeout' => $timeout));
