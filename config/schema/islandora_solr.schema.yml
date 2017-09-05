@@ -88,3 +88,5 @@ islandora_solr.settings:
       type: sequence
     islandora_solr_secondary_display:
       type: sequence
+    islandora_solr_num_of_results_advanced:
+      type: sequence
