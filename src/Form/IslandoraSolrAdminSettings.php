@@ -31,7 +31,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
 
 
   public function buildForm(array $form, FormStateInterface $form_state) {
-    module_load_include('inc', 'islandora', 'includes/utilities');
+    $form_state->loadInclude('islandora', 'inc', 'includes/utilities');
     // Add admin form css.
     /*$form['#attached'] = [
       'css' => [

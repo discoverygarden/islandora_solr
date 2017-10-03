@@ -479,57 +479,6 @@ function theme_islandora_solr_admin_primary_display($variables) {
 }
 
 /**
- * Get available handlers.
- *
- * @param string $solr_url
- *   URL which points to Solr.
- *
- * @return array
- *   An associative array mapping the names of all request handlers found in
- *   the solrconfig.xml of the Solr instance to themselves.
- */
-function _islandora_solr_get_handlers($solr_url) {
-  $xml = islandora_solr_get_solrconfig_xml($solr_url);
-  $handlers = array(
-    FALSE => t('Let Solr decide'),
-  );
-  if ($xml) {
-    $xpath = '//requestHandler[@class="solr.SearchHandler" and not(starts-with(@name, "/")) and not(@name="dismax") and not(@name="partitioned")]';
-    foreach ($xml->xpath($xpath) as $handler) {
-      $handler_name = (string) $handler['name'];
-      $handlers[$handler_name] = $handler_name;
-    }
-  }
-  else {
-    drupal_set_message(t('Error retrieving @file from Solr.', array('@file' => 'solrconfig.xml')), 'warning');
-  }
-  return $handlers;
-}
-
-/**
- * AJAX callback from the admin form.
- *
- * Checks URL validity and refreshes request handler dropdown list.
- *
- * @param array $form
- *   An array containing the form structure.
- * @param array $form_state
- *   An array containing the form state.
- *
- * @return array
- *   The element to replace.
- *
- * @see islandora_solr_admin_settings()
- */
-function _islandora_solr_update_solr_url($form, $form_state) {
-  unset($form_state['submit_handlers']);
-  \Drupal::formBuilder()->executeSubmitHandlers($form, $form_state);
-  $form_state['rebuild'] = TRUE;
-
-  return $form['solr_ajax_wrapper'];
-}
-
-/**
  * Submit button callback to update the Solr URL only.
  *
  * @param array $form
