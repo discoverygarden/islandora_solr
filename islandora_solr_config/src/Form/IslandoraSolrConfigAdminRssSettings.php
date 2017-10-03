@@ -11,6 +11,9 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 
+/**
+ * Admin settings for the RSS exposed by Solr.
+ */
 class IslandoraSolrConfigAdminRssSettings extends FormBase {
 
   /**
@@ -145,4 +148,3 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
   }
 
 }
-?>

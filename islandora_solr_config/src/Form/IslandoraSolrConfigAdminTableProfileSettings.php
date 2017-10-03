@@ -11,6 +11,9 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 
+/**
+ * Class for the table profile admin settings form.
+ */
 class IslandoraSolrConfigAdminTableProfileSettings extends FormBase {
 
   /**
@@ -70,4 +73,3 @@ class IslandoraSolrConfigAdminTableProfileSettings extends FormBase {
   }
 
 }
-?>
