@@ -11,6 +11,9 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 
+/**
+ * Confirmation for reset solr settings.
+ */
 class IslandoraSolrAdminSettingsDefaultConfirmForm extends FormBase {
 
   /**
@@ -35,4 +38,3 @@ class IslandoraSolrAdminSettingsDefaultConfirmForm extends FormBase {
   }
 
 }
-?>

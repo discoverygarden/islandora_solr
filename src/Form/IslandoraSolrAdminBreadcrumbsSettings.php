@@ -12,6 +12,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 
+/**
+ * Display admin form for breadcrumb field choice.
+ */
 class IslandoraSolrAdminBreadcrumbsSettings extends ConfigFormBase {
 
   /**

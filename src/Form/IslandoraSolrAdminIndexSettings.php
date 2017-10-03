@@ -12,6 +12,9 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 
+/**
+ * Islandora Solr index admin form.
+ */
 class IslandoraSolrAdminIndexSettings extends ConfigFormBase {
 
   /**

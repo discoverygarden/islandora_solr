@@ -10,6 +10,9 @@ namespace Drupal\islandora_solr\Form;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\islandora\Form\IslandoraModuleHandlerAdminForm;
 
+/**
+ * Administration setting form.
+ */
 class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
 
   /**
