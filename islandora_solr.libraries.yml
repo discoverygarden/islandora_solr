@@ -2,4 +2,4 @@ islandora-solr-admin:
   version: 1.x
   css:
     base:
-      css/islandora_solr.admin.css {}
+      css/islandora_solr.admin.css: {}
