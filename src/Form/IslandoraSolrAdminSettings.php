@@ -44,7 +44,8 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     ];*/
     // Display profiles.
     $form['display_profiles'] = [
-      '#type' => 'fieldset',
+      '#type' => 'details',
+      '#open' => TRUE,
       '#title' => $this->t('Display profiles'),
       '#collapsible' => FALSE,
       '#collapsed' => FALSE,
@@ -68,6 +69,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
           'group' => 'islandora-solr-primary-display-table-order-weight',
         ],
       ],
+      '#caption' => $this->t('<strong>Primary display profiles</strong>'),
     ];
     // XXX: Hidden to store the value of the default because tableselects are
     // still a bastard with values inside of them.
