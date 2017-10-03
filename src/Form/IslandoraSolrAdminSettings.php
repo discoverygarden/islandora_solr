@@ -52,6 +52,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     // Primary displays.
     $form['display_profiles']['islandora_solr_primary_display_table'] = [
       '#type' => 'table',
+      '#tree' => TRUE,
       '#header' => [
         'default' => $this->t('Default'),
         'enabled' => $this->t('Enabled'),
@@ -149,14 +150,6 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
           'machine' => [
             '#plain_text' => $machine_name,
           ],
-          'weight' => [
-            '#type' => 'weight',
-            '#title' => $this->t('Weight for @title', ['@title' => $profile['name']]),
-            '#title_display' => 'invisible',
-            '#default_value' => isset($primary_display_array['weight'][$machine_name]) ? $primary_display_array['weight'][$machine_name] : 0,
-            // Classify the weight element for #tabledrag.
-            '#attributes' => ['class' => ['islandora-solr-primary-display-table-order-weight']],
-          ],
         ];
         $form['display_profiles']['islandora_solr_primary_display_table'][$machine_name]['#attributes']['class'][] = 'draggable';
         if (isset($profile['configuration'])) {
@@ -166,6 +159,17 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
             '#url' => islandora_get_url_from_path_or_route($profile['configuration']),
           ];
         }
+        else {
+          $form['display_profiles']['islandora_solr_primary_display_table'][$machine_name]['configuration'] = [];
+        }
+        $form['display_profiles']['islandora_solr_primary_display_table'][$machine_name]['weight'] = [
+          '#type' => 'weight',
+          '#title' => $this->t('Weight for @title', ['@title' => $profile['name']]),
+          '#title_display' => 'invisible',
+          '#default_value' => isset($primary_display_array['weight'][$machine_name]) ? $primary_display_array['weight'][$machine_name] : 0,
+          // Classify the weight element for #tabledrag.
+          '#attributes' => ['class' => ['islandora-solr-primary-display-table-order-weight']],
+        ];
       }
     }
     // Secondary profiles.
