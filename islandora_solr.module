@@ -27,34 +27,18 @@ require_once dirname(__FILE__) . '/includes/facets.inc';
 require_once dirname(__FILE__) . '/includes/luke.inc';
 
 /**
- * Implements hook_admin_paths().
- */
-function islandora_solr_admin_paths() {
-  $paths = array(
-    'admin/config/islandora_solr' => TRUE,
-  );
-  return $paths;
-}
-
-/**
  * Implements hook_theme().
  */
 function islandora_solr_theme() {
   $path = drupal_get_path('module', 'islandora_solr');
   $file = 'theme.inc';
 
-  return array(
+  return [
     // Advanced solr search form/block.
     'islandora_solr_advanced_search_form' => array(
       'variables' => array(
         'form' => NULL,
       ),
-    ),
-    // Theme admin form.
-    'islandora_solr_admin_primary_display' => array(
-      'path' => $path,
-      'file' => 'includes/admin.inc',
-      'render element' => 'form',
     ),
     // Theme admin form fields.
     'islandora_solr_admin_fields' => array(
@@ -122,23 +106,23 @@ function islandora_solr_theme() {
         'next_text' => NULL,
       ),
     ),
-  );
+  ];
 }
 
 /**
  * Implements hook_islandora_solr_primary_display().
  */
 function islandora_solr_islandora_solr_primary_display() {
-  return array(
-    'default' => array(
+  return [
+    'default' => [
       'name' => t('List (default)'),
       'module' => 'islandora_solr',
       'file' => 'includes/results.inc',
       'class' => "IslandoraSolrResults",
       'function' => "displayResults",
       'description' => t("Display search results as a list view"),
-    ),
-  );
+    ],
+  ];
 }
 
 /**
