@@ -370,38 +370,34 @@ function islandora_solr_check_dismax($reset = FALSE) {
  */
 function islandora_solr_islandora_basic_collection_query_backends() {
   $module_path = drupal_get_path('module', 'islandora_solr');
-  return array(
-    'islandora_solr_query_backend' => array(
+  return [
+    'islandora_solr_query_backend' => [
       'title' => t('Solr'),
       'callable' => 'islandora_solr_islandora_basic_collection_backend_callable',
       'file' => "$module_path/includes/utilities.inc",
-    ),
-  );
+    ],
+  ];
 }
 
 /**
  * Implements hook_islandora_object_purged().
  */
 function islandora_solr_islandora_object_purged($pid) {
-  // XXX: Optional ability to have the system remove the object from the solr
+  // XXX: Optional ability to have the system remove the object from the Solr
   // index.  Useful for pages that may rely on a solr query for displaying data
   // and require the index update to be instantaneous so that the object is not
   // included in any query results immediately after a purge.
   if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_force_update_index_after_object_purge') == 1) {
-    $options = array(
-      'method' => 'POST',
-      'data' => "<update><delete><id>{$pid}</id></delete><commit/></update>",
-      'headers' => array('Content-Type' => 'text/xml; charset=UTF-8'),
+    $options = [
+      'body' => "<update><delete><id>{$pid}</id></delete><commit/></update>",
+      'headers' => ['Content-Type' => 'text/xml; charset=UTF-8'],
+    ];
+    $client = \Drupal::httpClient();
+    $client->request(
+      'POST',
+      \Drupal::config('islandora_solr.settings')->get('islandora_solr_url') . '/update',
+      $options
     );
-    // @FIXME
-// drupal_http_request() has been replaced by the Guzzle HTTP client, which is bundled
-// with Drupal core.
-//
-//
-// @see https://www.drupal.org/node/1862446
-// @see http://docs.guzzlephp.org/en/latest
-// $response = drupal_http_request(\Drupal::config('islandora_solr.settings')->get('islandora_solr_url') . '/update', $options);
-
   }
 }
 
@@ -411,14 +407,14 @@ function islandora_solr_islandora_object_purged($pid) {
 function islandora_solr_islandora_basic_collection_build_manage_object($form_state, $object) {
   if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_individual_collection_sorting')) {
     module_load_include('inc', 'islandora_solr', 'includes/collection_sort.form');
-    $form_state['manage_collection_object']['manage_collection_solr_sort'] = array(
+    $form_state['manage_collection_object']['manage_collection_solr_sort'] = [
       '#id' => 'manage-collection-solr-sort',
       '#group' => 'manage_collection_solr_sort',
       '#access' => TRUE,
       '#type' => 'fieldset',
       '#title' => t('Set Solr Sort String'),
       'form' => \Drupal::formBuilder()->getForm('islandora_solr_manage_collection_sort_form', $object),
-    );
+    ];
     return $form_state;
   }
 }
@@ -468,11 +464,11 @@ function islandora_solr_form_islandora_basic_collection_admin_alter(&$form, &$fo
  */
 function islandora_solr_islandora_breadcrumbs_backends() {
   $module_path = drupal_get_path('module', 'islandora_solr');
-  return array(
-    ISLANDORA_SOLR_BREADCRUMB_BACKEND => array(
+  return [
+    ISLANDORA_SOLR_BREADCRUMB_BACKEND => [
       'title' => t('Islandora Solr'),
       'callable' => 'islandora_solr_islandora_breadcrumbs_backends_callable',
       'file' => "$module_path/includes/breadcrumbs.inc",
-    ),
-  );
+    ],
+  ];
 }
