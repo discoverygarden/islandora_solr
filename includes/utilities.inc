@@ -442,11 +442,11 @@ function islandora_solr_islandora_basic_collection_backend_callable($collection_
   $qp = new IslandoraSolrQueryProcessor();
   $_islandora_solr_queryclass = $qp;
 
-  $qp->buildQuery(strtr('!member_field:("info:fedora/!pid" OR "!pid") OR !collection_member_field:("info:fedora/!pid" OR "!pid")', array(
+  $qp->buildQuery(strtr('!member_field:("info:fedora/!pid" OR "!pid") OR !collection_member_field:("info:fedora/!pid" OR "!pid")', [
     '!member_field' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_field'),
     '!pid' => $collection_object->id,
     '!collection_member_field' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_collection_field'),
-  )), \Drupal\Component\Utility\UrlHelper::filterQueryParameters());
+  ]), \Drupal::request()->query->all() );
 
   if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_collection_result_limit_block_override')) {
     if (isset($qp->internalSolrParams['limit'])) {
@@ -524,7 +524,7 @@ function islandora_solr_truncate_field_display($display_values, $max_length, $ad
 
     // Build two arrays for display, one filtered by size (max_values)
     // and one with all the data.
-    $truncated_list = array();
+    $truncated_list = [];
     $character_output_count = 0;
     foreach ($updated_display_values as $index => $current_value) {
       if ($character_output_count + \Drupal\Component\Utility\Unicode::strlen($current_value) <= $max_length) {

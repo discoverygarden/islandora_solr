@@ -88,7 +88,7 @@ function _islandora_solr_filter_fields($records = array()) {
   $user = \Drupal::currentUser();
 
   // No checks for user 1.
-  if ($user->uid == 1) {
+  if ($user->id() == 1) {
     return $records;
   }
   $filtered_records = array();
@@ -98,7 +98,7 @@ function _islandora_solr_filter_fields($records = array()) {
       // Get field permissions.
       $field_roles = $record['solr_field_settings']['permissions'];
       // Check field permissions agains user roles.
-      $check = array_intersect($field_roles, array_keys($user->roles));
+      $check = array_intersect($field_roles, array_keys($user->getRoles()));
       if (!empty($check)) {
         $filtered_records[] = $record;
       }
