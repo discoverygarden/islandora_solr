@@ -425,40 +425,40 @@ function islandora_solr_islandora_basic_collection_build_manage_object($form_sta
  * Implements hook_form_islandora_basic_collection_admin_alter().
  */
 function islandora_solr_form_islandora_basic_collection_admin_alter(&$form, &$form_state, $form_id) {
-  $states = array(
-    'visible' => array(
-      ':input[name="islandora_basic_collection_display_backend"]' => array('value' => 'islandora_solr_query_backend'),
-    ),
-  );
-  $form['display_generation_fieldset']['islandora_collection_display']['islandora_solr_collection_sort'] = array(
+  $states = [
+    'visible' => [
+      ':input[name="islandora_basic_collection_display_backend"]' => ['value' => 'islandora_solr_query_backend'],
+    ],
+  ];
+  $form['display_generation_details']['islandora_collection_display']['islandora_solr_collection_sort'] = [
     '#type' => 'textfield',
     '#title' => t('Sort field for collection query'),
     '#size' => 100,
     '#description' => t('One or more non-multivalued Solr fields to sort by when using the Solr collection query backend (by convention, multivalued fields have names that contain "_m" plus another letter at the end of their Solr names). Add " asc" or " desc" after each fieldname. If this setting is empty, the Solr default query sort will be used.'),
     '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_collection_sort'),
     '#states' => $states,
-  );
-  $form['display_generation_fieldset']['islandora_collection_display']['islandora_solr_individual_collection_sorting'] = array(
+  ];
+  $form['display_generation_details']['islandora_collection_display']['islandora_solr_individual_collection_sorting'] = [
     '#type' => 'checkbox',
     '#title' => t('Allow individual sort strings per-collection'),
     '#description' => t('Allows per-collection sort strings to be configured. These sort strings can be set on the collection configuration page for individual collection objects.'),
     '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_individual_collection_sorting'),
     '#states' => $states,
-  );
-  $form['display_generation_fieldset']['islandora_collection_display']['islandora_solr_collection_sort_block_override'] = array(
+  ];
+  $form['display_generation_details']['islandora_collection_display']['islandora_solr_collection_sort_block_override'] = [
     '#type' => 'checkbox',
     '#title' => t('Allow Solr sort block to override collection sort'),
     '#description' => t('Allows Solr sort block to override collection and default collection sort settings.'),
     '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_collection_sort_block_override'),
     '#states' => $states,
-  );
-  $form['display_generation_fieldset']['islandora_collection_display']['islandora_solr_collection_result_limit_block_override'] = array(
+  ];
+  $form['display_generation_details']['islandora_collection_display']['islandora_solr_collection_result_limit_block_override'] = [
     '#type' => 'checkbox',
     '#title' => t('Allow Solr result limit block to override collection limit'),
     '#description' => t('Allows Solr result limit block to override the default collection limit.'),
     '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_collection_result_limit_block_override'),
     '#states' => $states,
-  );
+  ];
 }
 
 /**
