@@ -442,7 +442,7 @@ function islandora_solr_islandora_basic_collection_backend_callable($collection_
   $qp = new IslandoraSolrQueryProcessor();
   $_islandora_solr_queryclass = $qp;
 
-  $qp->buildQuery(format_string('!member_field:("info:fedora/!pid" OR "!pid") OR !collection_member_field:("info:fedora/!pid" OR "!pid")', array(
+  $qp->buildQuery(strtr('!member_field:("info:fedora/!pid" OR "!pid") OR !collection_member_field:("info:fedora/!pid" OR "!pid")', array(
     '!member_field' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_field'),
     '!pid' => $collection_object->id,
     '!collection_member_field' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_collection_field'),

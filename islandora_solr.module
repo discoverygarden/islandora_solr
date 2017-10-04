@@ -5,6 +5,8 @@
  * Implementation of Solr search for the Islandora fedora_search module.
  */
 
+use Drupal\Core\Form\FormStateInterface;
+
 use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 
 define('ISLANDORA_SOLR_SEARCH_PATH', 'islandora/search');
@@ -406,25 +408,24 @@ function islandora_solr_islandora_object_purged($pid) {
 /**
  * Implements hook_islandora_basic_collection_build_manage_object().
  */
-function islandora_solr_islandora_basic_collection_build_manage_object($form_state, $object) {
+function islandora_solr_islandora_basic_collection_build_manage_object(array $form, $object) {
   if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_individual_collection_sorting')) {
-    module_load_include('inc', 'islandora_solr', 'includes/collection_sort.form');
-    $form_state['manage_collection_object']['manage_collection_solr_sort'] = [
+    $form['manage_collection_object']['manage_collection_solr_sort'] = [
       '#id' => 'manage-collection-solr-sort',
       '#group' => 'manage_collection_solr_sort',
       '#access' => TRUE,
       '#type' => 'fieldset',
       '#title' => t('Set Solr Sort String'),
-      'form' => \Drupal::formBuilder()->getForm('islandora_solr_manage_collection_sort_form', $object),
+      'form' => \Drupal::formBuilder()->getForm('Drupal\islandora_solr\Form\IslandoraSolrManageCollectionSortForm', $object),
     ];
-    return $form_state;
+    return $form;
   }
 }
 
 /**
  * Implements hook_form_islandora_basic_collection_admin_alter().
  */
-function islandora_solr_form_islandora_basic_collection_admin_alter(&$form, &$form_state, $form_id) {
+function islandora_solr_form_islandora_basic_collection_admin_alter(&$form, FormStateInterface $form_state, $form_id) {
   $states = [
     'visible' => [
       ':input[name="islandora_basic_collection_display_backend"]' => ['value' => 'islandora_solr_query_backend'],
@@ -459,6 +460,19 @@ function islandora_solr_form_islandora_basic_collection_admin_alter(&$form, &$fo
     '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_collection_result_limit_block_override'),
     '#states' => $states,
   ];
+  $form['#submit'][] = 'islandora_solr_form_islandora_basic_collection_admin_submit';
+}
+
+/**
+ * Submit handler for the collection admin page additions.
+ */
+function islandora_solr_form_islandora_basic_collection_admin_submit($form, FormStateInterface $form_state) {
+  $config = \Drupal::configFactory()->getEditable('islandora_solr.settings');
+  $config->set('islandora_solr_collection_sort', $form_state->getValue('islandora_solr_collection_sort'));
+  $config->set('islandora_solr_individual_collection_sorting', $form_state->getValue('islandora_solr_individual_collection_sorting'));
+  $config->set('islandora_solr_collection_sort_block_override', $form_state->getValue('islandora_solr_collection_sort_block_override'));
+  $config->set('islandora_solr_collection_result_limit_block_override', $form_state->getValue('islandora_solr_collection_result_limit_block_override'));
+  $config->save();
 }
 
 /**
