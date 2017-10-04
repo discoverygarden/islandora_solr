@@ -1,10 +1,11 @@
 <?php
 
-
 /**
  * @file
  * Miscellaneous helper functions.
  */
+
+use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 
 /**
  * Initialize a pager for theme('pager') without running an SQL query.

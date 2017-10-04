@@ -121,6 +121,8 @@ function islandora_solr_date_filter_form($form, &$form_state, $elements) {
   $form['#submit'][] = 'islandora_solr_date_filter_form_submit';
   $form['#validate'][] = 'islandora_solr_date_filter_form_validate';
 
+// @fixme: attached css/js is no more.
+/*
   $form['#attached'] = array(
     'library' => array(
       array('system', 'ui.datepicker'),
@@ -142,7 +144,7 @@ function islandora_solr_date_filter_form($form, &$form_state, $elements) {
       ),
     ),
   );
-
+*/
   return $form;
 }
 
@@ -280,8 +282,8 @@ function islandora_solr_range_slider_form($form, &$form_state, $elements) {
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // $form['markup'] = array(
 //     '#markup' => theme('islandora_solr_range_slider', $slider_variables),
@@ -320,6 +322,8 @@ function islandora_solr_range_slider_form($form, &$form_state, $elements) {
   // @endcode
 
   $mod_path = drupal_get_path('module', 'islandora_solr');
+// @fixme: attached css/js is no more.
+/*
   $form['#attached'] = array(
     'library' => array(
       array('system', 'ui.slider'),
@@ -345,6 +349,7 @@ function islandora_solr_range_slider_form($form, &$form_state, $elements) {
       "$mod_path/js/islandora_solr_facets.js",
     ),
   );
+*/
 
   return $form;
 }

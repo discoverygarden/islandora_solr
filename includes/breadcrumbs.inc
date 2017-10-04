@@ -1,8 +1,11 @@
 <?php
+
 /**
  * @file
  * Breadcrumb functions.
  */
+
+use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 
 /**
  * Implements callback_islandora_breadcrumbs_backends.

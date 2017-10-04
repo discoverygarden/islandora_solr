@@ -2,6 +2,8 @@
 
 namespace Drupal\islandora_solr;
 
+use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+
 /**
  * Islandora Solr Facets
  */
