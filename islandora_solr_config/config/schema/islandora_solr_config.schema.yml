@@ -1,0 +1,32 @@
+islandora_solr_config.settings:
+  type: mapping
+  label: Settings
+  mapping:
+    islandora_solr_config_rss_item:
+      type: mapping
+      mapping:
+        title:
+          type: string
+        description:
+          type: string
+        author:
+          type: string
+        category:
+          type: string
+        pubDate:
+          type: string
+        enclosure_dsid:
+          type: string
+    islandora_solr_config_rss_channel:
+      type: mapping
+      mapping:
+        copyright:
+          type: string
+        managingEditor:
+          type: string
+        webMaster:
+          type: string
+    islandora_solr_table_profile_display_row_no:
+      type: integer
+    islandora_solr_table_profile_table_class:
+      type: string

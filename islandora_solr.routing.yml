@@ -39,10 +39,3 @@ islandora_solr.autocomplete_luke:
     _controller: '\Drupal\islandora_solr\Controller\DefaultController::_islandora_solr_autocomplete_luke'
   requirements:
     _permission: 'administer islandora solr'
-islandora_solr.admin_settings_default_confirm_form:
-  path: /admin/islandora/search/islandora_solr/settings/confirmation
-  defaults:
-    _title: 'Default settings restore'
-    _form: \Drupal\islandora_solr\Form\IslandoraSolrAdminSettingsDefaultConfirmForm
-  requirements:
-    _permission: 'administer islandora solr'
