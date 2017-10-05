@@ -39,77 +39,71 @@ function islandora_solr_theme() {
 
   return [
     // Advanced solr search form/block.
-    'islandora_solr_advanced_search_form' => array(
-      'variables' => array(
+    'islandora_solr_advanced_search_form' => [
+      'variables' => [
         'form' => NULL,
-      ),
-    ),
-    // Theme admin form fields.
-    'islandora_solr_admin_fields' => array(
-      'path' => $path,
-      'file' => 'includes/admin.inc',
-      'render element' => 'form',
-    ),
+      ],
+    ],
     // Results page.
-    'islandora_solr_wrapper' => array(
+    'islandora_solr_wrapper' => [
       'path' => $path . '/theme',
       'file' => $file,
       'template' => 'islandora-solr-wrapper',
-      'variables' => array(
+      'variables' => [
         'results' => NULL,
         'secondary_profiles' => NULL,
-        'elements' => array(),
-      ),
-    ),
+        'elements' => [],
+      ],
+    ],
     // Default results display.
-    'islandora_solr' => array(
+    'islandora_solr' => [
       'path' => $path . '/theme',
       'file' => $file,
       'template' => 'islandora-solr',
-      'variables' => array(
+      'variables' => [
         'results' => NULL,
-        'elements' => array(),
-        'pids' => array(),
-      ),
-    ),
+        'elements' => [],
+        'pids' => [],
+      ],
+    ],
      // Default facet.
-    'islandora_solr_facet' => array(
+    'islandora_solr_facet' => [
       'path' => $path . '/theme',
       'file' => $file,
       'template' => 'islandora-solr-facet',
-      'variables' => array('buckets' => NULL, 'hidden' => FALSE, 'pid' => NULL),
-    ),
+      'variables' => ['buckets' => NULL, 'hidden' => FALSE, 'pid' => NULL],
+    ],
      // Facet wrapper.
-    'islandora_solr_facet_wrapper' => array(
+    'islandora_solr_facet_wrapper' => [
       'path' => $path . '/theme',
       'file' => $file,
-      'variables' => array('title' => NULL, 'content' => NULL, 'pid' => NULL),
-    ),
+      'variables' => ['title' => NULL, 'content' => NULL, 'pid' => NULL],
+    ],
      // Range slider.
-    'islandora_solr_range_slider' => array(
+    'islandora_solr_range_slider' => [
       'path' => $path . '/theme',
       'file' => $file,
       'template' => 'islandora-solr-range-slider',
-      'variables' => array(
+      'variables' => [
         'form_key' => NULL,
         'gap' => NULL,
         'range_from' => NULL,
         'range_to' => NULL,
-      ),
-    ),
-    'islandora_solr_search_navigation_block' => array(
+      ],
+    ],
+    'islandora_solr_search_navigation_block' => [
       'path' => $path . '/theme',
       'file' => $file,
       'template' => 'islandora-solr-search-navigation-block',
-      'variables' => array(
+      'variables' => [
         'return_link' => NULL,
         'prev_link' => NULL,
         'next_link' => NULL,
         'prev_text' => NULL,
         'return_text' => NULL,
         'next_text' => NULL,
-      ),
-    ),
+      ],
+    ],
   ];
 }
 

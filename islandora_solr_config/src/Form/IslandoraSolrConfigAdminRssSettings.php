@@ -35,7 +35,7 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Title'),
       '#description' => $this->t('Solr field to populate the item title.'),
-      '#autocomplete_path' => 'islandora_solr/autocomplete_luke',
+      '#autocomplete_route_name' => 'islandora_solr.autocomplete_luke',
       '#default_value' => $rss_item['title'],
       '#required' => TRUE,
     ];
@@ -43,28 +43,28 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Description'),
       '#description' => t('Solr field to populate the item synopsis.'),
-      '#autocomplete_path' => 'islandora_solr/autocomplete_luke',
+      '#autocomplete_route_name' => 'islandora_solr.autocomplete_luke',
       '#default_value' => $rss_item['description'],
     ];
     $form['rss_item']['author'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Author'),
       '#description' => $this->t('Solr field to populate the item author.'),
-      '#autocomplete_path' => 'islandora_solr/autocomplete_luke',
+      '#autocomplete_route_name' => 'islandora_solr.autocomplete_luke',
       '#default_value' => $rss_item['author'],
     ];
     $form['rss_item']['category'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Category'),
       '#description' => $this->t('Solr field to populate the item category.'),
-      '#autocomplete_path' => 'islandora_solr/autocomplete_luke',
+      '#autocomplete_route_name' => 'islandora_solr.autocomplete_luke',
       '#default_value' => $rss_item['category'],
     ];
     $form['rss_item']['pubDate'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Publication date'),
       '#description' => $this->t('Solr field to populate the item publication date (pubDate).'),
-      '#autocomplete_path' => 'islandora_solr/autocomplete_luke',
+      '#autocomplete_route_name' => 'islandora_solr.autocomplete_luke',
       '#default_value' => $rss_item['pubDate'],
     ];
     $form['rss_item']['enclosure_dsid'] = [

@@ -7,6 +7,9 @@ namespace Drupal\islandora_solr\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+
 use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 
 /**
@@ -130,8 +133,12 @@ class DefaultController extends ControllerBase {
     return $output;
   }
 
-  public function _islandora_solr_autocomplete_luke($string = '') {
-
+  /**
+   * Admin autocomplete callback which returns solr fields from Luke.
+   */
+  public function _islandora_solr_autocomplete_luke(Request $request) {
+    module_load_include('inc', 'islandora_solr', 'includes/luke');
+    $string = $request->query->get('q');
     $luke = islandora_solr_get_luke();
     $result = [];
     foreach ($luke['fields'] as $term => $value) {
@@ -140,14 +147,16 @@ class DefaultController extends ControllerBase {
         $term_str = preg_replace("/$string/i", "<strong>\$0</strong>", $term);
 
         // Add strong elements to highlight the found string.
-        $result[$term] = $term_str . '<strong style="position: absolute; right: 5px;">(' . $value['type'] . ')</strong>';
+        $result[] = [
+          'label' => $term_str . '<strong style="position: absolute; right: 5px;">(' . $value['type'] . ')</strong>',
+          'value' => $term,
+        ];
       }
     }
     // Sort alphabetically.
-    ksort($result);
+    sort($result);
 
-    drupal_json_output($result);
-    exit();
+    return new JsonResponse($result);
   }
 
 }

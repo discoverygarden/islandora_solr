@@ -32,6 +32,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
 
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form_state->loadInclude('islandora', 'inc', 'includes/utilities');
+    $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
     // @fixme: adding a lib here may be cruft
     // Add admin form css.
     /*$form['#attached'] = [
@@ -200,7 +201,6 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#group' => 'islandora_solr_tabs',
       '#title' => $this->t('Default display settings'),
     ];
-    /*
     // Display fields.
     $terms = [
       '#type' => 'item',
@@ -210,15 +210,14 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#prefix' => '<div id="islandora-solr-result-fields-wrapper">',
       '#suffix' => '</div>',
       '#field_type' => 'result_fields',
-      '#theme' => 'islandora_solr_admin_fields',
     ];
 
     // Create terms/fields.
-    //islandora_solr_admin_settings_fields($form_state, $terms, 'result_fields');
+    islandora_solr_admin_settings_fields($form_state, $terms, 'result_fields');
 
     // Result fields.
     $form['islandora_solr_tabs']['default_display_settings']['islandora_solr_result_fields'] = $terms;
-    */
+
     // Other results settings.
     $form['default_display_settings']['islandora_solr_limit_result_fields'] = [
       '#type' => 'checkbox',
@@ -278,7 +277,6 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#prefix' => '<div id="islandora-solr-sort-fields-wrapper">',
       '#suffix' => '</div>',
       '#field_type' => 'sort_fields',
-      '#theme' => 'islandora_solr_admin_fields',
     ];
 
     // Create terms/fields.
@@ -303,7 +301,6 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#prefix' => '<div id="islandora-solr-facet-fields-wrapper">',
       '#suffix' => '</div>',
       '#field_type' => 'facet_fields',
-      '#theme' => 'islandora_solr_admin_fields',
     ];
 
     // Create terms/fields.
@@ -352,7 +349,6 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#prefix' => '<div id="islandora-solr-search-fields-wrapper">',
       '#suffix' => '</div>',
       '#field_type' => 'search_fields',
-      '#theme' => 'islandora_solr_admin_fields',
     ];
 
     // Create terms/fields.
