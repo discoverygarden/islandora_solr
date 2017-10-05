@@ -32,6 +32,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
 
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form_state->loadInclude('islandora', 'inc', 'includes/utilities');
+    // @fixme: adding a lib here may be cruft
     // Add admin form css.
     /*$form['#attached'] = [
       'css' => [
@@ -391,10 +392,6 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_advanced_search_block_lucene_syntax_escape'),
     ];
 
-    // @FIXME
-    // Could not extract the default value because it is either indeterminate, or
-    // not scalar. You'll need to provide a default value in
-    // config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
     $form['advanced_search_block']['islandora_solr_advanced_search_block_lucene_regex_default'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Default regular expression evaluated on search term'),

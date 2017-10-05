@@ -470,7 +470,7 @@ class IslandoraSolrQueryProcessor {
     // Loop over object results.
     foreach ($object_results as $object_index => $object_result) {
       $doc = $object_result['solr_doc'];
-      $rows = array();
+      $rows = [];
       // 1: Add defined fields.
       foreach ($fields_filtered as $field => $label) {
         if (isset($doc[$field]) && !empty($doc[$field])) {
