@@ -23,34 +23,27 @@ use Drupal\Core\Form\FormStateInterface;
 function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$terms, $field_type) {
   // Set variables.
   $field_type_class = str_replace('_', '-', $field_type);
-  if (!isset($terms['terms'])) {
-    $terms['terms'] = [];
-  }
-
   // Ways to populate the fields table:
   // 1. Saved values from the DB
   // 2. Triggered element
   // 2.a. Add field
   // 2.b. Remove field
-  // 2.c. Configure field:
-  // - Prepare array to populate dialog.
-  // 2.d. Dialog submit:
-  // - Process values from modal dialog: add variables to form_state array and
-  //   update the table info.
   // 1. Saved values from the DB.
-  if ($form_state->isRebuilding()) {
-
+  $fields = [];
+  $db_fields = [];
+  $records = islandora_solr_get_fields($field_type, FALSE, FALSE);
+  foreach ($records as $record) {
+    $db_fields[] = $record['solr_field'];
+  }
+  if (!$form_state->getValues()) {
     // Get values from DB unfiltered, not simplified and incremental keys.
-    $records = islandora_solr_get_fields($field_type, FALSE, FALSE);
-
     // Set fields to populate the admin table.
-    $fields = array();
     foreach ($records as $key => $record) {
-      $fields[$key] = array(
+      $fields[$key] = [
         'solr_field' => $record['solr_field'],
         'field_type' => $record['field_type'],
         'weight' => $record['weight'],
-      );
+      ];
     }
     // Move solr_field_settings into the form state.
     foreach ($records as $key => $value) {
@@ -63,13 +56,6 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
   // 2. Triggered element (Add item or remove).
   if ($form_state->getTriggeringElement() &&
       $form_state->getTriggeringElement()['#field_type'] == $field_type) {
-    // Unset terms from input array.
-    $form_state->set(
-      ['values', 'islandora_solr_' . $field_type, 'terms'],
-      $form_state->get(['input', 'islandora_solr_' . $field_type, 'terms']) ? $form_state->get(['input', 'islandora_solr_' . $field_type, 'terms']) : []
-    );
-    $form_state->set(['input', 'islandora_solr_' . $field_type], NULL);
-
     // 2.a add field.
     if ($form_state->getTriggeringElement()['#name'] == $field_type . '_add_more') {
       // Get new solr field value.
@@ -81,10 +67,11 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
       }
       // Check if value is already added.
       $check_terms = $form_state->getValue(['islandora_solr_' . $field_type, 'terms']);
-
-      foreach ($check_terms as $key => $term) {
-        if (isset($term['solr_field']) && $term['solr_field'] == $add_solr_field) {
-          $solr_field_error = t('Solr term can only be added once.');
+      if ($check_terms) {
+        foreach ($check_terms as $key => $term) {
+          if (isset($term['solr_field']) && $term['solr_field'] == $add_solr_field) {
+            $solr_field_error = t('Solr term can only be added once.');
+          }
         }
       }
       // Add new field to values.
@@ -95,156 +82,113 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
       }
     }
     // 2.b. remove field.
-    if ($form_state->getTriggeringElement()['#value'] == t('Remove')) {
+    elseif ($form_state->getTriggeringElement()['#button_type'] == "{$field_type}_remove") {
       // Triggered field #.
       $field = $form_state->getTriggeringElement()['#field'];
       $solr_field = $form_state->getValue(['islandora_solr_' . $field_type, 'terms', $field, 'solr_field']);
       // Remove field.
       $form_state_terms = $form_state->getValue(['islandora_solr_' . $field_type, 'terms']);
-      array_splice($form_state_terms, $field, 1);
+      foreach ($form_state_terms as $key => $value) {
+        if ($field == $value['solr_field']) {
+          unset($form_state_terms[$key]);
+        }
+      }
       $form_state->setValue(['islandora_solr_' . $field_type, 'terms'], $form_state_terms);
       // Remove field values.
-      $form_state->set(['solr_field_settings', 'islandora_solr_' . $field_type, $solr_field], NULL);
-    }
-    // 2.c. configure field.
-    if ($form_state->getTriggeringElement()['#value'] == t('Configure')) {
-      // Triggered field #.
-      $field = $form_state->getTriggeringElement()['#field'];
-      // Get field + dialog values and merge.
-      $values = $form_state->getValue(['islandora_solr_' . $field_type, 'terms', $field]);
-      $solr_field = $form_state->getValue(['islandora_solr_' . $field_type, 'terms', $field, 'solr_field']);
-      $solr_field_settings = (array) \Drupal\Component\Utility\NestedArray::getValue($form_state, [
-        'solr_field_settings',
-        'islandora_solr_' . $field_type,
-        $solr_field,
-      ]);
-      $values = array_merge_recursive($values, $solr_field_settings);
-      // Prepare dialog values.
-      $dialog_id = 'edit-islandora-solr-' . $field_type_class . '-terms-' . $field . '-dialog-button';
-      $form_state->set('dialog', [
-        'solr_field' => $solr_field,
-        'field_type' => $field_type,
-        'dialog_id' => $dialog_id,
-        'values' => $values,
-      ]);
-    }
-    // 2.d. Dialog submit.
-    if ($form_state->getTriggeringElement()['#value'] == t('Dialog')) {
-      // Triggered field #.
-      $field = $form_state->getTriggeringElement()['#field'];
-      // Get $solr_field.
-      $solr_field = $form_state->getValue(['islandora_solr_' . $field_type, 'terms', $field, 'solr_field']);
-      // Get dialog values from recent dialog submit.
-      $dialog_values = $form_state->set(['input', '_dialog_values'], json_decode($form_state->get(['input', '_dialog_values']), TRUE));
-      // Save the dialog values in the form state.
-      $form_state->set(['solr_field_settings', 'islandora_solr_' . $field_type, $solr_field], _islandora_solr_handle_solr_field_settings($dialog_values, $field_type));
+      $form_state->set(['solr_field_settings', 'islandora_solr_' . $field_type, $field], NULL);
     }
   }
-
-  // Prepare fields array.
   if ($form_state->getValue(['islandora_solr_' . $field_type, 'terms'])) {
     $fields = $form_state->getValue(['islandora_solr_' . $field_type, 'terms']);
   }
 
   // Render fields.
-  if (!empty($fields)) {
-    $term = [];
+  $rows = [];
+  if ($fields) {
     $count = count($fields);
     $fields = array_values($fields);
     foreach ($fields as $key => $value) {
+      $row = [];
       $solr_field = $value['solr_field'];
-
-      $term['draggable_handler'] = array(
+      $row[] = [
         '#type' => 'item',
-        '#markup' => '',
-      );
-      $term['solr_field_render'] = array(
-        '#type' => 'item',
-        '#markup' => isset($value['solr_field']) ? $value['solr_field'] : '',
-      );
-      $term['solr_field'] = array(
+        '#markup' => $solr_field,
+      ];
+      $row['solr_field'] = [
         '#type' => 'hidden',
-        '#value' => isset($value['solr_field']) ? $value['solr_field'] : '',
-      );
+        '#value' => $solr_field,
+      ];
       $solr_field_settings = NULL;
       if ($form_state->get(['solr_field_settings', 'islandora_solr_' . $field_type, $solr_field, 'label'])) {
         $solr_field_settings = $form_state->get(['solr_field_settings', 'islandora_solr_' . $field_type, $solr_field, 'label']);
       }
-      $term['solr_field_settings'] = [
+      $row[] = [
         '#markup' => $solr_field_settings ? t('Label: @label', ['@label' => $solr_field_settings]) : '',
       ];
-      $term['weight'] = array(
+      if (in_array($solr_field, $db_fields)) {
+        $row[] = [
+          '#type' => 'link',
+          '#title' => t('configure'),
+          '#href' => '#',
+          '#options' => ['attributes' => ['class' => 'islandora-solr-configure-link']],
+        ];
+      }
+      else {
+        $row[] = [];
+      }
+      $row[] = [
+        '#type' => 'button',
+        '#value' => t('remove'),
+        '#button_type' => "{$field_type}_remove",
+        '#name' => "{$solr_field}_remove",
+        '#field_type' => $field_type,
+        '#field' => $solr_field,
+        '#ajax' => [
+          'callback' => '_islandora_solr_update_fields',
+          'wrapper' => 'islandora-solr-' . $field_type_class . '-wrapper',
+          'event' => 'click',
+          'effect' => 'none',
+        ],
+      ];
+      $row['weight'] = [
         '#type' => 'weight',
         '#default_value' => isset($value['weight']) ? $value['weight'] : $key,
-        '#delta' => $count >= 10 ? $count : 10,
-        '#attributes' => array('class' => array('solr-weight-' . $field_type_class)),
-      );
-      $term['configure'] = array(
-        '#type' => 'link',
-        '#title' => t('configure'),
-        '#href' => '#',
-        '#options' => array('attributes' => array('class' => 'islandora-solr-configure-link')),
-      );
-      $term['configure_button'] = array(
-        '#type' => 'submit',
-        '#value' => t('Configure'),
-        '#field' => $key,
-        '#field_type' => $field_type,
-        '#attributes' => array('class' => array('islandora-solr-configure-submit')),
-        '#submit' => array('_islandora_solr_update_fields_submit'),
-        '#name' => $field_type . '_configure_' . $key,
-        '#id' => 'edit-islandora-solr-' . $field_type_class . '-terms-' . $key . '-configure-button',
-        '#ajax' => array(
-          'callback' => '_islandora_solr_admin_settings_field_configure',
-          'wrapper' => 'islandora-solr-' . $field_type_class . '-wrapper',
-          'effect' => 'none',
-          'event' => 'click',
-          'progress' => array('message' => '', 'type' => 'throbber'),
-        ),
-      );
-      $term['remove'] = array(
-        '#type' => 'link',
-        '#title' => t('remove'),
-        '#href' => '#',
-        '#options' => array('attributes' => array('class' => 'islandora-solr-remove-link')),
-      );
-      $term['remove_button'] = array(
-        '#type' => 'submit',
-        '#value' => t('Remove'),
-        '#field' => $key,
-        '#field_type' => $field_type,
-        '#attributes' => array('class' => array('islandora-solr-remove-submit')),
-        '#submit' => array('_islandora_solr_update_fields_submit'),
-        '#name' => $field_type . '_remove_' . $key,
-        '#id' => 'edit-islandora-solr-' . $field_type_class . '-terms-' . $key . '-remove-button',
-        '#ajax' => array(
-          'callback' => '_islandora_solr_update_fields',
-          'wrapper' => 'islandora-solr-' . $field_type_class . '-wrapper',
-          'effect' => 'none',
-          'event' => 'click',
-          'progress' => array('message' => '', 'type' => 'throbber'),
-        ),
-      );
-      $term['dialog_button'] = array(
-        '#type' => 'submit',
-        '#value' => t('Dialog'),
-        '#field' => $key,
-        '#field_type' => $field_type,
-        '#attributes' => array('class' => array('islandora-solr-dialog-submit')),
-        '#submit' => array('_islandora_solr_update_fields_submit'),
-        '#name' => $field_type . '_dialog_' . $key,
-        '#id' => 'edit-islandora-solr-' . $field_type_class . '-terms-' . $key . '-dialog-button',
-        '#ajax' => array(
-          'callback' => '_islandora_solr_update_fields',
-          'wrapper' => 'islandora-solr-' . $field_type_class . '-wrapper',
-          'effect' => 'none',
-          'event' => 'click',
-          'progress' => array('message' => '', 'type' => 'throbber'),
-        ),
-      );
-      $terms['terms'][] = $term;
+        '#attributes' => ['class' => ['solr-weight-' . $field_type_class, "$field_type_class-table-order-weight"]],
+      ];
+      $row['#attributes']['class'][] = 'draggable';
+      $rows[] = $row;
     }
   }
+  // Create header array.
+  $header = [
+    [
+      'data' => t('Solr field'),
+      'colspan' => 2,
+      'class' => 'islandora-solr-solr-field-header',
+    ],
+    ['data' => t('Settings')],
+    ['data' => t('Operations'), 'colspan' => 2],
+    ['data' => t('Weight')],
+  ];
+  // Render form.
+  $terms['terms'] = [
+    '#type' => 'table',
+    '#empty' => t('No fields defined'),
+    '#tree' => TRUE,
+    '#header' => $header,
+    '#attributes' => [
+      'id' => "islandora-solr-$field_type_class",
+      'class' => ['islandora-solr-fields-table'],
+    ],
+    '#tabledrag' => [
+      [
+        'action' => 'order',
+        'relationship' => 'sibling',
+        'group' => "$field_type_class-table-order-weight",
+      ],
+    ],
+  ];
+  $terms['terms'] = array_merge($terms['terms'], $rows);
   $terms['add_solr_field'] = array(
     '#type' => 'textfield',
     '#title' => t('Add another item'),
@@ -254,14 +198,13 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
   );
   if (isset($solr_field_error) && !empty($solr_field_error)) {
     $terms['add_solr_field']['#title'] .= '<br /><span class="solr-admin-error">' . $solr_field_error . '</span>';
-    $terms['add_solr_field']['#attributes'] = array('class' => ['error']);
+    $terms['add_solr_field']['#attributes'] = ['class' => ['error']];
   }
 
   $terms['add_more'] = [
     '#type' => 'button',
     '#value' => t('Add'),
     '#attributes' => ['class' => ['islandora-solr-add-more-submit']],
-    '#submit' => ['_islandora_solr_update_fields_submit'],
     '#name' => $field_type . '_add_more',
     '#field_type' => $field_type,
     '#id' => 'edit-islandora-solr-' . $field_type_class . '-add-more',
@@ -272,125 +215,6 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
       'effect' => 'none',
     ],
   ];
-}
-
-/**
- * Theme function to create an admin table for result fields.
- *
- * @param array $variables
- *   Array containing form elements to be themed.
- *
- * @return string
- *   Rendered table.
- */
-function theme_islandora_solr_admin_fields($variables) {
-  $renderer = \Drupal::service('renderer');
-  $form = $variables['form'];
-
-  $field_type = $form['#field_type'];
-
-  // Render class name from field type.
-  $field_type_class = str_replace('_', '-', $field_type);
-
-  $rows = [];
-
-  // If no_fields is set, we don't render all the fields.
-  if (isset($form['no_fields'])) {
-    $row = [];
-    $row[] = ['data' => $renderer->render($form['no_fields']), 'colspan' => 10];
-
-    // Add to rows.
-    $rows[] = ['data' => $row];
-  }
-  else {
-    foreach ($form['terms'] as $key => $element) {
-      if (is_array($element) && \Drupal\Core\Render\Element::child($key)) {
-        $row = [];
-        $row[] = array('data' => $renderer->render($form['terms'][$key]['draggable_handler']), 'class' => 'islandora-solr-multiple-drag');
-        $row[] = array('data' => $renderer->render($form['terms'][$key]['solr_field_render']), 'class' => 'islandora-solr-solr-field-render');
-        $row[] = array('data' => $renderer->render($form['terms'][$key]['solr_field_settings']), 'class' => 'islandora-solr-solr-field-settings');
-        $row[] = array('data' => $renderer->render($form['terms'][$key]['weight']));
-        $row[] = array('data' => $renderer->render($form['terms'][$key]['configure']), 'class' => 'islandora-solr-operations');
-        $row[] = array('data' => $renderer->render($form['terms'][$key]['configure_button']), 'class' => 'islandora-solr-operations islandora-solr-operations-hidden');
-        $row[] = array('data' => $renderer->render($form['terms'][$key]['remove']), 'class' => 'islandora-solr-operations');
-        $row[] = array('data' => $renderer->render($form['terms'][$key]['remove_button']), 'class' => 'islandora-solr-operations islandora-solr-operations-hidden');
-        $row[] = array('data' => $renderer->render($form['terms'][$key]['dialog_button']), 'class' => 'islandora-solr-operations islandora-solr-operations-hidden');
-
-        // Add to rows.
-        $rows[] = ['data' => $row];
-      }
-    }
-  }
-
-  // Create header array.
-  $header = [];
-  $header[] = [
-    'data' => t('Solr field'),
-    'colspan' => 2,
-    'class' => 'islandora-solr-solr-field-header',
-  ];
-  $header[] = array('data' => t('Settings'));
-  $header[] = array('data' => t('Weight'), 'class' => 'islandora-solr-solr-field-weight');
-  $header[] = array('data' => t('Operations'), 'colspan' => 4);
-
-  // Controls table.
-  $rows_controls = [];
-  // Add another item form elements.
-/*
-  $rows_controls[] = [
-    'data' => [
-      [
-        'data' => $renderer->render($form['add_solr_field']) . $renderer->render($form['add_more']),
-        'colspan' => 10,
-      ],
-    ],
-    'no_striping' => 1,
-    'class' => ['add-item-controls'],
-  ];
-*/
-//ksm($renderer->render($form['add_solr_field']));
-//ksm($renderer->render($form['add_more']));
-  $rows_controls_row[] = [
-    //'data' => $renderer->render($form['add_solr_field']) . $renderer->render($form['add_more']),
-    'data' => $renderer->render($form['add_solr_field']),
-/*    'data' => [
-'add_field' => $renderer->render($form['add_solr_field']),
-'add_button' => $renderer->render($form['add_more'])
-],*/
-    'colspan' => 10,
-    'no_striping' => 1,
-    'class' => ['add-item-controls'],
-  ];
-$rows_controls[] = $rows_controls_row;
-ksm($rows);
-  // Render form.
-  $output = '';
-  $field_table = [
-    '#type' => 'table',
-    '#empty' => t('No fields defined'),
-    '#tree' => TRUE,
-    '#header' => $header,
- //   '#rows' => $rows,
-    'attributes' => [
-      'id' => 'islandora-solr-' . $field_type_class,
-      'class' => ['islandora-solr-fields-table'],
-    ],
-  ];
-  $field_table = array_merge($field_table, $rows);
-  //$output .= $renderer->render($field_table);
-  $row_table = [
-    '#type' => 'table',
-    '#tree' => TRUE,
-    '#header' => [],
-    '#rows' => $rows_controls,
-    '#attributes' => ['class' => ['islandora-solr-table-controls']],
-  ];
- // $row_table = array_merge($row_table, $rows_controls);
-//ksm($renderer->render($row_table));
-  $output .= $renderer->render($row_table);
-  $output .= drupal_render_children($form);
-
-  return $output;
 }
 
 /**
@@ -448,7 +272,7 @@ function _islandora_solr_check_dismax($solr_url, $selected_handler) {
 /**
  * Submit callback function for fields.
  *
- * Used by 'Add field', 'Configure', 'Remove' and 'Dialog'.
+ * Used by 'Add field', 'Configure', 'Remove'.
  *
  * @param array $form
  *   An associative array containing the form definition.
@@ -462,7 +286,7 @@ function _islandora_solr_update_fields_submit($form, FormStateInterface $form_st
 /**
  * Ajax callback function for fields.
  *
- * Used by 'Add field', 'Remove' and 'Dialog' links/buttons.
+ * Used by 'Add field', 'Remove' links/buttons.
  *
  * @param array $form
  *   An associative array containing the form definition.
@@ -477,90 +301,17 @@ function _islandora_solr_update_fields($form, FormStateInterface $form_state) {
   // Check what section the call is from.
   switch ($form_state->getTriggeringElement()['#field_type']) {
     case 'result_fields':
-      return $form['islandora_solr_tabs']['default_display_settings']['islandora_solr_result_fields'];
+      return $form['default_display_settings']['islandora_solr_result_fields'];
 
     case 'sort_fields':
-      return $form['islandora_solr_tabs']['sort']['islandora_solr_sort_fields'];
+      return $form['sort']['islandora_solr_sort_fields'];
 
     case 'facet_fields':
-      return $form['islandora_solr_tabs']['facet_settings']['islandora_solr_facet_fields'];
+      return $form['facet_settings']['islandora_solr_facet_fields'];
 
     case 'search_fields':
-      return $form['islandora_solr_tabs']['advanced_search_block']['islandora_solr_search_fields'];
+      return $form['advanced_search_block']['islandora_solr_search_fields'];
   }
-}
-
-/**
- * AJAX callback function for 'Configure' link/button.
- *
- * Passes values from the field, loads the right form and populates and
- * triggers the modal dialog.
- *
- * @param array $form
- *   An associative array containing the form definition.
- * @param array $form_state
- *   An associative array containing the form state.
- *
- * @return array
- *   An array of AJAX commands.
- */
-function _islandora_solr_admin_settings_field_configure($form, &$form_state) {
-  $variables = $form_state['dialog'];
-  $field_type = $form_state['dialog']['field_type'];
-  $solr_field = $form_state['dialog']['solr_field'];
-  $form_function = _islandora_solr_admin_get_form_function($field_type);
-
-  $commands = array();
-
-  // Open dialog.
-  $commands[] = ajax_command_invoke('#islandora-solr-admin-dialog', 'dialog', array('open'));
-  // Dialog title.
-  $title = t('Configure field:') . ' ' . $solr_field;
-  $commands[] = ajax_command_invoke('#islandora-solr-admin-dialog-title', 'html', array($title));
-  // Dialog body.
-  $form = \Drupal::formBuilder()->getForm($form_function, $variables);
-  $body = \Drupal::service("renderer")->render($form);
-  $commands[] = ajax_command_invoke('#islandora-solr-admin-dialog-body', 'html', array($body));
-  // Attach behaviors (re-attaches javascript).
-  $commands[] = ajax_command_invoke(NULL, 'islandoraSolrAttachBehaviors', array());
-
-  return array('#type' => 'ajax', '#commands' => $commands);
-}
-
-/**
- * AJAX callback function for the modal dialog submit button.
- *
- * Closes the modal dialog and passes the values to the main form.
- *
- * @param array $form
- *   An associative array containing the form definition.
- * @param array $form_state
- *   An associative array containing the form state.
- *
- * @return array
- *   An array of AJAX commands.
- */
-function _islandora_solr_admin_settings_dialog($form, &$form_state) {
-
-  $dialog_id = $form_state['dialog']['dialog_id'];
-
-  $commands = array();
-  // Close dialog.
-  $commands[] = ajax_command_invoke('#islandora-solr-admin-dialog', 'dialog', array('close'));
-
-  // Call function which attaches the dialog form values to
-  // Drupal.ajax.{dialog-button-id}.options.data.
-  // After triggering the dialog ajax callback, the dialog values will be added
-  // to the $form_state of the main form.
-  $data = array(
-    'id' => $dialog_id,
-    'values' => $form_state['input'],
-  );
-  $commands[] = ajax_command_invoke(NULL, 'islandoraSolrDialogValues', array($data));
-  // Trigger dialog button.
-  $commands[] = ajax_command_invoke('#' . $dialog_id, 'trigger', array('click'));
-
-  return array('#type' => 'ajax', '#commands' => $commands);
 }
 
 /**
@@ -817,7 +568,7 @@ function islandora_solr_admin_settings_result_fields($form, &$form_state, $varia
       '#type' => 'textfield',
       '#title' => t('Date format'),
       '#default_value' => isset($values['date_format']) ? $values['date_format'] : '',
-      '#description' => t('The format of the date, as it will be displayed in the search results. Use <a href="!url" target="_blank">PHP date()</a> formatting. Works best when the date format matches the granularity of the source data. Otherwise it is possible that there will be duplicates displayed.', array('!url' => 'http://php.net/manual/function.date.php')),
+      '#description' => t('The format of the date, as it will be displayed in the search results. Use <a href="@url" target="_blank">PHP date()</a> formatting. Works best when the date format matches the granularity of the source data. Otherwise it is possible that there will be duplicates displayed.', array('@url' => 'http://php.net/manual/function.date.php')),
     );
   }
 
@@ -854,7 +605,7 @@ function islandora_solr_admin_settings_result_fields($form, &$form_state, $varia
     'wordsafe' => array(
       '#type' => 'checkbox',
       '#title' => t('Wordsafe'),
-      '#description' => t('If selected attempt to truncate on a word boundary. See <a href="!url" target="_blank".>documentation</a> for more information.', array('!url' => 'https://api.drupal.org/api/drupal/includes!unicode.inc/function/truncate_utf8/7')),
+      '#description' => t('If selected attempt to truncate on a word boundary. See <a href="@url" target="_blank".>documentation</a> for more information.', array('@url' => 'https://api.drupal.org/api/drupal/includes!unicode.inc/function/truncate_utf8/7')),
       '#default_value' => isset($values['wordsafe']) ? $values['wordsafe'] : FALSE,
       '#states' => array(
         'invisible' => array(
@@ -1000,7 +751,7 @@ function islandora_solr_admin_settings_facet_fields($form, &$form_state, $variab
       '#type' => 'textfield',
       '#title' => t('Date format'),
       '#default_value' => $values['date_facet_format'],
-      '#description' => t('The format of the date, as it will be displayed in the facet block. Use <a href="!url">PHP date()</a> formatting. Works best when the date format matches the granularity of the source data. Otherwise it is possible that there will be duplicates displayed.', array('!url' => 'http://php.net/manual/function.date.php')),
+      '#description' => t('The format of the date, as it will be displayed in the facet block. Use <a href="@url">PHP date()</a> formatting. Works best when the date format matches the granularity of the source data. Otherwise it is possible that there will be duplicates displayed.', array('@url' => 'http://php.net/manual/function.date.php')),
     );
 
     $form['options']['range_facet'] = array(
@@ -1039,19 +790,19 @@ function islandora_solr_admin_settings_facet_fields($form, &$form_state, $variab
       '#type' => 'textfield',
       '#title' => t('Start'),
       '#default_value' => $values['range_facet_start'],
-      '#description' => t('The lower bound of the first date range for all date faceting on this field. This should be a single date expression which may use the <a href="!url">DateMathParser</a> syntax.', array('!url' => 'http://lucene.apache.org/solr/api/org/apache/solr/util/DateMathParser.html')),
+      '#description' => t('The lower bound of the first date range for all date faceting on this field. This should be a single date expression which may use the <a href="@url">DateMathParser</a> syntax.', array('@url' => 'http://lucene.apache.org/solr/api/org/apache/solr/util/DateMathParser.html')),
     );
     $form['options']['range_facet']['wrapper']['range_facet_end'] = array(
       '#type' => 'textfield',
       '#title' => t('End'),
       '#default_value' => $values['range_facet_end'],
-      '#description' => t('The minimum upper bound of the last date range for all Date Faceting on this field. This should be a single date expression which may use the <a href="!url">DateMathParser</a> syntax.', array('!url' => 'http://lucene.apache.org/solr/api/org/apache/solr/util/DateMathParser.html')),
+      '#description' => t('The minimum upper bound of the last date range for all Date Faceting on this field. This should be a single date expression which may use the <a href="@url">DateMathParser</a> syntax.', array('@url' => 'http://lucene.apache.org/solr/api/org/apache/solr/util/DateMathParser.html')),
     );
     $form['options']['range_facet']['wrapper']['range_facet_gap'] = array(
       '#type' => 'textfield',
       '#title' => t('Gap'),
       '#default_value' => $values['range_facet_gap'],
-      '#description' => t('The size of each date range, expressed as an interval to be added to the lower bound using the <a href="!url">DateMathParser</a> syntax.', array('!url' => 'http://lucene.apache.org/solr/api/org/apache/solr/util/DateMathParser.html')),
+      '#description' => t('The size of each date range, expressed as an interval to be added to the lower bound using the <a href="@url">DateMathParser</a> syntax.', array('@url' => 'http://lucene.apache.org/solr/api/org/apache/solr/util/DateMathParser.html')),
     );
     // Range slider.
     $form['options']['range_facet']['wrapper']['range_slider'] = array(
@@ -1099,7 +850,7 @@ function islandora_solr_admin_settings_facet_fields($form, &$form_state, $variab
       '#default_value' => $values['date_filter_datepicker_range'],
       '#size' => 10,
       '#maxsize' => 10,
-      '#description' => t('The range of years displayed in the year drop-down menu. These are either relative to today\'s year ("-nn:+nn"), to the currently selected year ("c-nn:c+nn"), an absolute ("nnnn:nnnn"), or combinations of these formats ("nnnn:-nn"). For more info, check the jQuery UI <a href="!url" target="_blank">datepicker documentation</a>.', array('!url' => 'http://api.jqueryui.com/datepicker/#option-yearRange')),
+      '#description' => t('The range of years displayed in the year drop-down menu. These are either relative to today\'s year ("-nn:+nn"), to the currently selected year ("c-nn:c+nn"), an absolute ("nnnn:nnnn"), or combinations of these formats ("nnnn:-nn"). For more info, check the jQuery UI <a href="@url" target="_blank">datepicker documentation</a>.', array('@url' => 'http://api.jqueryui.com/datepicker/#option-yearRange')),
       '#states' => array(
         'visible' => array(
           ':input[name="date_filter_datepicker_enabled"]' => array('checked' => TRUE),

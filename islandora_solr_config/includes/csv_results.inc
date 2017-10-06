@@ -152,8 +152,8 @@ function islandora_solr_config_csv_download_csv($success, $results, $operations)
   file_unmanaged_delete($results['islandora_solr_csv_file']);
   // @FIXME
 // l() expects a Url object, created from a route name or external URI.
-// drupal_set_message(\Drupal\Component\Utility\Xss::filter(t('The exported results CSV is available for download !url.', array(
-//     '!url' => l(t('here'), file_create_url($export_uri)),
+// drupal_set_message(\Drupal\Component\Utility\Xss::filter(t('The exported results CSV is available for download @url.', array(
+//     '@url' => l(t('here'), file_create_url($export_uri)),
 //   ))));
 
 }

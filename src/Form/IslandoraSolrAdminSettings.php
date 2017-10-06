@@ -203,7 +203,8 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     ];
     // Display fields.
     $terms = [
-      '#type' => 'item',
+      '#type' => 'details',
+      '#open' => TRUE,
       '#title' => $this->t('Display fields'),
       '#description' => $this->t('Set labels for Solr fields to be included in the search results.'),
       '#tree' => TRUE,
@@ -216,7 +217,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     islandora_solr_admin_settings_fields($form_state, $terms, 'result_fields');
 
     // Result fields.
-    $form['islandora_solr_tabs']['default_display_settings']['islandora_solr_result_fields'] = $terms;
+    $form['default_display_settings']['islandora_solr_result_fields'] = $terms;
 
     // Other results settings.
     $form['default_display_settings']['islandora_solr_limit_result_fields'] = [
@@ -267,11 +268,12 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#group' => 'islandora_solr_tabs',
     ];
     // Sort terms.
-    /*$sort_terms = [
-      '#type' => 'item',
+    $sort_terms = [
+      '#type' => 'details',
+      '#open' => TRUE,
       '#title' => $this->t('Sort fields'),
-      '#description' => $this->t('Indicates what fields should appear in the <strong>Islandora sort block</strong>. To sort on relevancy, use the \'score\' field.<br /><strong>Note:</strong> not all fields are sortable. For more information, check the <a href="!url">Solr documentation</a>.', [
-        '!url' => 'http://wiki.apache.org/solr/CommonQueryParameters#sort'
+      '#description' => $this->t('Indicates what fields should appear in the <strong>Islandora sort block</strong>. To sort on relevancy, use the \'score\' field.<br /><strong>Note:</strong> not all fields are sortable. For more information, check the <a href="@url">Solr documentation</a>.', [
+        '@url' => 'http://wiki.apache.org/solr/CommonQueryParameters#sort'
         ]),
       '#tree' => TRUE,
       '#prefix' => '<div id="islandora-solr-sort-fields-wrapper">',
@@ -280,10 +282,10 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     ];
 
     // Create terms/fields.
-    //islandora_solr_admin_settings_fields($form_state, $sort_terms, 'sort_fields');
+    islandora_solr_admin_settings_fields($form_state, $sort_terms, 'sort_fields');
 
     // Sort fields.
-    $form['islandora_solr_tabs']['sort']['islandora_solr_sort_fields'] = $sort_terms;*/
+    $form['sort']['islandora_solr_sort_fields'] = $sort_terms;
 
     // Facet settings.
     $form['facet_settings'] = [
@@ -293,8 +295,9 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     ];
 
     // Facet terms.
-    /*$facet_terms = [
-      '#type' => 'item',
+    $facet_terms = [
+      '#type' => 'details',
+      '#open' => TRUE,
       '#title' => $this->t('Facet fields'),
       '#description' => $this->t('Indicate what fields should appear as <strong>facets</strong>.<br /><strong>Note:</strong> it is recommended to use non-tokenized Solr fields (full literal strings).'),
       '#tree' => TRUE,
@@ -304,10 +307,10 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     ];
 
     // Create terms/fields.
-    //islandora_solr_admin_settings_fields($form_state, $facet_terms, 'facet_fields');
+    islandora_solr_admin_settings_fields($form_state, $facet_terms, 'facet_fields');
 
     // Facet fields.
-    $form['islandora_solr_tabs']['facet_settings']['islandora_solr_facet_fields'] = $facet_terms;*/
+    $form['facet_settings']['islandora_solr_facet_fields'] = $facet_terms;
 
     $form['facet_settings']['islandora_solr_facet_min_limit'] = [
       '#type' => 'textfield',
@@ -338,8 +341,9 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#group' => 'islandora_solr_tabs',
     ];
 
-    /*$search_terms = [
-      '#type' => 'item',
+    $search_terms = [
+      '#type' => 'details',
+      '#open' => TRUE,
       '#title' => $this->t('Search terms'),
       '#description' => $this->t('Indicates what fields should appear in the dropdown menu of terms for
       the <strong>Advanced Search Block</strong>.<br /><strong>Note:</strong>
@@ -352,10 +356,10 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     ];
 
     // Create terms/fields.
-    //islandora_solr_admin_settings_fields($form_state, $search_terms, 'search_fields');
+    islandora_solr_admin_settings_fields($form_state, $search_terms, 'search_fields');
 
     // Search fields.
-    $form['islandora_solr_tabs']['advanced_search_block']['islandora_solr_search_fields'] = $search_terms;*/
+    $form['advanced_search_block']['islandora_solr_search_fields'] = $search_terms;
 
     $form['advanced_search_block']['islandora_solr_search_boolean'] = [
       '#type' => 'radios',
@@ -399,9 +403,9 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
         'visible' => [
           ':input[name="islandora_solr_advanced_search_block_lucene_syntax_escape"]' => [
             'checked' => TRUE
-            ]
           ]
-        ],
+        ]
+      ],
     ];
 
     // Query defaults.
@@ -583,6 +587,10 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       'form_token',
       'form_id',
       'submit',
+      'islandora_solr_result_fields',
+      'islandora_solr_sort_fields',
+      'islandora_solr_facet_fields',
+      'islandora_solr_search_fields',
     ];
     foreach ($form_state->getValues() as $key => $values) {
       if (!in_array($key, $skipped_keys)) {
@@ -590,8 +598,63 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       }
     }
     $this->config('islandora_solr.settings')->save();
+
+    // Handle fields.
+    $insert_values = [];
+    $field_types = [
+      'result_fields',
+      'sort_fields',
+      'facet_fields',
+      'search_fields',
+    ];
+    foreach ($field_types as $field_type) {
+      if ($form_state->getValue(["islandora_solr_{$field_type}", 'terms'])) {
+        $result_fields = $form_state->getValue(["islandora_solr_{$field_type}", 'terms']);
+        foreach ($result_fields as $key => $value) {
+          $solr_field = $value['solr_field'];
+          $solr_field_settings = [];
+          if ($form_state->get(['solr_field_settings', "islandora_solr_{$field_type}", $solr_field])) {
+            $solr_field_settings = $form_state->get(['solr_field_settings', "islandora_solr_{$field_type}", $solr_field]);
+            // Handle linking to objects to not break existing features while
+            // adding new functionality.
+            if ($field_type == 'result_fields') {
+              if (isset($solr_field_settings['link_rendering'])) {
+                $link_choice = $solr_field_settings['link_rendering'];
+                $solr_field_settings['link_to_object'] = FALSE;
+                $solr_field_settings['link_to_search'] = FALSE;
+                if ($link_choice === 'object') {
+                  $solr_field_settings['link_to_object'] = TRUE;
+                }
+                elseif ($link_choice === 'search') {
+                  $solr_field_settings['link_to_search'] = TRUE;
+                }
+                unset($solr_field_settings['link_rendering']);
+              }
+            }
+          }
+          $insert_values[] = [
+            'solr_field' => $solr_field,
+            'field_type' => $field_type,
+            'weight' => $value['weight'],
+            'solr_field_settings' => serialize($solr_field_settings),
+          ];
+        }
+      }
+    }
+    // Clear the db fields table.
+    db_delete('islandora_solr_fields')->execute();
+    // And then populate them.
+    $insert = db_insert('islandora_solr_fields')->fields([
+      'solr_field',
+      'field_type',
+      'weight',
+      'solr_field_settings',
+    ]);
+    foreach ($insert_values as $record) {
+      $insert->values($record);
+    }
+    $insert->execute();
     parent::submitForm($form, $form_state);
   }
 
 }
-
