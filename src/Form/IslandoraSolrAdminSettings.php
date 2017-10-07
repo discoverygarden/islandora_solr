@@ -7,6 +7,8 @@
 
 namespace Drupal\islandora_solr\Form;
 
+use PDO;
+
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\islandora\Form\IslandoraModuleHandlerAdminForm;
 
@@ -591,7 +593,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     $this->config('islandora_solr.settings')->save();
 
     // Handle fields.
-    $insert_values = [];
+    $current_values = [];
     $field_types = [
       'result_fields',
       'sort_fields',
@@ -623,7 +625,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
               }
             }
           }
-          $insert_values[] = [
+          $current_values[] = [
             'solr_field' => $solr_field,
             'field_type' => $field_type,
             'weight' => $value['weight'],
@@ -632,19 +634,67 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
         }
       }
     }
-    // Clear the db fields table.
-    db_delete('islandora_solr_fields')->execute();
-    // And then populate them.
-    $insert = db_insert('islandora_solr_fields')->fields([
-      'solr_field',
-      'field_type',
-      'weight',
-      'solr_field_settings',
-    ]);
-    foreach ($insert_values as $record) {
-      $insert->values($record);
+    // Get fields.
+    $query = db_select('islandora_solr_fields');
+    $query->fields('islandora_solr_fields');
+    $result = $query->execute();
+    $records = $result->fetchAll(PDO::FETCH_ASSOC);
+    // Find things to Add.
+    $insert_values = [];
+    foreach ($current_values as $current_key => $current_value) {
+      $found = FALSE;
+      foreach ($records as $existing_key => $existing_value) {
+        if ($current_value['solr_field'] == $existing_value['solr_field'] && $current_value['field_type'] == $existing_value['field_type'] ) {
+          $found = TRUE;
+          break;
+        }
+      }
+      if (!$found) {
+        $insert_values[] = $current_value;
+      }
     }
-    $insert->execute();
+    // Find things to remove.
+    $remove_values = [
+      'result_fields' => [],
+      'sort_fields' => [],
+      'facet_fields' => [],
+      'search_fields' => [],
+    ];
+    foreach ($records as $existing_key => $existing_value) {
+      $found = FALSE;
+      foreach ($current_values as $current_key => $current_value) {
+        if ($current_value['solr_field'] == $existing_value['solr_field'] && $current_value['field_type'] == $existing_value['field_type'] ) {
+          $found = TRUE;
+          break;
+        }
+      }
+      if (!$found) {
+        $remove_values[$existing_value['field_type']] = $existing_value['solr_field'];
+      }
+    }
+    // Add values.
+    foreach ($remove_values as $field_type => $values) {
+      if (!$values) {
+        break;
+      }
+      db_delete('islandora_solr_fields')
+        ->condition('field_type', $field_type)
+        ->condition('solr_field', $values, 'IN')
+        ->execute();
+    }
+    // Remove values.
+    if ($insert_values) {
+      $insert = db_insert('islandora_solr_fields')->fields([
+        'solr_field',
+        'field_type',
+        'weight',
+        'solr_field_settings',
+      ]);
+      foreach ($insert_values as $record) {
+        $insert->values($record);
+      }
+      $insert->execute();
+    }
     parent::submitForm($form, $form_state);
   }
 
