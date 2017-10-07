@@ -635,16 +635,20 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       }
     }
     // Get fields.
-    $query = db_select('islandora_solr_fields');
+    $query = \Drupal::database()->select('islandora_solr_fields');
     $query->fields('islandora_solr_fields');
     $result = $query->execute();
     $records = $result->fetchAll(PDO::FETCH_ASSOC);
-    // Find things to Add.
+    // Find things to Add/Update.
     $insert_values = [];
+    $update_values = [];
     foreach ($current_values as $current_key => $current_value) {
       $found = FALSE;
       foreach ($records as $existing_key => $existing_value) {
         if ($current_value['solr_field'] == $existing_value['solr_field'] && $current_value['field_type'] == $existing_value['field_type'] ) {
+          if ($current_value['weight'] != $existing_value['weight']) {
+            $update_values[] = $current_value;
+          }
           $found = TRUE;
           break;
         }
@@ -672,19 +676,19 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
         $remove_values[$existing_value['field_type']] = $existing_value['solr_field'];
       }
     }
-    // Add values.
+    // Remove values.
     foreach ($remove_values as $field_type => $values) {
       if (!$values) {
         break;
       }
-      db_delete('islandora_solr_fields')
+      \Drupal::database()->delete('islandora_solr_fields')
         ->condition('field_type', $field_type)
         ->condition('solr_field', $values, 'IN')
         ->execute();
     }
-    // Remove values.
+    // Add values.
     if ($insert_values) {
-      $insert = db_insert('islandora_solr_fields')->fields([
+      $insert = \Drupal::database()->insert('islandora_solr_fields')->fields([
         'solr_field',
         'field_type',
         'weight',
@@ -694,6 +698,14 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
         $insert->values($record);
       }
       $insert->execute();
+    }
+    // Update values.
+    foreach ($update_values as $value) {
+      \Drupal::database()->update('islandora_solr_fields')
+        ->fields(['weight' => $value['weight']])
+        ->condition('field_type', $value['field_type'])
+        ->condition('solr_field', $value['solr_field'])
+        ->execute();
     }
     parent::submitForm($form, $form_state);
   }

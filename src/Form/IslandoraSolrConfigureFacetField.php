@@ -20,11 +20,10 @@ class IslandoraSolrConfigureFacetField extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state, $solr_field = NULL) {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
-
-    $solr_field = $variables['solr_field'];
-    $values = $variables['values'];
+    $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
+    $values = islandora_solr_get_field_configuration('facet_fields', $solr_field);
 
     $form['options'] = [
       '#type' => 'container',

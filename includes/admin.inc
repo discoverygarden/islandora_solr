@@ -129,18 +129,18 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
       ];
       if (in_array($solr_field, $db_fields)) {
         if ($field_type == 'result_fields') {
-          $url = Url::fromRoute('islandora_solr.configure_result_field');
+          $url = Url::fromRoute('islandora_solr.configure_result_field', ['solr_field' => $solr_field]);
         }
         elseif ($field_type == 'sort_fields' || $field_type == 'search_fields') {
-          $url = Url::fromRoute('islandora_solr.configure_sort_or_search_field');
+          $url = Url::fromRoute('islandora_solr.configure_sort_or_search_field', ['solr_field' => $solr_field, 'field_type' => $field_type]);
         }
         elseif ($field_type == 'facet_fields') {
-          $url = Url::fromRoute('islandora_solr.configure_facet_field');
+          $url = Url::fromRoute('islandora_solr.configure_facet_field', ['solr_field' => $solr_field]);
         }
         $row[] = [
           '#title' => t('configure'),
           '#type' => 'link',
-          '#url' => Url::fromRoute('islandora_solr.configure_result_field'),
+          '#url' => $url,
           '#ajax' => [
             'dialogType' => 'modal',
           ],

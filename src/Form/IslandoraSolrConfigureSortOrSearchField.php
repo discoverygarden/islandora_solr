@@ -20,10 +20,11 @@ class IslandoraSolrConfigureSortOrSearchField extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state, $solr_field = NULL, $field_type = NULL) {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
+    $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
+    $values = islandora_solr_get_field_configuration($field_type, $solr_field);
 
-    $values = $variables['values'];
     $form['options'] = [
       '#type' => 'container',
       '#attributes' => ['class' => ['scroll']],
