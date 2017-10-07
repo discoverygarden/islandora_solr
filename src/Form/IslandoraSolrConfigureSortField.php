@@ -6,15 +6,15 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Form to configure a Solr field.
+ * Form to configure a Solr sort field.
  */
-class IslandoraSolrConfigureField extends FormBase {
+class IslandoraSolrConfigureSortField extends FormBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'islandora_solr_configure_field_form';
+    return 'islandora_solr_configure_sort_field_form';
   }
 
   /**

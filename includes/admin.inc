@@ -128,10 +128,22 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
         '#markup' => $solr_field_settings ? t('Label: @label', ['@label' => $solr_field_settings]) : '',
       ];
       if (in_array($solr_field, $db_fields)) {
+        if ($field_type == 'result_fields') {
+          $url = Url::fromRoute('islandora_solr.configure_result_field');
+        }
+        elseif ($field_type == 'sort_fields') {
+          $url = Url::fromRoute('islandora_solr.configure_sort_field');
+        }
+        elseif ($field_type == 'search_fields') {
+          $url = Url::fromRoute('islandora_solr.configure_search_field');
+        }
+        elseif ($field_type == 'facet_fields') {
+          $url = Url::fromRoute('islandora_solr.configure_facet_field');
+        }
         $row[] = [
           '#title' => t('configure'),
           '#type' => 'link',
-          '#url' => Url::fromRoute('islandora_solr.configure_field'),
+          '#url' => Url::fromRoute('islandora_solr.configure_result_field'),
           '#ajax' => [
             'dialogType' => 'modal',
           ],
@@ -155,7 +167,7 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
         '#field' => $solr_field,
         '#ajax' => [
           'callback' => '_islandora_solr_update_fields',
-          'wrapper' => 'islandora-solr-' . $field_type_class . '-wrapper',
+          'wrapper' => "islandora-solr-{$field_type_class}-wrapper",
           'event' => 'click',
           'effect' => 'none',
         ],
@@ -280,20 +292,6 @@ function _islandora_solr_check_dismax($solr_url, $selected_handler) {
 }
 
 /**
- * Submit callback function for fields.
- *
- * Used by 'Add field', 'Configure', 'Remove'.
- *
- * @param array $form
- *   An associative array containing the form definition.
- * @param \Drupal\Core\Form\FormStateInterface $form_state
- *   An associative array containing the form state.
- */
-function _islandora_solr_update_fields_submit($form, FormStateInterface $form_state) {
-  $form_state->setRebuild();
-}
-
-/**
  * Ajax callback function for fields.
  *
  * Used by 'Add field', 'Remove' links/buttons.
@@ -326,11 +324,6 @@ function _islandora_solr_update_fields($form, FormStateInterface $form_state) {
 
 /**
  * Select the fields from the raw input values the modal form.
- *
- * AJAX call fun.
- *
- * @todo This should probably be removed and values we don't need maybe should
- *   be filtered out before sending it back to the main form.
  */
 function _islandora_solr_handle_solr_field_settings($solr_field_settings = NULL, $field_type = NULL) {
   $to_return = FALSE;
@@ -411,43 +404,6 @@ function _islandora_solr_handle_solr_field_settings($solr_field_settings = NULL,
   }
 
   return $to_return;
-}
-
-/**
- * Function which returns the form function name associated with a field type.
- *
- * @param string $field_type
- *   Field type to get the form function name for.
- *
- * @return bool|string
- *   A form function name associated with the field type, or FALSE if field
- *   type is not given or does not exist.
- */
-function _islandora_solr_admin_get_form_function($field_type = NULL) {
-  if (!empty($field_type)) {
-    switch ($field_type) {
-      case 'result_fields':
-        $form_callback = 'islandora_solr_admin_settings_result_fields';
-        break;
-
-      case 'sort_fields':
-        $form_callback = 'islandora_solr_admin_settings_sort_fields';
-        break;
-
-      case 'facet_fields':
-        $form_callback = 'islandora_solr_admin_settings_facet_fields';
-        break;
-
-      case 'search_fields':
-        $form_callback = 'islandora_solr_admin_settings_search_fields';
-        break;
-
-      default:
-        return FALSE;
-    }
-    return $form_callback;
-  }
-  return FALSE;
 }
 
 /**
@@ -669,7 +625,6 @@ function islandora_solr_append_permissions_and_actions($values, &$form, $default
     '#field' => 'dialog_submit',
     '#field_type' => 'result_fields',
     '#name' => 'result-fields-dialog-submit',
-    '#submit' => array('_islandora_solr_update_fields_submit'),
     '#ajax' => array(
       'callback' => '_islandora_solr_admin_settings_dialog',
       'wrapper' => 'islandora-solr-admin-dialog-form',

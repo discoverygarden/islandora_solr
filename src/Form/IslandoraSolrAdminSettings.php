@@ -197,7 +197,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#type' => 'details',
       '#open' => TRUE,
       '#title' => $this->t('Display fields'),
-      '#description' => $this->t('Set labels for Solr fields to be included in the search results.'),
+      '#description' => $this->t('Set labels for Solr fields to be included in the search results. Displayed settings will update on save.'),
       '#tree' => TRUE,
       '#prefix' => '<div id="islandora-solr-result-fields-wrapper">',
       '#suffix' => '</div>',
@@ -263,7 +263,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#type' => 'details',
       '#open' => TRUE,
       '#title' => $this->t('Sort fields'),
-      '#description' => $this->t('Indicates what fields should appear in the <strong>Islandora sort block</strong>. To sort on relevancy, use the \'score\' field.<br /><strong>Note:</strong> not all fields are sortable. For more information, check the <a href="@url">Solr documentation</a>.', [
+      '#description' => $this->t('Indicates what fields should appear in the <strong>Islandora sort block</strong>. To sort on relevancy, use the \'score\' field.<br /><strong>Note:</strong> not all fields are sortable. For more information, check the <a href="@url">Solr documentation</a>. Displayed settings will update on save.', [
         '@url' => 'http://wiki.apache.org/solr/CommonQueryParameters#sort'
         ]),
       '#tree' => TRUE,
@@ -290,7 +290,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#type' => 'details',
       '#open' => TRUE,
       '#title' => $this->t('Facet fields'),
-      '#description' => $this->t('Indicate what fields should appear as <strong>facets</strong>.<br /><strong>Note:</strong> it is recommended to use non-tokenized Solr fields (full literal strings).'),
+      '#description' => $this->t('Indicate what fields should appear as <strong>facets</strong>.<br /><strong>Note:</strong> it is recommended to use non-tokenized Solr fields (full literal strings). Displayed settings will update on save.'),
       '#tree' => TRUE,
       '#prefix' => '<div id="islandora-solr-facet-fields-wrapper">',
       '#suffix' => '</div>',
@@ -339,7 +339,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#description' => $this->t('Indicates what fields should appear in the dropdown menu of terms for
       the <strong>Advanced Search Block</strong>.<br /><strong>Note:</strong>
       it is recommended to use tokenized fields and non-tokenized string fields
-      will not match correctly.'),
+      will not match correctly. Displayed settings will update on save.'),
       '#tree' => TRUE,
       '#prefix' => '<div id="islandora-solr-search-fields-wrapper">',
       '#suffix' => '</div>',

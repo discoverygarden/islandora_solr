@@ -26,11 +26,32 @@ islandora_solr.admin_breadcrumbs_settings:
     _form: \Drupal\islandora_solr\Form\IslandoraSolrAdminBreadcrumbsSettings
   requirements:
     _permission: 'administer islandora solr'
-islandora_solr.configure_field:
-  path: /islandora_solr/field
+islandora_solr.configure_result_field:
+  path: /islandora_solr/result_field
   defaults:
     _title: 'Configure field'
-    _form: \Drupal\islandora_solr\Form\IslandoraSolrConfigureField
+    _form: \Drupal\islandora_solr\Form\IslandoraSolrConfigureResultField
+  requirements:
+    _permission: 'administer islandora solr'
+islandora_solr.configure_search_field:
+  path: /islandora_solr/search_field
+  defaults:
+    _title: 'Configure field'
+    _form: \Drupal\islandora_solr\Form\IslandoraSolrConfigureSearchField
+  requirements:
+    _permission: 'administer islandora solr'
+islandora_solr.configure_facet_field:
+  path: /islandora_solr/facet_field
+  defaults:
+    _title: 'Configure field'
+    _form: \Drupal\islandora_solr\Form\IslandoraSolrConfigureFacetField
+  requirements:
+    _permission: 'administer islandora solr'
+islandora_solr.configure_sort_field:
+  path: /islandora_solr/sort_field
+  defaults:
+    _title: 'Configure field'
+    _form: \Drupal\islandora_solr\Form\IslandoraSolrConfigureSortField
   requirements:
     _permission: 'administer islandora solr'
 islandora_solr.autocomplete_luke:
