@@ -23,20 +23,18 @@ class IslandoraSolrConfigureSortOrSearchField extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
 
-    $form_state['dialog'] = $variables;
-
     $values = $variables['values'];
-    $form['options'] = array(
+    $form['options'] = [
       '#type' => 'container',
-      '#attributes' => array('class' => array('scroll')),
+      '#attributes' => ['class' => ['scroll']],
       '#id' => 'islandora-solr-admin-dialog-form',
-    );
-    $form['options']['label'] = array(
+    ];
+    $form['options']['label'] = [
       '#type' => 'textfield',
-      '#title' => t('Label'),
+      '#title' => $this->t('Label'),
       '#default_value' => isset($values['label']) ? $values['label'] : '',
-      '#description' => t('A human-readable name.'),
-    );
+      '#description' => $this->t('A human-readable name.'),
+    ];
     islandora_solr_append_permissions_and_actions($values, $form);
     return $form;
   }
