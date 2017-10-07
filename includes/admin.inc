@@ -5,6 +5,8 @@
  * Contains administration related helpers.
  */
 
+use Drupal\Core\Url;
+
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -127,10 +129,18 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
       ];
       if (in_array($solr_field, $db_fields)) {
         $row[] = [
-          '#type' => 'link',
           '#title' => t('configure'),
-          '#href' => '#',
-          '#options' => ['attributes' => ['class' => 'islandora-solr-configure-link']],
+          '#type' => 'link',
+          '#url' => Url::fromRoute('islandora_solr.configure_field'),
+          '#ajax' => [
+            'dialogType' => 'modal',
+          ],
+          '#attributes' => [
+            'class' => [
+              'button',
+              'islandora-solr-configure-link',
+            ],
+          ],
         ];
       }
       else {

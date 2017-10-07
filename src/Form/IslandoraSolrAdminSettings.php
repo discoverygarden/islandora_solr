@@ -33,17 +33,8 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form_state->loadInclude('islandora', 'inc', 'includes/utilities');
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
-    // @fixme: adding a lib here may be cruft
-    // Add admin form css.
-    /*$form['#attached'] = [
-      'css' => [
-        drupal_get_path('module', 'islandora_solr') . '/css/islandora_solr.admin.css'
-        ],
-      'library' => [['system', 'ui.dialog']],
-      'js' => [
-        drupal_get_path('module', 'islandora_solr') . '/js/islandora_solr.admin.js'
-        ],
-    ];*/
+    $form['#attached']['library'][] = 'core/drupal.dialog.ajax';
+
     // Display profiles.
     $form['display_profiles'] = [
       '#type' => 'details',
