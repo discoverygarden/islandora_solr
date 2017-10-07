@@ -54,10 +54,6 @@ function islandora_solr_get_fields($field_type = NULL, $filter = TRUE, $simplifi
     $records = _islandora_solr_filter_fields($records);
   }
 
-  if (\Drupal::moduleHandler()->moduleExists('i18n_string')) {
-    islandora_solr_translate_field_labels($records);
-  }
-
   // Simplify.
   if ($simplified == TRUE) {
     $records = _islandora_solr_simplify_fields($records);
@@ -249,30 +245,6 @@ function islandora_solr_get_date_format_facets() {
     }
   }
   return $date_format;
-}
-
-/**
- * Function used with optional i18n_string integration.
- */
-function islandora_solr_translate_field_labels(array &$records) {
-  $to_i18nize = array(
-    'label',
-    'boolean_facet_true_replacement',
-    'boolean_facet_false_replacement',
-  );
-  foreach ($records as &$record) {
-    $settings = &$record['solr_field_settings'];
-    foreach ($to_i18nize as $string_type) {
-      if (isset($settings[$string_type])) {
-        $string_id = format_string("islandora_solr:field_settings:@type:@string:@field", array(
-          '@type' => $record['field_type'],
-          '@string' => $string_type,
-          '@field' => $record['solr_field'],
-        ));
-        $settings[$string_type] = i18n_string_translate($string_id, $settings[$string_type]);
-      }
-    }
-  }
 }
 
 /**
