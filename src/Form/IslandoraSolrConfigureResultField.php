@@ -29,6 +29,7 @@ class IslandoraSolrConfigureResultField extends FormBase {
     $form['#prefix'] = '<div id="result_fields_modal">';
     $form['#suffix'] = '</div>';
 
+    $form_state->setStorage(['solr_field' => $solr_field]);
     $values = islandora_solr_get_field_configuration('result_fields', $solr_field);
 
     $form['options'] = [
@@ -155,7 +156,6 @@ class IslandoraSolrConfigureResultField extends FormBase {
       $response->addCommand(new ReplaceCommand('#result_fields_modal', $form));
     }
     else {
-      $this->submitForm($form, $form_state);
       $response->addCommand(new OpenModalDialogCommand('Saved', 'The configuration has been saved.', ['width' => 800]));
     }
 
@@ -166,6 +166,10 @@ class IslandoraSolrConfigureResultField extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
+    $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
+    $settings = _islandora_solr_handle_solr_field_settings($form_state->getValues(), 'result_fields');
+    islandora_solr_set_field_configuration('result_fields', $form_state->getStorage()['solr_field'], $settings);
   }
 
 }

@@ -28,6 +28,8 @@ class IslandoraSolrConfigureFacetField extends FormBase {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
     $form['#prefix'] = '<div id="facet_fields_modal">';
     $form['#suffix'] = '</div>';
+
+    $form_state->setStorage(['solr_field' => $solr_field]);
     $values = islandora_solr_get_field_configuration('facet_fields', $solr_field);
 
     $form['options'] = [
@@ -226,7 +228,6 @@ class IslandoraSolrConfigureFacetField extends FormBase {
       $response->addCommand(new ReplaceCommand('#facet_fields_modal', $form));
     }
     else {
-      $this->submitForm($form, $form_state);
       $response->addCommand(new OpenModalDialogCommand('Saved', 'The configuration has been saved.', ['width' => 800]));
     }
 
@@ -237,6 +238,10 @@ class IslandoraSolrConfigureFacetField extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
+    $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
+    $settings = _islandora_solr_handle_solr_field_settings($form_state->getValues(), 'facet_fields');
+    islandora_solr_set_field_configuration('facet_fields', $form_state->getStorage()['solr_field'], $settings);
   }
 
 }

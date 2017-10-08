@@ -330,7 +330,7 @@ function _islandora_solr_handle_solr_field_settings($solr_field_settings = NULL,
   if (!empty($solr_field_settings) && !empty($field_type)) {
     switch ($field_type) {
       case 'result_fields':
-        $to_return = array(
+        $to_return = [
           'label' => trim($solr_field_settings['label']),
           'link_rendering' => $solr_field_settings['link_rendering'],
           'snippet' => isset($solr_field_settings['snippet']) ? $solr_field_settings['snippet'] : NULL,
@@ -341,18 +341,18 @@ function _islandora_solr_handle_solr_field_settings($solr_field_settings = NULL,
           'wordsafe' => isset($solr_field_settings['wordsafe']) ? $solr_field_settings['wordsafe'] : FALSE,
           'wordsafe_length' => isset($solr_field_settings['wordsafe_length']) ? $solr_field_settings['wordsafe_length'] : 1,
           'permissions' => empty($solr_field_settings['enable_permissions']) ? FALSE : $solr_field_settings['permissions'],
-        );
+        ];
         break;
 
       case 'sort_fields':
-        $to_return = array(
+        $to_return = [
           'label' => trim($solr_field_settings['label']),
           'permissions' => empty($solr_field_settings['enable_permissions']) ? FALSE : $solr_field_settings['permissions'],
-        );
+        ];
         break;
 
       case 'facet_fields':
-        $fields = array_combine(array(
+        $fields = array_combine([
           'label',
           'range_facet_select',
           'range_facet_variable_gap',
@@ -368,7 +368,7 @@ function _islandora_solr_handle_solr_field_settings($solr_field_settings = NULL,
           'boolean_facet_true_replacement',
           'boolean_facet_false_replacement',
           'sort_by',
-        ), array(
+        ], [
           'label',
           'range_facet_select',
           'range_facet_variable_gap',
@@ -384,7 +384,7 @@ function _islandora_solr_handle_solr_field_settings($solr_field_settings = NULL,
           'boolean_facet_true_replacement',
           'boolean_facet_false_replacement',
           'sort_by',
-        ));
+        ]);
         $relevant_values = array_intersect_key($solr_field_settings, $fields);
         $relevant_values['label'] = isset($relevant_values['label']) ?
           trim($relevant_values['label']) :
@@ -394,10 +394,10 @@ function _islandora_solr_handle_solr_field_settings($solr_field_settings = NULL,
         break;
 
       case 'search_fields':
-        $to_return = array(
+        $to_return = [
           'label' => trim($solr_field_settings['label']),
           'permissions' => empty($solr_field_settings['enable_permissions']) ? FALSE : $solr_field_settings['permissions'],
-        );
+        ];
         break;
     }
   }
@@ -406,7 +406,7 @@ function _islandora_solr_handle_solr_field_settings($solr_field_settings = NULL,
 }
 
 /**
- * Genereate the element definition for the permission fieldset.
+ * Generate the element definition for the permission fieldset.
  *
  * @param bool|array $permissions
  *   The selected permissions (from the $form_state) either an array containing

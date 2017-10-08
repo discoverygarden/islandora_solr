@@ -28,6 +28,8 @@ class IslandoraSolrConfigureSortOrSearchField extends FormBase {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
     $form['#prefix'] = '<div id="field_modal">';
     $form['#suffix'] = '</div>';
+
+    $form_state->setStorage(['solr_field' => $solr_field, 'field_type' => $field_type]);
     $values = islandora_solr_get_field_configuration($field_type, $solr_field);
 
     $form['options'] = [
@@ -55,7 +57,6 @@ class IslandoraSolrConfigureSortOrSearchField extends FormBase {
       $response->addCommand(new ReplaceCommand('#field_modal', $form));
     }
     else {
-      $this->submitForm($form, $form_state);
       $response->addCommand(new OpenModalDialogCommand('Saved', 'The configuration has been saved.', ['width' => 800]));
     }
 
@@ -66,6 +67,11 @@ class IslandoraSolrConfigureSortOrSearchField extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
+    $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
+    $storage = $form_state->getStorage();
+    $settings = _islandora_solr_handle_solr_field_settings($form_state->getValues(), $storage['field_type']);
+    islandora_solr_set_field_configuration($storage['field_type'], $storage['solr_field'], $settings);
   }
 
 }

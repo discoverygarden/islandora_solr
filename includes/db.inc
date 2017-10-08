@@ -23,7 +23,7 @@ function islandora_solr_get_field_configuration($field_type, $field_name) {
  */
 function islandora_solr_set_field_configuration($field_type, $field_name, $settings) {
   $query = \Drupal::database()->update('islandora_solr_fields');
-  $query->fields(['solr_field_settings' => $settings]);
+  $query->fields(['solr_field_settings' => serialize($settings)]);
   $query->condition('field_type', $field_type)
         ->condition('solr_field', $field_name)
         ->execute();
