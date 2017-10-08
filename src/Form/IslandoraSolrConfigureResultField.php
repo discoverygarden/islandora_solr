@@ -4,6 +4,9 @@ namespace Drupal\islandora_solr\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\OpenModalDialogCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
 
 /**
  * Form to configure a Solr result field.
@@ -23,6 +26,9 @@ class IslandoraSolrConfigureResultField extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state, $solr_field = NULL) {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
+    $form['#prefix'] = '<div id="result_fields_modal">';
+    $form['#suffix'] = '</div>';
+
     $values = islandora_solr_get_field_configuration('result_fields', $solr_field);
 
     $form['options'] = [
@@ -75,7 +81,7 @@ class IslandoraSolrConfigureResultField extends FormBase {
         '#type' => 'textfield',
         '#title' => $this->t('Date format'),
         '#default_value' => isset($values['date_format']) ? $values['date_format'] : '',
-        '#description' => $this->t('The format of the date, as it will be displayed in the search results. Use <a href="@url" target="_blank">PHP date()</a> formatting. Works best when the date format matches the granularity of the source data. Otherwise it is possible that there will be duplicates displayed.', array('@url' => 'http://php.net/manual/function.date.php')),
+        '#description' => $this->t('The format of the date, as it will be displayed in the search results. Use <a href="@url" target="_blank">PHP date()</a> formatting. Works best when the date format matches the granularity of the source data. Otherwise it is possible that there will be duplicates displayed.', ['@url' => 'http://php.net/manual/function.date.php']),
       ];
     }
 
@@ -92,10 +98,10 @@ class IslandoraSolrConfigureResultField extends FormBase {
         '#default_value' => isset($values['truncation_type']) ? $values['truncation_type'] : 'separate_value_option',
       ],
       'maximum_length' => [
-        '#type' => 'textfield',
+        '#type' => 'number',
+        '#min' => 0,
         '#title' => $this->t('Maximum Length'),
         '#default_value' => isset($values['maximum_length']) ? $values['maximum_length'] : '0',
-        '#element_validate' => ['element_validate_integer'],
         '#description' => $this->t('Maximum field length to render for display. A setting of 0 (default) renders the entire value.<br /> When truncating based on the whole field the max length may be exceeded by the length of ellispse string.'),
       ],
       'add_ellipsis' => [
@@ -112,7 +118,7 @@ class IslandoraSolrConfigureResultField extends FormBase {
       'wordsafe' => [
         '#type' => 'checkbox',
         '#title' => $this->t('Wordsafe'),
-        '#description' => $this->t('If selected attempt to truncate on a word boundary. See <a href="@url" target="_blank".>documentation</a> for more information.', array('@url' => 'https://api.drupal.org/api/drupal/includes!unicode.inc/function/truncate_utf8/7')),
+        '#description' => $this->t('If selected attempt to truncate on a word boundary. See <a href="@url" target="_blank".>documentation</a> for more information.', ['@url' => 'https://api.drupal.org/api/drupal/includes!unicode.inc/function/truncate_utf8/7']),
         '#default_value' => isset($values['wordsafe']) ? $values['wordsafe'] : FALSE,
         '#states' => [
           'invisible' => [
@@ -134,9 +140,26 @@ class IslandoraSolrConfigureResultField extends FormBase {
       ],
     ];
 
-    islandora_solr_append_permissions_and_actions($values, $form);
+    islandora_solr_append_permissions_and_actions($values, $form, TRUE, [$this, 'modalSubmit']);
 
     return $form;
+  }
+
+  /**
+   * Non-reloading ajax submit handler.
+   */
+  public function modalSubmit(array $form, FormStateInterface $form_state) {
+    $response = new AjaxResponse();
+
+    if ($form_state->hasAnyErrors()) {
+      $response->addCommand(new ReplaceCommand('#result_fields_modal', $form));
+    }
+    else {
+      $this->submitForm($form, $form_state);
+      $response->addCommand(new OpenModalDialogCommand('Saved', 'The configuration has been saved.', ['width' => 800]));
+    }
+
+    return $response;
   }
 
   /**

@@ -6,7 +6,7 @@
  */
 
 use Drupal\Core\Url;
-
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -141,14 +141,16 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
           '#title' => t('configure'),
           '#type' => 'link',
           '#url' => $url,
-          '#ajax' => [
-            'dialogType' => 'modal',
-          ],
           '#attributes' => [
             'class' => [
               'button',
               'islandora-solr-configure-link',
+              'use-ajax',
             ],
+            'data-dialog-type' => 'modal',
+            'data-dialog-options' => Json::encode([
+              'width' => 1000,
+            ]),
           ],
         ];
       }
@@ -208,13 +210,13 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
     ],
   ];
   $terms['terms'] = array_merge($terms['terms'], $rows);
-  $terms['add_solr_field'] = array(
+  $terms['add_solr_field'] = [
     '#type' => 'textfield',
     '#title' => t('Add another item'),
     '#size' => 45,
     '#autocomplete_route_name' => 'islandora_solr.autocomplete_luke',
     '#default_value' => '',
-  );
+  ];
   if (isset($solr_field_error) && !empty($solr_field_error)) {
     $terms['add_solr_field']['#title'] .= '<br /><span class="solr-admin-error">' . $solr_field_error . '</span>';
     $terms['add_solr_field']['#attributes'] = ['class' => ['error']];
@@ -252,7 +254,7 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
 function _islandora_solr_check_dismax($solr_url, $selected_handler) {
   $xml = islandora_solr_get_solrconfig_xml($solr_url);
 
-  $handlers = array();
+  $handlers = [];
   if ($xml) {
     if ($selected_handler) {
       $handlers = $xml->xpath("//requestHandler[@class='solr.SearchHandler' and @name='$selected_handler']");
@@ -277,7 +279,7 @@ function _islandora_solr_check_dismax($solr_url, $selected_handler) {
     }
   }
   else {
-    drupal_set_message(t('Error retrieving @file from Solr.', array('@file' => 'solrconfig.xml')), 'warning');
+    drupal_set_message(t('Error retrieving @file from Solr.', ['@file' => 'solrconfig.xml']), 'warning');
   }
 
   // An empty array evaluates to false... Let's coerce into a boolean.
@@ -429,33 +431,35 @@ function islandora_solr_get_admin_permissions_fieldset($permissions, $permission
     $default_enable = $permissions;
   }
 
-  $permissions_fieldset = array(
+  $permissions_fieldset = [
     '#type' => 'fieldset',
     '#title' => t('Permissions'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
-    'enable_permissions' => array(
+    'enable_permissions' => [
       '#type' => 'checkbox',
       '#title' => t('Enable permissions'),
       '#default_value' => $default_enable,
-    ),
-    'permissions' => array(
+    ],
+    'permissions' => [
       '#type' => 'checkboxes',
       '#title' => t('Permissions'),
-      '#options' => user_roles(),
+      '#options' => array_map(function($item) {
+        return $item->label();
+      }, user_roles()),
       '#default_value' => !empty($permissions) ? $permissions : $permissions_default,
       '#description' => t('Select which roles can access this field.<br /><strong>Note:</strong> checkboxes may be grayed out for roles which do not have permission to search the Solr index.'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name="enable_permissions"]' => array('checked' => TRUE),
-        ),
-      ),
-    ),
-  );
+      '#states' => [
+        'visible' => [
+          ':input[name="enable_permissions"]' => ['checked' => TRUE],
+        ],
+      ],
+    ],
+  ];
   foreach ($permissions_disable as $rid) {
-    $permissions_fieldset['permissions'][$rid] = array(
+    $permissions_fieldset['permissions'][$rid] = [
       '#disabled' => TRUE,
-    );
+    ];
   }
 
   return $permissions_fieldset;
@@ -469,33 +473,37 @@ function islandora_solr_get_admin_permissions_fieldset($permissions, $permission
  * @param array $form
  *   An array representing the Drupal form, passed by reference.
  * @param bool $default_value
- *   Whether the default enabled checkbox is to be TRUE or FALSE. *
+ *   Whether the default enabled checkbox is to be TRUE or FALSE.
+ * @param callback $callback
+ *   The callback for the modal ajax.
  */
-function islandora_solr_append_permissions_and_actions($values, &$form, $default_value = TRUE) {
-  $permissions = isset($values['permissions']) ? $values['permissions'] : array();
+function islandora_solr_append_permissions_and_actions($values, &$form, $default_value = TRUE, $callback = NULL) {
+  $permissions = isset($values['permissions']) ? $values['permissions'] : [];
   $permissions_disable = _islandora_solr_permissions_disable();
   $permissions_default = _islandora_solr_permissions_default();
   $form['options']['permissions_fieldset'] = islandora_solr_get_admin_permissions_fieldset($permissions, $permissions_default, $permissions_disable, $default_value);
 
-  $form['actions'] = array(
+  $form['actions'] = [
     '#type' => 'container',
-    '#attributes' => array('class' => array('form-buttons')),
-  );
-  $form['actions']['submit'] = array(
+    '#attributes' => ['class' => ['form-buttons']],
+  ];
+  $form['actions']['submit'] = [
     '#type' => 'submit',
     '#value' => t('Apply'),
     '#weight' => 5,
     '#field' => 'dialog_submit',
     '#field_type' => 'result_fields',
     '#name' => 'result-fields-dialog-submit',
-    '#ajax' => array(
-      'callback' => '_islandora_solr_admin_settings_dialog',
-      'wrapper' => 'islandora-solr-admin-dialog-form',
-      'effect' => 'none',
+    '#attributes' => [
+      'class' => [
+        'use-ajax',
+      ],
+    ],
+    '#ajax' => [
+      'callback' => $callback,
       'event' => 'click',
-      'progress' => array('message' => '', 'type' => 'throbber'),
-    ),
-  );
+    ],
+  ];
 }
 
 /**

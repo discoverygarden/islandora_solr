@@ -4,6 +4,9 @@ namespace Drupal\islandora_solr\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\OpenModalDialogCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
 
 /**
  * Form to configure a Solr facet field.
@@ -23,6 +26,8 @@ class IslandoraSolrConfigureFacetField extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state, $solr_field = NULL) {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
+    $form['#prefix'] = '<div id="facet_fields_modal">';
+    $form['#suffix'] = '</div>';
     $values = islandora_solr_get_field_configuration('facet_fields', $solr_field);
 
     $form['options'] = [
@@ -199,7 +204,7 @@ class IslandoraSolrConfigureFacetField extends FormBase {
     }
 
     // Permissions.
-    islandora_solr_append_permissions_and_actions($values, $form);
+    islandora_solr_append_permissions_and_actions($values, $form, TRUE, [$this, 'modalSubmit']);
 
     $form['options']['pid_object_label'] = [
       '#type' => 'checkbox',
@@ -209,6 +214,23 @@ class IslandoraSolrConfigureFacetField extends FormBase {
       '#description' => $this->t("Replace a PID (islandora:foo) or a URI (info:fedora/islandora:foo) with that object's label. Will only work with non-tokenized Solr fields (full literal strings)."),
     ];
     return $form;
+  }
+
+  /**
+   * Non-reloading ajax submit handler.
+   */
+  public function modalSubmit(array $form, FormStateInterface $form_state) {
+    $response = new AjaxResponse();
+
+    if ($form_state->hasAnyErrors()) {
+      $response->addCommand(new ReplaceCommand('#facet_fields_modal', $form));
+    }
+    else {
+      $this->submitForm($form, $form_state);
+      $response->addCommand(new OpenModalDialogCommand('Saved', 'The configuration has been saved.', ['width' => 800]));
+    }
+
+    return $response;
   }
 
   /**

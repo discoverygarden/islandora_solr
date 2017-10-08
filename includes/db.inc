@@ -197,9 +197,9 @@ function islandora_solr_get_truncate_length_fields() {
   $truncate_length_fields = [];
   foreach ($records as $value) {
     if (isset($value['solr_field_settings']['maximum_length']) && intval($value['solr_field_settings']['maximum_length']) > 0) {
-      $truncate_length_fields[$value['solr_field']] = array(
+      $truncate_length_fields[$value['solr_field']] = [
         'maximum_length' => $value['solr_field_settings']['maximum_length'],
-      );
+      ];
       if (isset($value['solr_field_settings']['add_ellipsis'])) {
         $truncate_length_fields[$value['solr_field']]['add_ellipsis'] = $value['solr_field_settings']['add_ellipsis'];
       }
@@ -321,10 +321,10 @@ function islandora_solr_get_collection_sort_string($pid, $use_fallbacks = FALSE)
  */
 function islandora_solr_set_collection_sort_string($pid, $string) {
   $current = islandora_solr_get_collection_sort_string($pid);
-  $message_args = array(
+  $message_args = [
     '@collection' => $pid,
     '@sort_string' => $string,
-  );
+  ];
   // If the current sort string is NULL, then the PID wasn't found in the
   // database.
   if ($current !== $string) {
