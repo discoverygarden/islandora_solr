@@ -13,13 +13,13 @@ use Drupal\islandora_solr\IslandoraSolrFacets;
  */
 class IslandoraSolrResults {
 
-  public $facetFieldArray = array();
-  public $searchFieldArray = array();
-  public $resultFieldArray = array();
-  public $allSubsArray = array();
+  public $facetFieldArray = [];
+  public $searchFieldArray = [];
+  public $resultFieldArray = [];
+  public $allSubsArray = [];
   public $islandoraSolrQueryProcessor;
-  public $rangeFacets = array();
-  public $dateFormatFacets = array();
+  public $rangeFacets = [];
+  public $dateFormatFacets = [];
 
   /**
    * Constructor.
@@ -49,10 +49,7 @@ class IslandoraSolrResults {
     // Set variables to collect returned data.
     $results = NULL;
     $secondary_profiles = NULL;
-    $elements = array();
-
-    // Set breadcrumbs.
-    $this->setBreadcrumbs($islandora_solr_query);
+    $elements = [];
 
     // Raw solr results.
     $islandora_solr_result = $this->islandoraSolrQueryProcessor->islandoraSolrResult;
@@ -71,21 +68,11 @@ class IslandoraSolrResults {
 
     // Pager.
     islandora_solr_pager_init($elements['solr_total'], $islandora_solr_query->solrLimit);
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $elements['solr_pager'] = theme('pager', array(
-//       'tags' => NULL,
-//       'element' => 0,
-//       'parameters' => NULL,
-//       'quantity' => 5,
-//     ));
-
+    $elements['solr_pager'] = [
+      '#type' => 'pager',
+      '#element' => 0,
+      '#quantity' => 5,
+    ];
 
     // Debug (will be removed).
     $elements['solr_debug'] = '';
@@ -99,20 +86,12 @@ class IslandoraSolrResults {
     // Rendered results.
     $results = $this->printResults($islandora_solr_result);
 
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// return theme('islandora_solr_wrapper', array(
-//       'results' => $results,
-//       'secondary_profiles' => $secondary_profiles,
-//       'elements' => $elements,
-//     ));
-
+    return [
+      '#theme' => 'islandora_solr_wrapper',
+      '#results' => $results,
+      '#secondary_profiles' => $secondary_profiles,
+      '#elements' => $elements,
+    ];
   }
 
   /**
@@ -128,7 +107,7 @@ class IslandoraSolrResults {
    * @see IslandoraSolrResults::displayResults()
    */
   public function addSecondaries($islandora_solr_query) {
-    $query_list = array();
+    $query_list = [];
     // Get secondary display profiles.
     $secondary_display_profiles = \Drupal::moduleHandler()->invokeAll('islandora_solr_secondary_display');
 
@@ -147,10 +126,10 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
     foreach ($secondary_array as $name => $status) {
       if ($status === $name) {
         // Generate URL.
-        $query_secondary = array_merge($params, array('solr_profile' => $name));
+        $query_secondary = array_merge($params, ['solr_profile' => $name]);
 
         // Set attributes variable for remove link.
-        $attr = array();
+        $attr = [];
         $attr['title'] = $secondary_display_profiles[$name]['description'];
         $attr['rel'] = 'nofollow';
         // @FIXME
@@ -204,20 +183,16 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
     $object_results = $solr_results['response']['objects'];
     $object_results = islandora_solr_prepare_solr_doc($object_results);
 
-    $elements = array();
+    $elements = [];
     $elements['solr_total'] = $solr_results['response']['numFound'];
     $elements['solr_start'] = $solr_results['response']['start'];
 
     // Return themed search results.
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// return theme('islandora_solr', array('results' => $object_results, 'elements' => $elements));
+    return [
+      '#theme' => 'islandora_solr',
+      '#results' => $object_results,
+      '#elements' => $elements,
+    ];
 
   }
 
@@ -243,7 +218,7 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
     $format = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_date_format');
 
     // Get user provided filter parameters.
-    $fq = isset($islandora_solr_query->internalSolrParams['f']) ? $islandora_solr_query->internalSolrParams['f'] : array();
+    $fq = isset($islandora_solr_query->internalSolrParams['f']) ? $islandora_solr_query->internalSolrParams['f'] : [];
     // Parameters set in URL.
     $params = $islandora_solr_query->internalSolrParams;
     // Get query values.
@@ -251,7 +226,7 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
       // Get query value.
       $query_value = stripslashes($islandora_solr_query->solrQuery);
 
-      $query_list = array();
+      $query_list = [];
       if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_human_friendly_query_block')) {
         foreach ($this->searchFieldArray as $search_field => $search_field_label) {
           $query_value = str_replace($search_field . ':(', $search_field_label . ':(', $query_value);
@@ -265,16 +240,16 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
       $path_minus = implode('/', explode('/', $path, -1));
 
       // Set attributes variable for remove link.
-      $attributes = array(
-        'minus' => array(
-          'attr' => array(),
+      $attributes = [
+        'minus' => [
+          'attr' => [],
           'path' => $path_minus,
           'query' => $query_minus,
-        ),
-      );
+        ],
+      ];
       $attr_minus =& $attributes['minus']['attr'];
       $attr_minus['title'] = t('Remove') . ' ' . $query_value;
-      $attr_minus['class'] = array('remove-query');
+      $attr_minus['class'] = ['remove-query'];
       $attr_minus['rel'] = 'nofollow';
       // @FIXME
 // url() expects a route name or an external URI.
@@ -313,7 +288,7 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
     // Get filter values.
     if (!empty($fq)) {
       // Set list variables.
-      $filter_list = array();
+      $filter_list = [];
       foreach ($fq as $key => $filter) {
         // Check for exclude filter.
         if ($filter[0] == '-') {
@@ -325,29 +300,29 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
         }
         $filter_string = $this->formatFilter($filter, $islandora_solr_query);
         // Pull out filter (for exclude link).
-        $query_minus = array();
-        $f_x['f'] = array_diff($params['f'], array($filter));
+        $query_minus = [];
+        $f_x['f'] = array_diff($params['f'], [$filter]);
         $query_minus = array_merge($params, $f_x);
         // @todo Find a cleaner way to do this.
         // Resetting the filter keys' order.
         if ($query_minus['f']) {
-          $query_minus['f'] = array_merge(array(), $query_minus['f']);
+          $query_minus['f'] = array_merge([], $query_minus['f']);
         }
         // Remove 'f' if empty.
         if (empty($query_minus['f'])) {
           unset($query_minus['f']);
         }
         // Set attributes variable for remove link.
-        $attributes = array(
-          'minus' => array(
-            'attr' => array(),
+        $attributes = [
+          'minus' => [
+            'attr' => [],
             'path' => $path,
             'query' => $query_minus,
-          ),
-        );
+          ],
+        ];
         $attr_minus =& $attributes['minus']['attr'];
         $attr_minus['title'] = t('Remove') . ' ' . $filter;
-        $attr_minus['class'] = array('remove-filter');
+        $attr_minus['class'] = ['remove-filter'];
         $attr_minus['rel'] = 'nofollow';
         // @FIXME
 // url() expects a route name or an external URI.
@@ -387,18 +362,6 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
   }
 
   /**
-   * Sets the Drupal breadcrumbs.
-   *
-   * @param IslandoraSolrQueryProcessor $islandora_solr_query
-   *   The IslandoraSolrQueryProcessor object, which includes the current query
-   *   settings and the raw Solr results.
-   */
-  public function setBreadcrumbs($islandora_solr_query) {
-    $breadcrumb = $this->getBreadcrumbs($islandora_solr_query);
-    drupal_set_breadcrumb($breadcrumb);
-  }
-
-  /**
    * Gets the Drupal breadcrumbs.
    *
    * Gets the Drupal breadcrumbs based on the current query and filters.
@@ -417,25 +380,25 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
     // Get date format.
     $format = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_date_format');
 
-    $breadcrumb = array();
+    $breadcrumb = [];
     // Get user provided filter parameters.
     if (isset($islandora_solr_query->internalSolrParams['f'])) {
       $fq = $islandora_solr_query->internalSolrParams['f'];
     }
     else {
-      $fq = array();
+      $fq = [];
     }
 
     // Parameters set in URL.
     $params = $islandora_solr_query->internalSolrParams;
     // Set filter key if there are no filters included.
     if (empty($params['f'])) {
-      $params['f'] = array();
+      $params['f'] = [];
     }
 
     // Loop to create filter breadcrumbs if available.
     if (!empty($fq)) {
-      $f['f'] = array();
+      $f['f'] = [];
       foreach ($fq as $key => $filter) {
         // Check for exclude filter.
         $exclude = FALSE;
@@ -444,22 +407,22 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
         }
         $filter_string = $this->formatFilter($filter, $islandora_solr_query);
         // Increment filter array with current filter (for breadcrumb link).
-        $query = array();
+        $query = [];
         $query_diff = $params;
         if (isset($query_diff['f'])) {
           unset($query_diff['f']);
         }
-        $f = array_merge_recursive($f, array('f' => array($filter)));
+        $f = array_merge_recursive($f, ['f' => [$filter]]);
         $query = array_merge($query_diff, $f);
 
         // Pull out filter (for x link).
-        $query_x = array();
-        $f_x['f'] = array_diff($params['f'], array($filter));
+        $query_x = [];
+        $f_x['f'] = array_diff($params['f'], [$filter]);
         $query_x = array_merge($params, $f_x);
         // @todo Find a cleaner way to do this.
         // Resetting the filter key's order.
         if ($query_x['f']) {
-          $query_x['f'] = array_merge(array(), $query_x['f']);
+          $query_x['f'] = array_merge([], $query_x['f']);
         }
         // Remove 'f' if empty.
         if (empty($query_x['f'])) {
@@ -467,7 +430,7 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
         }
 
         // Set attributes variable.
-        $attr = array();
+        $attr = [];
         $attr['title'] = $filter;
         $attr['rel'] = 'nofollow';
         if ($exclude) {
@@ -479,7 +442,7 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
 
 
         // Set attributes variable for remove link.
-        $attr_x = array();
+        $attr_x = [];
         $attr_x['title'] = t('Remove') . ' ' . $filter;
         $attr_x['rel'] = 'nofollow';
         // @FIXME
@@ -508,7 +471,7 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
         unset($query['f']);
       }
       // Remove button keeps all parameters (query gets removed instead).
-      $query_x = array();
+      $query_x = [];
       $query_x = $params;
       if (empty($params['f'])) {
         unset($query_x['f']);
@@ -517,7 +480,7 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
       $path_x = implode('/', explode('/', $path, -1)) . '/ ';
 
       // Set attributes variable.
-      $attr = array();
+      $attr = [];
       $attr['title'] = $query_value;
       $attr['rel'] = 'nofollow';
       // @FIXME
@@ -526,7 +489,7 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
 
 
       // Set attributes variable for remove link.
-      $attr_x = array();
+      $attr_x = [];
       $attr_x['title'] = t('Remove') . ' ' . $query_value;
       $attr_x['rel'] = 'nofollow';
       // @FIXME
@@ -536,7 +499,7 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
 
       // Remove solr fields from breadcrumb value.
       $query_explode = preg_split(ISLANDORA_SOLR_QUERY_SPLIT_REGEX, $query_value);
-      $query_implode = array();
+      $query_implode = [];
       foreach ($query_explode as $value) {
         // Check for first colon to split the string.
         if (strpos($value, ':') != FALSE) {
@@ -545,13 +508,13 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
           // Trim whitespace.
           $value_split[1] = trim($value_split[1]);
           // Trim brackets.
-          $value = str_replace(array('(', ')'), '', $value_split[1]);
+          $value = str_replace(['(', ')'], '', $value_split[1]);
         }
         // No colon is found.
         else {
           $value = trim($value);
           // Strip brackets.
-          $value = str_replace(array('(', ')'), '', $value);
+          $value = str_replace(['(', ')'], '', $value);
         }
         $query_implode[] = $value;
       }
@@ -594,10 +557,10 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
     if (count($fq_split) > 1) {
       $operator_split = preg_split(ISLANDORA_SOLR_QUERY_SPLIT_REGEX, $filter);
       $operator_split = array_diff($operator_split, $fq_split);
-      $out_array = array();
+      $out_array = [];
       foreach ($fq_split as $fil) {
         $fil_split = preg_split(ISLANDORA_SOLR_QUERY_FIELD_VALUE_SPLIT_REGEX, $fil, 2);
-        $out_str = str_replace(array('"', 'info:fedora/'), '', $fil_split[1]);
+        $out_str = str_replace(['"', 'info:fedora/'], '', $fil_split[1]);
         $out_array[] = $out_str;
       }
       $filter_string = '';
@@ -689,13 +652,13 @@ $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_so
   public function printDebugOutput($islandora_solr_results) {
     // Debug dump.
     $results = "<pre>Results: " . print_r($islandora_solr_results, TRUE) . "</pre>";
-    $fieldset = array(
+    $fieldset = [
       '#title' => t("Islandora Processed Solr Results"),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
       '#value' => $results,
       '#children' => '',
-    );
+    ];
 
     // @FIXME
 // theme() has been renamed to _theme() and should NEVER be called directly.

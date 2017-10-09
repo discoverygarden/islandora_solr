@@ -8,6 +8,7 @@
 
 namespace Drupal\islandora_solr;
 
+use Drupal\Core\Url;
 use Drupal\islandora_solr\SolrPhpClient\Apache\Solr\Apache_Solr_Service;
 
 /**
@@ -388,7 +389,7 @@ class IslandoraSolrQueryProcessor {
           $object_results[$object_index]['solr_doc'] = $object_result;
           $pid = $object_results[$object_index]['solr_doc']['PID'];
           $object_results[$object_index]['PID'] = $pid;
-          $object_results[$object_index]['object_url'] = 'islandora/object/' . $object_results[$object_index]['solr_doc']['PID'];
+          $object_results[$object_index]['object_url'] = Url::fromRoute('islandora.view_object', ['object' => $object_results[$object_index]['solr_doc']['PID']], ['absolute' => TRUE])->toString();
           if (isset($object_result[$content_model_solr_field])) {
             $object_results[$object_index]['content_models'] = $object_result[$content_model_solr_field];
           }
@@ -404,10 +405,10 @@ class IslandoraSolrQueryProcessor {
             // XXX: Would be good to have an access check on the TN here...
             // Doesn't seem to a nice way without loading the object, which
             // this methods seems to explicitly avoid doing...
-            $object_results[$object_index]['thumbnail_url'] = $object_results[$object_index]['object_url'] . '/datastream/TN/view';
+            $object_results[$object_index]['thumbnail_url'] = Url::fromRoute('islandora.view_datastream', ['object' => $object_results[$object_index]['solr_doc']['PID'], 'datastream' => 'TN'], ['absolute' => TRUE])->toString();
           }
           else {
-            $object_results[$object_index]['thumbnail_url'] = drupal_get_path('module', 'islandora_solr') . '/images/defaultimg.png';
+            $object_results[$object_index]['thumbnail_url'] = Url::fromUri('base:' . drupal_get_path('module', 'islandora_solr') . '/images/defaultimg.png', ['absolute' => TRUE])->toString();
           }
           if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_search_navigation')) {
             $url_params['solr_nav']['offset'] = $object_index;

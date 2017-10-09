@@ -1,4 +1,6 @@
-<?php /**
+<?php
+
+ /**
  * @file
  * Contains \Drupal\islandora_solr\Controller\DefaultController.
  */
@@ -17,6 +19,24 @@ use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
  */
 class DefaultController extends ControllerBase {
 
+  /**
+   * Page callback: Islandora Solr.
+   *
+   * Gathers url parameters, and calls the query builder, which prepares the query
+   * based on the admin settings and url values.
+   * Finds the right display and calls the IslandoraSolrRestuls class to build the
+   * display, which it returns to the page.
+   *
+   * @global IslandoraSolrQueryProcessor $_islandora_solr_queryclass
+   *   The IslandoraSolrQueryProcessor object which includes the current query
+   *   settings and the raw Solr results.
+   *
+   * @param string $query
+   *   The query string.
+   *
+   * @return string
+   *   A rendered Solr display
+   */
   public function islandora_solr($query = NULL, $params = NULL) {
     global $_islandora_solr_queryclass;
     // @FIXME
@@ -44,10 +64,6 @@ class DefaultController extends ControllerBase {
     // - Third choice is the base IslandoraSolrResults.
     $enabled_profiles = [];
     // Get enabled displays.
-    // @FIXME
-    // Could not extract the default value because it is either indeterminate, or
-    // not scalar. You'll need to provide a default value in
-    // config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
     $primary_display_array = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display_table');
     // If it's set, we take these values.
     if (isset($primary_display_array['enabled'])) {
