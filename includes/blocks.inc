@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains all blocks related functionality.
+ * Contains some block related functionality.
  */
 
 /**
@@ -20,14 +20,6 @@ function islandora_solr_islandora_solr_query_blocks() {
       'class' => NULL,
       'function' => NULL,
       'form' => 'islandora_solr_advanced_search_form',
-    ),
-    'simple' => array(
-      'name' => t('Islandora simple search'),
-      'module' => 'islandora_solr',
-      'file' => 'includes/blocks.inc',
-      'class' => NULL,
-      'function' => NULL,
-      'form' => 'islandora_solr_simple_search_form',
     ),
     'basic_facets' => array(
       'name' => t('Islandora facets'),
@@ -86,23 +78,6 @@ function islandora_solr_islandora_solr_query_blocks() {
       'form' => NULL,
     ),
   );
-}
-
-
-/**
- * Implements hook_block_info().
- */
-function islandora_solr_block_info() {
-  $blocks = array();
-
-  $solr_blocks = \Drupal::moduleHandler()->invokeAll("islandora_solr_query_blocks");
-  foreach ($solr_blocks as $name => $block) {
-    $blocks[$name] = array(
-      'info' => $block['name'],
-      'cache' => DRUPAL_NO_CACHE,
-    );
-  }
-  return $blocks;
 }
 
 /**
@@ -361,114 +336,6 @@ function islandora_solr_update_filters_on_submit($form, &$form_state) {
  */
 function _islandora_solr_update_filter_table($form, &$form_state) {
   return $form['facet'];
-}
-
-/**
- * Implements hook_block_view().
- *
- * @global IslandoraSolrQueryProcessor $_islandora_solr_queryclass
- *   The IslandoraSolrQueryProcessor object which includes the current query
- *   settings and the raw Solr results.
- */
-function islandora_solr_block_view($block_name = '') {
-  global $_islandora_solr_queryclass;
-  $block = array();
-
-  $solr_blocks = \Drupal::moduleHandler()->invokeAll("islandora_solr_query_blocks");
-
-  // If the block that is called is defined, and we have permission to view it.
-  if (!empty($solr_blocks[$block_name]) && \Drupal::currentUser()->hasPermission('search islandora solr')) {
-    // Set block title.
-    $block['subject'] = $solr_blocks[$block_name]['name'];
-
-    // Include the file from which the block originates.
-    if (isset($solr_blocks[$block_name]['file'])) {
-      require_once drupal_get_path('module', $solr_blocks[$block_name]['module']) . '/' . $solr_blocks[$block_name]['file'];
-    }
-
-    // If a class is present, instantiate it and proceed.
-    // The gloval variable $_islandora_solr_queryclass (the
-    // IslandoraSolrQueryProcessor, containing the Solr search result), is fed
-    // as an argument.
-    if (!empty($solr_blocks[$block_name]['class']) && !empty($solr_blocks[$block_name]['function'])) {
-      // Check if we're on a search results page.
-      if (islandora_solr_results_page($_islandora_solr_queryclass)) {
-        $display_class = new $solr_blocks[$block_name]['class']();
-        $block_function = $solr_blocks[$block_name]['function'];
-        if (method_exists($display_class, $block_function)) {
-
-          $block['content'] = $display_class->$block_function($_islandora_solr_queryclass);
-        }
-      }
-    }
-    elseif (!empty($solr_blocks[$block_name]['form'])) {
-      $block['content'] = \Drupal::formBuilder()->getForm($solr_blocks[$block_name]['form']);
-    }
-    // Else if only a function is given (no class, no form).
-    elseif (!empty($solr_blocks[$block_name]['function'])) {
-      $function = $solr_blocks[$block_name]['function'];
-      $block['content'] = $function();
-    }
-  }
-  return $block;
-}
-
-/**
- * Islandora Solr simple search form.
- *
- * @param array $form
- *   An associative array containing form structure.
- * @param array $form_state
- *   An associative array containing form state.
- *
- * @return array
- *   An associative array containing the fully built form structure.
- */
-function islandora_solr_simple_search_form($form, &$form_state) {
-
-  $form['simple'] = array(
-    '#type' => 'container',
-    '#attributes' => array(
-      'class' => array(
-        'container-inline',
-      ),
-    ),
-  );
-  $form['simple']["islandora_simple_search_query"] = array(
-    '#size' => '15',
-    '#type' => 'textfield',
-    '#title' => t("Search Term"),
-    // @todo Should this be the searched value?
-    '#default_value' => '',
-  );
-  $form['simple']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('search'),
-  );
-  return $form;
-}
-
-
-/**
- * Islandora Solr simple search form submit callback.
- *
- * @param array $form
- *   An associative array containing form structure.
- * @param array $form_state
- *   An associative array containing form state.
- */
-function islandora_solr_simple_search_form_submit($form, &$form_state) {
-  module_load_include('inc', 'islandora_solr', 'includes/utilities');
-  $search_string = islandora_solr_replace_slashes($form_state['values']['islandora_simple_search_query']);
-
-  $query = array('type' => 'dismax');
-
-  $form_state['redirect'] = array(
-    ISLANDORA_SOLR_SEARCH_PATH . "/$search_string",
-    array(
-      'query' => $query,
-    ),
-  );
 }
 
 /**
@@ -855,8 +722,8 @@ $primary_display_array = \Drupal::config('islandora_solr.settings')->get('island
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // $output = theme('item_list', array(
 //           'items' => $list_items,
@@ -929,8 +796,8 @@ function islandora_solr_sort() {
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // $indicator = theme('tablesort_indicator', array('style' => 'desc'));
 
@@ -942,8 +809,8 @@ function islandora_solr_sort() {
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // $indicator = theme('tablesort_indicator', array('style' => 'asc'));
 
@@ -998,8 +865,8 @@ function islandora_solr_sort() {
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // $output = theme('item_list', array(
 //         'items' => $list_items,
@@ -1152,8 +1019,8 @@ function islandora_solr_search_navigation() {
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // $return = theme('islandora_solr_search_navigation_block', array(
 //       'return_link' => $return_link,
@@ -1218,8 +1085,8 @@ $limits = \Drupal::config('islandora_solr.settings')->get('islandora_solr_num_of
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // return theme('item_list', array(
 //         'items' => $limit_list,

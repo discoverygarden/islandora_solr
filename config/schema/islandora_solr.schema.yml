@@ -80,7 +80,15 @@ islandora_solr.settings:
       type: boolean
     islandora_solr_advanced_search_block_lucene_syntax_escape:
       type: boolean
+    islandora_solr_advanced_search_block_lucene_regex_default:
+      type: string
     islandora_solr_base_advanced:
       type: boolean
     islandora_solr_breadcrumbs_parent_fields:
       type: string
+    islandora_solr_primary_display_table:
+      type: sequence
+    islandora_solr_secondary_display:
+      type: sequence
+    islandora_solr_num_of_results_advanced:
+      type: sequence

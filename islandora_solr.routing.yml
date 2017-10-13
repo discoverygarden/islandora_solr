@@ -1,19 +1,20 @@
 islandora_solr.islandora_solr:
-  path: /islandora/search
+  path: /islandora/search/{query}
   defaults:
+    query: ''
     _title: 'Search results'
     _controller: '\Drupal\islandora_solr\Controller\DefaultController::islandora_solr'
   requirements:
     _permission: 'search islandora solr'
 islandora_solr.admin_index_settings:
-  path: /admin/islandora/search/islandora_solr/index
+  path: /admin/config/islandora/search
   defaults:
     _title: 'Solr index'
     _form: \Drupal\islandora_solr\Form\IslandoraSolrAdminIndexSettings
   requirements:
     _permission: 'administer islandora solr'
 islandora_solr.admin_settings:
-  path: /admin/islandora/search/islandora_solr/settings
+  path: /admin/config/islandora/search/settings
   defaults:
     _title: 'Solr settings'
     _form: \Drupal\islandora_solr\Form\IslandoraSolrAdminSettings
@@ -26,10 +27,32 @@ islandora_solr.admin_breadcrumbs_settings:
     _form: \Drupal\islandora_solr\Form\IslandoraSolrAdminBreadcrumbsSettings
   requirements:
     _permission: 'administer islandora solr'
-islandora_solr.admin_settings_field:
-  path: /islandora_solr/field
+islandora_solr.configure_result_field:
+  path: /islandora_solr/result_field/{solr_field}
   defaults:
-    _title: 'Result field'
+    _title: 'Configure field'
+    _form: \Drupal\islandora_solr\Form\IslandoraSolrConfigureResultField
+  requirements:
+    _permission: 'administer islandora solr'
+islandora_solr.configure_search_field:
+  path: /islandora_solr/search_field/{solr_field}
+  defaults:
+    _title: 'Configure field'
+    _form: \Drupal\islandora_solr\Form\IslandoraSolrConfigureSearchField
+  requirements:
+    _permission: 'administer islandora solr'
+islandora_solr.configure_facet_field:
+  path: /islandora_solr/facet_field/{solr_field}
+  defaults:
+    _title: 'Configure field'
+    _form: \Drupal\islandora_solr\Form\IslandoraSolrConfigureFacetField
+  requirements:
+    _permission: 'administer islandora solr'
+islandora_solr.configure_sort_or_search_field:
+  path: /islandora_solr/sort_or_field/{field_type}/{solr_field}
+  defaults:
+    _title: 'Configure field'
+    _form: \Drupal\islandora_solr\Form\IslandoraSolrConfigureSortOrSearchField
   requirements:
     _permission: 'administer islandora solr'
 islandora_solr.autocomplete_luke:
@@ -37,12 +60,5 @@ islandora_solr.autocomplete_luke:
   defaults:
     _title: 'Islandora Solr Luke autocomplete'
     _controller: '\Drupal\islandora_solr\Controller\DefaultController::_islandora_solr_autocomplete_luke'
-  requirements:
-    _permission: 'administer islandora solr'
-islandora_solr.admin_settings_default_confirm_form:
-  path: /admin/islandora/search/islandora_solr/settings/confirmation
-  defaults:
-    _title: 'Default settings restore'
-    _form: \Drupal\islandora_solr\Form\IslandoraSolrAdminSettingsDefaultConfirmForm
   requirements:
     _permission: 'administer islandora solr'

@@ -1,5 +1,8 @@
 <?php
+
 namespace Drupal\islandora_solr;
+
+use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 
 /**
  * Islandora Solr Facets
@@ -120,8 +123,8 @@ class IslandoraSolrFacets {
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // return theme('islandora_solr_facet_wrapper', $elements);
 
@@ -460,8 +463,8 @@ class IslandoraSolrFacets {
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // $this->content .= theme('islandora_solr_facet', array(
 //         'buckets' => $buckets_visible,
@@ -474,8 +477,8 @@ class IslandoraSolrFacets {
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // $this->content .= theme('islandora_solr_facet', array(
 //         'buckets' => $buckets_hidden,
@@ -491,8 +494,8 @@ class IslandoraSolrFacets {
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // $this->content .= theme('islandora_solr_facet', array(
 //         'buckets' => $buckets,
@@ -513,8 +516,8 @@ class IslandoraSolrFacets {
     // @FIXME
 // The Assets API has totally changed. CSS, JavaScript, and libraries are now
 // attached directly to render arrays using the #attached property.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2169605
 // @see https://www.drupal.org/node/2408597
 // drupal_add_js(drupal_get_path('module', 'islandora_solr') . '/js/islandora_solr_facets.js');

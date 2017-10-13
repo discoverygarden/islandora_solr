@@ -5,11 +5,11 @@
  * Theme functions for the Islandora Solr Search module.
  */
 
+use Drupal\Core\Url;
+use Drupal\Core\Link;
 
 /**
  * Prepares variables for islandora_solr_wrapper templates.
- *
- * Default template: theme/islandora-solr-wrapper.tpl.php.
  *
  * @global string $base_url
  *
@@ -49,44 +49,21 @@ function template_preprocess_islandora_solr_wrapper(&$variables) {
   $end = number_format($end, 0, '.', ',');
   $start = number_format($start, 0, '.', ',');
 
-  $variables['islandora_solr_result_count'] = t('(@start - @end of @total)', array(
+  $variables['islandora_solr_result_count'] = t('(@start - @end of @total)', [
     '@start' => $start,
     '@end' => $end,
     '@total' => $total,
-  ));
+  ]);
 }
 
 /**
  * Prepares variables for islandora_solr templates.
- *
- * Default template: theme/islandora-solr.tpl.php.
  */
 function template_preprocess_islandora_solr(&$variables) {
-
   $results = $variables['results'];
   foreach ($results as $key => $result) {
-    // Thumbnail.
-    // @FIXME
-// url() expects a route name or an external URI.
-// $path = url($result['thumbnail_url'], array('query' => $result['thumbnail_url_params']));
 
-    $image_params = array(
-      'path' => $path,
-    );
-    if (isset($result['object_label'])) {
-      $image_params['alt'] = $result['object_label'];
-    }
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-// 
-// 
-// @see https://www.drupal.org/node/2195739
-// $image = theme('image', $image_params);
-
-    $options = array('html' => TRUE);
+    $options = ['html' => TRUE];
     if (isset($result['object_label'])) {
       $options['attributes']['title'] = $result['object_label'];
     }
@@ -97,17 +74,23 @@ function template_preprocess_islandora_solr(&$variables) {
       $options['fragment'] = $result['object_url_fragment'];
     }
     // Thumbnail link.
-    // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// $variables['results'][$key]['thumbnail'] = l($image, $result['object_url'], $options);
-
+    $image = [
+      '#theme' => 'image',
+      '#uri' => Url::fromUri($result['thumbnail_url'], ['query' => $result['thumbnail_url_params']])->toString(),
+    ];
+    if (isset($result['object_label'])) {
+      $image['#alt'] = $result['object_label'];
+    }
+    $variables['results'][$key]['thumbnail'] = Link::fromTextAndUrl(
+      \Drupal::service('renderer')->render($image),
+      Url::fromUri($result['object_url']),
+      $options
+    );
   }
 }
 
 /**
  * Prepares variables for islandora_solr_facet templates.
- *
- * Default template: theme/islandora-solr-facet.tpl.php.
  */
 function template_preprocess_islandora_solr_facet(&$variables) {
   $buckets = $variables['buckets'];

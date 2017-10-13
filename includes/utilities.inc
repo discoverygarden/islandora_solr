@@ -5,6 +5,8 @@
  * Miscellaneous helper functions.
  */
 
+use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+
 /**
  * Initialize a pager for theme('pager') without running an SQL query.
  *
@@ -440,11 +442,11 @@ function islandora_solr_islandora_basic_collection_backend_callable($collection_
   $qp = new IslandoraSolrQueryProcessor();
   $_islandora_solr_queryclass = $qp;
 
-  $qp->buildQuery(format_string('!member_field:("info:fedora/!pid" OR "!pid") OR !collection_member_field:("info:fedora/!pid" OR "!pid")', array(
+  $qp->buildQuery(strtr('!member_field:("info:fedora/!pid" OR "!pid") OR !collection_member_field:("info:fedora/!pid" OR "!pid")', [
     '!member_field' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_field'),
     '!pid' => $collection_object->id,
     '!collection_member_field' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_collection_field'),
-  )), \Drupal\Component\Utility\UrlHelper::filterQueryParameters());
+  ]), \Drupal::request()->query->all() );
 
   if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_collection_result_limit_block_override')) {
     if (isset($qp->internalSolrParams['limit'])) {
@@ -514,15 +516,15 @@ function islandora_solr_truncate_field_display($display_values, $max_length, $ad
     // @FIXME
 // The Assets API has totally changed. CSS, JavaScript, and libraries are now
 // attached directly to render arrays using the #attached property.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2169605
 // @see https://www.drupal.org/node/2408597
 // drupal_add_js("$mod_path/js/truncation-toggle.js");
 
     // Build two arrays for display, one filtered by size (max_values)
     // and one with all the data.
-    $truncated_list = array();
+    $truncated_list = [];
     $character_output_count = 0;
     foreach ($updated_display_values as $index => $current_value) {
       if ($character_output_count + \Drupal\Component\Utility\Unicode::strlen($current_value) <= $max_length) {
@@ -708,4 +710,67 @@ function islandora_solr_get_filter_tags() {
   );
 
   return $filter_tags;
+}
+
+/**
+ * Get the Solr config from the given installation.
+ *
+ * Seem to get the Solr config a couple places... We cache statically, just
+ * because.
+ *
+ * @param string $solr_url
+ *   The Solr URL from which to try to grab the solrconfig.xml.
+ *
+ * @return SimpleXMLElement
+ *   A SimpleXMLElement representing the contents of the solrconfig.xml, or
+ *   NULL if it could not be retrieved.
+ */
+function islandora_solr_get_solrconfig_xml($solr_url) {
+  $xml = &drupal_static(__FUNCTION__, array());
+  if (!array_key_exists($solr_url, $xml) || $xml[$solr_url] === NULL) {
+    $url = $solr_url . '/admin/file/?file=solrconfig.xml';
+    // XXX: The Solr URL should be made to contain the URI scheme in the actual
+    // configuration.
+    if (strpos($solr_url, 'http') !== 0) {
+      $url = "http://$url";
+    }
+    $client = \Drupal::httpClient();
+    $req = $client->request('GET', $url);
+    if ($req->getStatusCode() / 100 === 2) {
+      $xml[$solr_url] = simplexml_load_string($req->getBody()->getContents());
+      islandora_solr_resolve_xincludes($xml[$solr_url], (strpos($solr_url, 'http') === 0 ? '' : 'http://') . $solr_url);
+    }
+    else {
+      $xml[$solr_url] = NULL;
+    }
+  }
+  return $xml[$solr_url];
+}
+
+/**
+ * Resolve XIncludes which include files local to the Solr config directory.
+ *
+ * Relies upon some internal libxml behaviour... When one imports a
+ * SimpleXMLElement into DOM and acts upon it, the original SimpleXMLElement is
+ * also changed.
+ *
+ * @param SimpleXMLElement $doc_element
+ *   An SimpleXMLElement under which to resolve XInclude statements. NOTE: This
+ *   object will be modified in place.
+ * @param string $solr_url
+ *   A string representing the path to Solr.
+ */
+function islandora_solr_resolve_xincludes(SimpleXMLElement $doc_element, $solr_url) {
+  $dom_element = dom_import_simplexml($doc_element);
+  $doc = $dom_element->ownerDocument;
+  $xpath = new DOMXPath($doc);
+  $xpath->registerNamespace('xi', 'http://www.w3.org/2001/XInclude');
+  $xincludes = $xpath->query('//xi:*[@href and not(contains(@href, "/"))]');
+  foreach ($xincludes as $element) {
+    $element->setAttribute('href', "$solr_url/admin/file?file=" . $element->getAttribute('href'));
+  }
+
+  // XXX: Suppress errors, as trying to access a file which doesn't exist
+  // will throw an HTTP 400 instead of a 404... Solr is silly.
+  @$doc->xinclude();
 }

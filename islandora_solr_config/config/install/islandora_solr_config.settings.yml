@@ -1,0 +1,13 @@
+islandora_solr_config_rss_item:
+  title: 'fgs_label_s'
+  description: ''
+  author: ''
+  category: ''
+  pubDate: 'fgs_createdDate_s'
+  enclosure_dsid: 'TN'
+islandora_solr_config_rss_channel:
+    copyright: ''
+    managingEditor: ''
+    webMaster: ''
+islandora_solr_table_profile_display_row_no: 1
+islandora_solr_table_profile_table_class: ''

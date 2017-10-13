@@ -1,4 +1,5 @@
 islandora_solr.admin_index_settings:
   route_name: islandora_solr.admin_index_settings
+  parent: islandora.admin_config
   title: 'Solr index'
   description: 'Configure Solr index.'

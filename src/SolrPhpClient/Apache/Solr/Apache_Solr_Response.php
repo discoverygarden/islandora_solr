@@ -39,6 +39,8 @@
  * @author Donovan Jimenez <djimenez@conduit-it.com>
  */
 
+namespace Drupal\islandora_solr\SolrPhpClient\Apache\Solr;
+
 /**
  * Represents a Solr response.  Parses the raw response into a set of stdClass objects
  * and associative arrays for easy access.

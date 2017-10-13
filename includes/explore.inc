@@ -5,6 +5,8 @@
  * Miscellaneous helper functions.
  */
 
+use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+
 /**
  * Generates the links for the Islandora explore block.
  *
@@ -51,8 +53,8 @@ $expore_config = \Drupal::config('islandora_solr.settings')->get('islandora_solr
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // $output = theme('item_list', array(
 //     'items' => $links,

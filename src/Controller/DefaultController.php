@@ -1,4 +1,6 @@
-<?php /**
+<?php
+
+ /**
  * @file
  * Contains \Drupal\islandora_solr\Controller\DefaultController.
  */
@@ -7,18 +9,41 @@ namespace Drupal\islandora_solr\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+
+use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+
 /**
  * Default controller for the islandora_solr module.
  */
 class DefaultController extends ControllerBase {
 
+  /**
+   * Page callback: Islandora Solr.
+   *
+   * Gathers url parameters, and calls the query builder, which prepares the query
+   * based on the admin settings and url values.
+   * Finds the right display and calls the IslandoraSolrRestuls class to build the
+   * display, which it returns to the page.
+   *
+   * @global IslandoraSolrQueryProcessor $_islandora_solr_queryclass
+   *   The IslandoraSolrQueryProcessor object which includes the current query
+   *   settings and the raw Solr results.
+   *
+   * @param string $query
+   *   The query string.
+   *
+   * @return string
+   *   A rendered Solr display
+   */
   public function islandora_solr($query = NULL, $params = NULL) {
     global $_islandora_solr_queryclass;
     // @FIXME
     // The Assets API has totally changed. CSS, JavaScript, and libraries are now
     // attached directly to render arrays using the #attached property.
-    // 
-    // 
+    //
+    //
     // @see https://www.drupal.org/node/2169605
     // @see https://www.drupal.org/node/2408597
     // drupal_add_css(drupal_get_path('module', 'islandora_solr') . '/css/islandora_solr.theme.css');
@@ -39,10 +64,6 @@ class DefaultController extends ControllerBase {
     // - Third choice is the base IslandoraSolrResults.
     $enabled_profiles = [];
     // Get enabled displays.
-    // @FIXME
-    // Could not extract the default value because it is either indeterminate, or
-    // not scalar. You'll need to provide a default value in
-    // config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
     $primary_display_array = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display_table');
     // If it's set, we take these values.
     if (isset($primary_display_array['enabled'])) {
@@ -128,8 +149,12 @@ class DefaultController extends ControllerBase {
     return $output;
   }
 
-  public function _islandora_solr_autocomplete_luke($string = '') {
-
+  /**
+   * Admin autocomplete callback which returns solr fields from Luke.
+   */
+  public function _islandora_solr_autocomplete_luke(Request $request) {
+    module_load_include('inc', 'islandora_solr', 'includes/luke');
+    $string = $request->query->get('q');
     $luke = islandora_solr_get_luke();
     $result = [];
     foreach ($luke['fields'] as $term => $value) {
@@ -138,14 +163,17 @@ class DefaultController extends ControllerBase {
         $term_str = preg_replace("/$string/i", "<strong>\$0</strong>", $term);
 
         // Add strong elements to highlight the found string.
-        $result[$term] = $term_str . '<strong style="position: absolute; right: 5px;">(' . $value['type'] . ')</strong>';
+        $result[] = [
+          'label' => $term_str . '<strong style="position: absolute; right: 5px;">(' . $value['type'] . ')</strong>',
+          'value' => $term,
+        ];
       }
     }
     // Sort alphabetically.
-    ksort($result);
+    // @XXX: Sorting arrays isn't documented well http://php.net/manual/en/function.sort.php#54903 .
+    sort($result);
 
-    drupal_json_output($result);
-    exit();
+    return new JsonResponse($result);
   }
 
 }

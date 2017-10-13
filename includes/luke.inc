@@ -5,6 +5,10 @@
  * Contains helper functions for Solr Luke.
  */
 
+use Drupal\Core\Url;
+
+use Drupal\islandora_solr\SolrPhpClient\Apache\Solr\Apache_Solr_Service;
+
 /**
  * Pings a Solr instance for availability.
  *
@@ -105,26 +109,15 @@ function islandora_solr_get_luke($solr_url = NULL, $field = NULL, $num_terms = 0
     if ($show_schema) {
       $luke_query['show'] = 'schema';
     }
-    // Generate nice URL.
-    // @FIXME
-// url() expects a route name or an external URI.
-// $luke_url = url($luke_url, array('absolute' => TRUE, 'query' => $luke_query));
-
     // Need to set a timeout greater than the default 30 seconds as some indexes
     // could contain a lot of fields and the Luke needs longer to respond in
     // kind.
     $timeout = \Drupal::config('islandora_solr.settings')->get('islandora_solr_luke_timeout');
-    // @FIXME
-// drupal_http_request() has been replaced by the Guzzle HTTP client, which is bundled
-// with Drupal core.
-// 
-// 
-// @see https://www.drupal.org/node/1862446
-// @see http://docs.guzzlephp.org/en/latest
-// $r = drupal_http_request($luke_url, array('timeout' => $timeout));
-
-    if ($r->code / 100 === 2) {
-      $luke_json = $r->data;
+    $url = Url::fromUri($luke_url, ['query' => $luke_query, 'timeout' => $timeout])->toString();
+    $client = \Drupal::httpClient();
+    $r = $client->request('GET', $url);
+    if ($r->getStatusCode() / 100 === 2) {
+      $luke_json = $r->getBody()->getContents();
       // Parse JSON.
       $luke_array = json_decode($luke_json, TRUE);
       return $luke_array;

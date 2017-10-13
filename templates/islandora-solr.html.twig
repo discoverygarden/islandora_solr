@@ -1,0 +1,49 @@
+{#
+/**
+ * @file
+ * Islandora solr search primary results template file.
+ *
+ * Variables available:
+ * - $results: Primary profile results array
+ *
+ * @see template_preprocess_islandora_solr()
+ */
+#}
+{% if results is empty %}
+  <p class="no-results">{{ 'Sorry, but your search returned no results.'|t }}</p>
+{% else %}
+  <div class="islandora islandora-solr-search-results">
+    {% set row_result = 0 %}
+    {% for key, result in results %}
+      <!-- The classes are reversed because the array starts at zero but typically these start with odd. -->
+      {% if row_result % 2 %}
+        {% set class = 'even' %}
+      {% else %}
+        {% set class = 'odd' %}
+      {% endif %}
+      <div class="islandora-solr-search-result clear-block {{ class }}">
+        <div class="islandora-solr-search-result-inner">
+          <!-- Thumbnail -->
+          <dl class="solr-thumb">
+            <dt>
+              {{ result.thumbnail }}
+            </dt>
+            <dd></dd>
+          </dl>
+          <!-- Metadata -->
+          <dl class="solr-fields islandora-inline-metadata">
+            {% for key, value in result.solr_doc %}
+              <dt class="solr-label {{ value.class }}">
+                {{ value.label }}
+              </dt>
+              <dd class="solr-value {{ value.class }}">
+                {{ value.value }}
+              </dd>
+            {% endfor %}
+          </dl>
+        </div>
+      </div>
+      {% set row_result = row_result + 1 %}
+    {% endfor %}
+  </div>
+{% endif %}

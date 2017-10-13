@@ -1,4 +1,4 @@
-<?php
+{#
 /**
  * @file
  * Islandora solr search results wrapper template
@@ -17,15 +17,15 @@
  *
  * @see template_preprocess_islandora_solr_wrapper()
  */
-?>
+#}
 
 <div id="islandora-solr-top">
-  <?php print $secondary_profiles; ?>
-  <div id="islandora-solr-result-count"><?php print $islandora_solr_result_count; ?></div>
+  {{ secondary_profiles }}
+  <div id="islandora-solr-result-count">{{ islandora_solr_result_count }}</div>
 </div>
 <div class="islandora-solr-content">
-  <?php print $solr_pager; ?>
-  <?php print $results; ?>
-  <?php print $solr_debug; ?>
-  <?php print $solr_pager; ?>
+  {{ solr_pager }}
+  {{ results }}
+  {{ solr_debug }}
+  {{ solr_pager }}
 </div>
