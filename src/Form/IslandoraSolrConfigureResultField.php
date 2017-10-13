@@ -119,7 +119,7 @@ class IslandoraSolrConfigureResultField extends FormBase {
       'wordsafe' => [
         '#type' => 'checkbox',
         '#title' => $this->t('Wordsafe'),
-        '#description' => $this->t('If selected attempt to truncate on a word boundary. See <a href="@url" target="_blank".>documentation</a> for more information.', ['@url' => 'https://api.drupal.org/api/drupal/includes!unicode.inc/function/truncate_utf8/7']),
+        '#description' => $this->t('If selected attempt to truncate on a word boundary. See <a href="@url" target="_blank".>documentation</a> for more information.', ['@url' => 'https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Component%21Utility%21Unicode.php/function/Unicode%3A%3Atruncate/8.2.x']),
         '#default_value' => isset($values['wordsafe']) ? $values['wordsafe'] : FALSE,
         '#states' => [
           'invisible' => [
