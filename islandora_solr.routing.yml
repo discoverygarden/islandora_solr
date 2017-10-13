@@ -1,6 +1,7 @@
 islandora_solr.islandora_solr:
-  path: /islandora/search
+  path: /islandora/search/{query}
   defaults:
+    query: ''
     _title: 'Search results'
     _controller: '\Drupal\islandora_solr\Controller\DefaultController::islandora_solr'
   requirements:

@@ -37,7 +37,7 @@ class IslandoraSimpleSearch extends FormBase {
     ];
     $form['simple']['submit'] = [
       '#type' => 'submit',
-      '#value' => t('search'),
+      '#value' => $this->t('search'),
     ];
     return $form;
   }
@@ -53,7 +53,7 @@ class IslandoraSimpleSearch extends FormBase {
 
     $form_state->setRedirect(
       'islandora_solr.islandora_solr',
-      [],
+      ['query' => $search_string],
       ['query' => $query]
     );
   }
