@@ -15,11 +15,11 @@
   <div class="islandora islandora-solr-search-results">
     {% set row_result = 0 %}
     {% for key, result in results %}
-      <!-- Search result -->
+      <!-- The classes are reversed because the array starts at zero but typically these start with odd. -->
       {% if row_result % 2 %}
-        {% set class = 'odd' %}
-      {% else %}
         {% set class = 'even' %}
+      {% else %}
+        {% set class = 'odd' %}
       {% endif %}
       <div class="islandora-solr-search-result clear-block {{ class }}">
         <div class="islandora-solr-search-result-inner">
