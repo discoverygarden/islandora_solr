@@ -35,13 +35,6 @@ class IslandoraSolrAdminIndexSettings extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    // Check for the PHP Solr lib class.
-    if (!class_exists('Drupal\islandora_solr\SolrPhpClient\Apache\Solr\Apache_Solr_Service')) {
-      drupal_set_message($this->t('This module requires the <a href="@url">Apache Solr PHP Client</a>. Please install the client in the root directory of this module before continuing.', [
-        '@url' => 'http://code.google.com/p/solr-php-client',
-      ]), 'error');
-      return [];
-    }
     // Add admin form CSS.
     $form['#attached']['library'][] = 'islandora_solr/islandora-solr-admin';
 
@@ -52,7 +45,7 @@ class IslandoraSolrAdminIndexSettings extends ConfigFormBase {
 
     if (strpos($solr_url, 'https://') !== FALSE && strpos($solr_url, 'https://') == 0) {
       $confirmation_message = $this->t('Islandora does not support SSL connections to Solr.');
-      $status_image = '/core/misc/icons/e32700/error.svg';
+      $status_image = 'base:core/misc/icons/e32700/error.svg';
       $solr_avail = FALSE;
     }
     else {
@@ -74,13 +67,13 @@ class IslandoraSolrAdminIndexSettings extends ConfigFormBase {
           '@link' => Link::fromTextAndUrl($solr_url, $full_url)->toString(),
           '@ms' => number_format($solr_avail, 2),
         ]);
-        $status_image = '/core/misc/icons/73b355/check.svg';
+        $status_image = 'base:core/misc/icons/73b355/check.svg';
       }
       else {
-        $confirmation_message = $this->t('Unable to connect to Solr server at @link.', array(
+        $confirmation_message = $this->t('Unable to connect to Solr server at @link.', [
           '@link' => Link::fromTextAndUrl($solr_url, $full_url)->toString(),
-        ));
-        $status_image = '/core/misc/icons/e32700/error.svg';
+        ]);
+        $status_image = 'base:core/misc/icons/e32700/error.svg';
       }
     }
 
@@ -111,10 +104,10 @@ class IslandoraSolrAdminIndexSettings extends ConfigFormBase {
     ];
 
     // Confirmation message.
-    $form['solr_ajax_wrapper']['image'] = array(
+    $form['solr_ajax_wrapper']['image'] = [
       '#theme' => 'image',
-      '#uri' => $status_image,
-    );
+      '#uri' => Url::fromUri($status_image)->toString(),
+    ];
     $form['solr_ajax_wrapper']['message'] = [
       '#markup' => $confirmation_message,
     ];
