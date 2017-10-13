@@ -170,6 +170,7 @@ class DefaultController extends ControllerBase {
       }
     }
     // Sort alphabetically.
+    // @XXX: Sorting arrays isn't documented well http://php.net/manual/en/function.sort.php#54903 .
     sort($result);
 
     return new JsonResponse($result);
