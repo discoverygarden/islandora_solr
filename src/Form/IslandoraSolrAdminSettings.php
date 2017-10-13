@@ -38,7 +38,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form_state->loadInclude('islandora', 'inc', 'includes/utilities');
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
-    $config = \Drupal::config('islandora_solr.settings');
+    $config = $this->config('islandora_solr.settings');
     $form['#attached']['library'][] = 'core/drupal.dialog.ajax';
 
     // Display profiles.
