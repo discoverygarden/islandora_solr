@@ -32,9 +32,13 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
   }
 
 
+  /**
+   * {@inheritdoc}
+   */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form_state->loadInclude('islandora', 'inc', 'includes/utilities');
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
+    $config = \Drupal::config('islandora_solr.settings');
     $form['#attached']['library'][] = 'core/drupal.dialog.ajax';
 
     // Display profiles.
@@ -71,7 +75,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     $form['islandora_solr_primary_table_default_choice'] = [
       '#type' => 'value',
     ];
-    $primary_display_array = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display_table');
+    $primary_display_array = $config->get('islandora_solr_primary_display_table');
 
     // Get all defined primary displays.
     $profiles = $this->moduleHandler->invokeAll("islandora_solr_primary_display");
@@ -106,7 +110,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       // Table loop.
       foreach ($profiles_sorted as $machine_name => $profile) {
         // Default display logic for re-use.
-        $default = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display');
+        $default = $config->get('islandora_solr_primary_display');
 
         $default_enabled = isset($primary_display_array['enabled'][$machine_name]) ? $primary_display_array['enabled'][$machine_name] : FALSE;
         if ($default == $machine_name) {
@@ -180,7 +184,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
         '#type' => 'checkboxes',
         '#title' => $this->t('Secondary display profiles'),
         '#options' => $islandora_solr_secondary_display_options,
-        '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_secondary_display'),
+        '#default_value' => $config->get('islandora_solr_secondary_display'),
         '#description' => "Enabled secondary output/download types for search results.",
       ];
     }
@@ -217,7 +221,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#type' => 'checkbox',
       '#title' => $this->t('Limit results to fields listed above?'),
       '#return_value' => 1,
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_limit_result_fields'),
+      '#default_value' => $config->get('islandora_solr_limit_result_fields'),
       '#description' => $this->t('If checked, results displayed will be limited to the fields specified above. The order of the display fields is only enforced when this is enabled.<br /><strong>Note:</strong> some display profiles may not honour this value.'),
     ];
     $form['default_display_settings']['islandora_solr_num_of_results'] = [
@@ -225,20 +229,20 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#title' => $this->t('Results per page'),
       '#size' => 5,
       '#description' => $this->t('Default number of results to show per page.'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_num_of_results'),
+      '#default_value' => $config->get('islandora_solr_num_of_results'),
     ];
     $form['default_display_settings']['islandora_solr_num_of_results_advanced'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Advanced results per page'),
       '#size' => 5,
-      '#description' => $this->t('Comma seperated list of integers to increase or decrease results per page.'),
-      '#default_value' => implode(',', \Drupal::config('islandora_solr.settings')->get('islandora_solr_num_of_results_advanced')),
+      '#description' => $this->t('Comma separated list of integers to increase or decrease results per page.'),
+      '#default_value' => implode(',', $config->get('islandora_solr_num_of_results_advanced')),
     ];
     $form['default_display_settings']['islandora_solr_search_navigation'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable search navigation block'),
       '#description' => $this->t('Add navigation params to object links.'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_search_navigation'),
+      '#default_value' => $config->get('islandora_solr_search_navigation'),
     ];
     $form['default_display_settings']['islandora_solr_search_field_value_separator'] = [
       '#type' => 'textfield',
@@ -246,13 +250,13 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#description' => $this->t('Characters to separate values in multivalued fields. If left empty it will default to @value.', [
         '@value' => '", "'
         ]),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_search_field_value_separator'),
+      '#default_value' => $config->get('islandora_solr_search_field_value_separator'),
     ];
     $form['default_display_settings']['islandora_solr_search_truncated_field_value_separator'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Truncated field value separator'),
       '#description' => $this->t('Characters to separate truncated values in multivalued fields. If left empty it will default to line break.'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_search_truncated_field_value_separator'),
+      '#default_value' => $config->get('islandora_solr_search_truncated_field_value_separator'),
     ];
     // Sort settings.
     $form['sort'] = [
@@ -310,21 +314,21 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#title' => $this->t('Minimum limit'),
       '#size' => 5,
       '#description' => $this->t('The minimum number of results required to display a facet'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_min_limit'),
+      '#default_value' => $config->get('islandora_solr_facet_min_limit'),
     ];
     $form['facet_settings']['islandora_solr_facet_soft_limit'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Soft limit'),
       '#size' => 5,
       '#description' => $this->t('The number of results which should be displayed initially. If there are more, then the "Show more" button will allow the rest up to the value below to be displayed. Use 0 to disable.'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_soft_limit'),
+      '#default_value' => $config->get('islandora_solr_facet_soft_limit'),
     ];
     $form['facet_settings']['islandora_solr_facet_max_limit'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Maximum limit'),
       '#size' => 5,
       '#description' => $this->t('The maximum number of terms that should be returned to the user. For example, if there are 100 possible subjects in a faceted result you may wish to only return the top 10.'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_max_limit'),
+      '#default_value' => $config->get('islandora_solr_facet_max_limit'),
     ];
 
     // Advanced search block.
@@ -357,7 +361,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     $form['advanced_search_block']['islandora_solr_search_boolean'] = [
       '#type' => 'radios',
       '#title' => $this->t('Default boolean operator'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_search_boolean'),
+      '#default_value' => $config->get('islandora_solr_search_boolean'),
       '#options' => [
         'user' => $this->t('User-configurable'),
         'AND' => $this->t('AND'),
@@ -368,13 +372,13 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     $form['advanced_search_block']['islandora_solr_allow_preserve_filters'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Allow Preservation of Filters'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_allow_preserve_filters'),
+      '#default_value' => $config->get('islandora_solr_allow_preserve_filters'),
       '#description' => $this->t('Allow users to preserve filters when changing their search.'),
     ];
     $form['advanced_search_block']['islandora_solr_human_friendly_query_block'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Human-friendly Current Query'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_human_friendly_query_block'),
+      '#default_value' => $config->get('islandora_solr_human_friendly_query_block'),
       '#description' => $this->t('Use labels instead of raw field names when displaying an advanced search in the Current Query block.'),
     ];
 
@@ -382,13 +386,13 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#title' => $this->t('Escape Lucene special characters'),
       '#description' => $this->t('Allow the use of lucene syntax string escaping on search terms'),
       '#type' => 'checkbox',
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_advanced_search_block_lucene_syntax_escape'),
+      '#default_value' => $config->get('islandora_solr_advanced_search_block_lucene_syntax_escape'),
     ];
 
     $form['advanced_search_block']['islandora_solr_advanced_search_block_lucene_regex_default'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Default regular expression evaluated on search term'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_advanced_search_block_lucene_regex_default'),
+      '#default_value' => $config->get('islandora_solr_advanced_search_block_lucene_regex_default'),
       '#description' => $this->t("The default regular expression, used to escape characters when found in search terms. Defaults to @regex", [
         '@regex' => ISLANDORA_SOLR_QUERY_FACET_LUCENE_ESCAPE_REGEX_DEFAULT
         ]),
@@ -410,7 +414,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     $form['query_defaults']['islandora_solr_namespace_restriction'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Limit results to specific namespaces'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_namespace_restriction'),
+      '#default_value' => $config->get('islandora_solr_namespace_restriction'),
       '#description' => $this->t("Enter a space- or comma-separated list of namespaces (for example, 'demo, default') to restrict results to PIDs within those namespaces."),
     ];
     $form['query_defaults']['islandora_solr_base_query'] = [
@@ -421,13 +425,13 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       Setting a useful default query allows the use of Solr to browse without having to enter a query.
       This may be used in conjunction with a background filter below.<br />
       Consider using <strong>fgs_createdDate_dt:[* TO NOW]</strong> or <strong>*:*</strong><br />'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_query'),
+      '#default_value' => $config->get('islandora_solr_base_query'),
     ];
     $form['query_defaults']['islandora_solr_base_advanced'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Use default query for empty advanced searches too'),
       '#description' => $this->t('When selected, an empty advanced search will perform the same as an empty simple search. If not selected, empty advanced searches will search *:*'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_advanced'),
+      '#default_value' => $config->get('islandora_solr_base_advanced'),
     ];
     $form['query_defaults']['islandora_solr_base_sort'] = [
       '#type' => 'textfield',
@@ -438,20 +442,20 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     For more information, check the <a href="@url">Solr documentation</a>.', [
         '@url' => 'http://wiki.apache.org/solr/CommonQueryParameters#sort'
         ]),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_sort'),
+      '#default_value' => $config->get('islandora_solr_base_sort'),
     ];
     $form['query_defaults']['islandora_solr_base_filter'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Solr base filter'),
       '#description' => $this->t('Lists base filters that are appended to all user queries. This may be used to filter results and facilitate null-query browsing. Enter one filter per line. <br />
       These filters will be applied to all queries in addition to any user-selected facet filters'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_filter'),
+      '#default_value' => $config->get('islandora_solr_base_filter'),
       '#wysiwyg' => FALSE,
     ];
     $form['query_defaults']['islandora_solr_query_fields'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Query fields'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_query_fields'),
+      '#default_value' => $config->get('islandora_solr_query_fields'),
       '#description' => $this->t('<a href="@url" target="_blank" title="Solr query fields documentation">Query fields</a> to use for DisMax (simple) searches.', [
         '@url' => 'http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29'
         ]),
@@ -459,7 +463,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     $form['query_defaults']['islandora_solr_use_ui_qf'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Prefer defined query fields?'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_use_ui_qf'),
+      '#default_value' => $config->get('islandora_solr_use_ui_qf'),
       '#description' => $this->t('Use the above "@qf" by default; otherwise, they will only be used as a fallback in the case there are none defined in the selected request handler.', [
         '@qf' => $this->t('Query fields')
         ]),
@@ -477,7 +481,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#title' => $this->t('Content model Solr field'),
       '#size' => 30,
       '#description' => $this->t('Solr field containing the content model URIs. This should be a multivalued string field'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_content_model_field'),
+      '#default_value' => $config->get('islandora_solr_content_model_field'),
       '#required' => TRUE,
     ];
     // Present datastreams Solr field.
@@ -488,7 +492,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#description' => $this->t('Solr field containing the populated datastream IDs.
       This should be a multivalued string field. If this field is not populated,
       the DSID of TN will be assumed valid for thumbnails.'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_datastream_id_field'),
+      '#default_value' => $config->get('islandora_solr_datastream_id_field'),
       '#required' => TRUE,
     ];
     // Label Solr field.
@@ -497,7 +501,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#title' => $this->t('Object label Solr field'),
       '#size' => 30,
       '#description' => $this->t("The Solr field containing an object's label. This should be a single valued string field."),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_object_label_field'),
+      '#default_value' => $config->get('islandora_solr_object_label_field'),
       '#required' => TRUE,
     ];
     // The isMemberOf Solr field.
@@ -506,7 +510,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#title' => $this->t('The isMemberOf Solr field'),
       '#size' => 30,
       '#description' => $this->t("The Solr field containing an object's isMemberOf relationship"),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_field'),
+      '#default_value' => $config->get('islandora_solr_member_of_field'),
       '#required' => TRUE,
     ];
     // The isMemberOfCollection Solr field.
@@ -515,7 +519,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#title' => $this->t('The isMemberOfCollection Solr field'),
       '#size' => 30,
       '#description' => $this->t("The Solr field containing an object's isMemberOfCollection relationship"),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_collection_field'),
+      '#default_value' => $config->get('islandora_solr_member_of_collection_field'),
       '#required' => TRUE,
     ];
     // Miscellaneous.
@@ -529,7 +533,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#type' => 'checkbox',
       '#title' => $this->t('Debug mode?'),
       '#return_value' => 1,
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode'),
+      '#default_value' => $config->get('islandora_solr_debug_mode'),
       '#description' => $this->t('Dumps Solr queries to the screen for testing. Warning: if you have the Drupal Apache Solr module enabled alongside this one, the debug function will not work.'),
       '#weight' => 6,
     ];
@@ -539,7 +543,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#title' => $this->t('Solr Luke timeout'),
       '#size' => 10,
       '#description' => $this->t("Number of seconds to set timeout for retrieving fields from Solr's Luke interface. Increase this if autocomplete fields containing Solr field names time out."),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_luke_timeout'),
+      '#default_value' => $config->get('islandora_solr_luke_timeout'),
       '#required' => TRUE,
     ];
     return parent::buildForm($form, $form_state);

@@ -2,8 +2,9 @@
 
 /**
  * @file
- * Contains methods to search solr and display results. Depends on
- * Apache_Solr_Php client.
+ * Contains methods to search Solr and display results.
+ *
+ * Depends on Apache_Solr_Php client.
  */
 
 /**

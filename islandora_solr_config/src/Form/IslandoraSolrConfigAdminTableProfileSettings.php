@@ -17,6 +17,9 @@ class IslandoraSolrConfigAdminTableProfileSettings extends FormBase {
     return 'islandora_solr_config_admin_table_profile_settings';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['options']['islandora_solr_table_profile_settings'] = [
       '#type' => 'fieldset',
@@ -45,8 +48,11 @@ class IslandoraSolrConfigAdminTableProfileSettings extends FormBase {
     return $form;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $config = \Drupal::configFactory()->getEditable('islandora_solr_config.settings');
+    $config = $this->configFactory()->getEditable('islandora_solr_config.settings');
 
     $config->set(
       'islandora_solr_table_profile_display_row_no',

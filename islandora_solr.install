@@ -13,17 +13,17 @@ use Drupal\Core\Link;
  */
 function islandora_solr_requirements($phase) {
   $t = 't';
-  $requirements = array();
+  $requirements = [];
   require_once dirname(__FILE__) . '/src/SolrPhpClient/Apache/Solr/Apache_Solr_Service.php';
   if ($phase == 'install') {
     if (!class_exists('Drupal\islandora_solr\SolrPhpClient\Apache\Solr\Apache_Solr_Service')) {
-      $requirements['islandora_solr'] = array(
+      $requirements['islandora_solr'] = [
         'title' => $t('Missing Apache Client'),
         'description' => $t('This module requires the <a href="@url">Apache Solr PHP Client</a>. Please install the client in the root directory of this module before continuing.', [
           '@url' => 'http://code.google.com/p/solr-php-client',
         ]),
         'severity' => REQUIREMENT_ERROR,
-      );
+      ];
     }
   }
   return $requirements;
@@ -37,9 +37,9 @@ function islandora_solr_install() {
   $t = 't';
   $message = $t(
     'Islandora Solr @link',
-    array(
+    [
       '@link' => Link::fromTextAndUrl($t('configuration page'), Url::fromRoute('islandora_solr.admin_settings'))->toString(),
-    )
+    ]
   );
   drupal_set_message(\Drupal\Component\Utility\Xss::filter($message));
 }
@@ -48,7 +48,7 @@ function islandora_solr_install() {
  * Implements hook_schema().
  */
 function islandora_solr_schema() {
-  $schema['islandora_solr_fields'] = array(
+  $schema['islandora_solr_fields'] = [
     'description' => 'Table that stores Islandora Solr field settings.',
     'fields' => array(
       'solr_field' => array(
@@ -79,7 +79,7 @@ function islandora_solr_schema() {
       ),
     ),
     'primary key' => array(array('solr_field', 191), 'field_type'),
-  );
+  ];
   $schema['islandora_solr_collection_sort_strings'] = array(
     'description' => 'Table that stores sort strings for collection objects.',
     'fields' => array(
@@ -99,181 +99,4 @@ function islandora_solr_schema() {
     'primary key' => array(array('collection_pid', 191)),
   );
   return $schema;
-}
-
-/**
- * Migrate old Drupal variables defining Solr fields into the new DB table.
- */
-function islandora_solr_update_7000() {
-  // Create table.
-  $schema = islandora_solr_schema();
-  db_create_table('islandora_solr_fields', $schema['islandora_solr_fields']);
-
-  // Old variable name => field type.
-  $old_variables = array(
-    'islandora_solr_result_fields' => 'result_fields',
-    'islandora_solr_search_sortby_terms' => 'sort_fields',
-    'islandora_solr_facet_date' => 'facet_fields',
-    'islandora_solr_facets' => 'facet_fields',
-    'islandora_solr_searchterms' => 'search_fields',
-  );
-  $insert_values = array();
-  $weight = 0;
-  $duplicate_check = array();
-  foreach ($old_variables as $old_variable => $type) {
-    // Get and split up variable strings.
-    // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// $old_value = variable_get($old_variable, NULL);
-
-    $lines = preg_split('/[,|\n|\r]/', $old_value);
-    // Process each value to prepare for DB insert.
-    foreach ($lines as $line) {
-      if ($line) {
-        $line_array = explode('~', $line);
-        $term = trim($line_array[0]);
-        $label = trim($line_array[1]);
-        if (!$label) {
-          $label = $term;
-        }
-        // Check for duplicate entry.
-        if (in_array($term, $duplicate_check[$type])) {
-          continue;
-        }
-        $duplicate_check[$type][] = $term;
-        // Basic values.
-        $insert_value = array(
-          'solr_field' => $term,
-          'field_type' => $type,
-          'weight' => $weight++,
-          'solr_field_settings' => array(
-            'label' => $label,
-            'permissions' => array_keys(user_roles()),
-          ),
-        );
-        // Add aditional settings for result and facet fields.
-        if ($type == 'result_fields') {
-          // @FIXME
-// Could not extract the default value because it is either indeterminate, or
-// not scalar. You'll need to provide a default value in
-// config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
-if (strpos($term, \Drupal::config('islandora_solr.settings')->get('islandora_solr_snippet_field')) !== FALSE) {
-            $insert_value['solr_field_settings']['snippet'] = '1';
-          }
-        }
-        if ($type == 'facet_fields') {
-          if ($old_variable == 'islandora_solr_facet_date') {
-            $insert_value['solr_field_settings']['range_facet_select'] = '1';
-            $insert_value['solr_field_settings']['range_facet_start'] = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_date_start');
-            $insert_value['solr_field_settings']['range_facet_end'] = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_date_end');
-            $insert_value['solr_field_settings']['range_facet_gap'] = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_date_gap');
-            $insert_value['solr_field_settings']['date_facet_format'] = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_date_format');
-          }
-        }
-        // Serialize field settings.
-        $insert_value['solr_field_settings'] = serialize($insert_value['solr_field_settings']);
-        $insert_values[] = $insert_value;
-      }
-    }
-  }
-  // Populate DB table.
-  $insert = db_insert('islandora_solr_fields')->fields(array(
-    'solr_field',
-    'field_type',
-    'weight',
-    'solr_field_settings',
-  ));
-  foreach ($insert_values as $record) {
-    $insert->values($record);
-  }
-  $insert->execute();
-
-  // Remove old solr field variables.
-  foreach ($old_variables as $old_variable => $type) {
-    // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// variable_del($old_variable);
-
-  }
-  // Remove old unused variables.
-  $old_variables_other = array(
-    'islandora_solr_facet_date_end',
-    'islandora_solr_facet_date_format',
-    'islandora_solr_facet_date_gap',
-    'islandora_solr_facet_date_start',
-    'islandora_solr_facet_fields',
-    'islandora_solr_search_block_repeat',
-    'islandora_solr_search_fields',
-    'islandora_solr_search_sortby',
-    'islandora_solr_search_term_repeat',
-    'islandora_solr_sort_fields',
-    'islandora_solr_sort_terms',
-    'islandora_solr_snippet_field',
-    'islandora_solr_sort_order',
-    'islandora_solr_sort_field',
-    'islandora_solr_search_andor',
-  );
-  foreach ($old_variables_other as $old_variable_other) {
-    // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// variable_del($old_variable_other);
-
-  }
-}
-
-/**
- * Add the table for collection sort strings.
- */
-function islandora_solr_update_7001() {
-  $schema = islandora_solr_schema();
-  db_create_table('islandora_solr_collection_sort_strings', $schema['islandora_solr_collection_sort_strings']);
-}
-
-/**
- * Fix the table islandora_solr_collection_sort_strings, if possible.
- */
-function islandora_solr_update_7002() {
-  module_load_include('inc', 'islandora', 'includes/utilities');
-  $schema = islandora_solr_schema();
-  $results = db_select('islandora_solr_collection_sort_strings', 'c')
-    ->fields('c', array('collection_pid', 'sort_string'))
-    ->execute();
-
-  $is_empty = function($o) {
-    return (empty($o) || !trim($o));
-  };
-
-  while (FALSE !== ($row = $results->fetchAssoc())) {
-    if (!islandora_is_valid_pid($row['collection_pid']) || $is_empty($row['sort_string'])) {
-      \Drupal::logger('islandora_solr')->error('There was an empty sort string or invalid pid in the islandora_solr_collection_sort_strings table, you must manually fix this table. See ticket for more information.', array());
-
-      throw new DrupalUpdateException(
-        t(
-          'There was an empty sort string or invalid pid in the islandora_solr_collection_sort_strings table, you must manually fix this table. See !ticket for more information',
-          array('!ticket' => 'https://jira.duraspace.org/browse/ISLANDORA-1786')
-        )
-      );
-    }
-  }
-
-  db_drop_primary_key('islandora_solr_collection_sort_strings');
-  db_change_field(
-    'islandora_solr_collection_sort_strings',
-    'collection_pid',
-    'collection_pid',
-    $schema['islandora_solr_collection_sort_strings']['fields']['collection_pid']
-  );
-  db_change_field(
-    'islandora_solr_collection_sort_strings',
-    'sort_string',
-    'sort_string',
-    $schema['islandora_solr_collection_sort_strings']['fields']['sort_string']
-  );
-  db_add_primary_key('islandora_solr_collection_sort_strings', array('collection_pid'));
 }

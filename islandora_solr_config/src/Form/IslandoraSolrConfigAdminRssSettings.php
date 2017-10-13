@@ -17,6 +17,9 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
     return 'islandora_solr_config_admin_rss_settings';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function buildForm(array $form, FormStateInterface $form_state) {
     // Get variables.
     $rss_item = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_config_rss_item');
@@ -42,7 +45,7 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
     $form['rss_item']['description'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Description'),
-      '#description' => t('Solr field to populate the item synopsis.'),
+      '#description' => $this->t('Solr field to populate the item synopsis.'),
       '#autocomplete_route_name' => 'islandora_solr.autocomplete_luke',
       '#default_value' => $rss_item['description'],
     ];
@@ -78,12 +81,12 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
       '#title' => $this->t('Channel settings'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-      '#description' => t('To take full control over the RSS channel output you can also override the following method: IslandoraSolrResultsRSS::rssChannel()'),
+      '#description' => $this->t('To take full control over the RSS channel output you can also override the following method: IslandoraSolrResultsRSS::rssChannel()'),
     ];
     $form['rss_channel']['copyright'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Copyright'),
-      '#description' => t('Copyright notice for content in the channel.'),
+      '#description' => $this->t('Copyright notice for content in the channel.'),
       '#default_value' => $rss_channel['copyright'],
     ];
     $form['rss_channel']['managingEditor'] = [
@@ -107,8 +110,11 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
     return $form;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $config = \Drupal::configFactory()->getEditable('islandora_solr_config.settings');
+    $config = $this->configFactory()->getEditable('islandora_solr_config.settings');
     $rss_item = $form_state->getValue('rss_item');
     $rss_channel = $form_state->getValue('rss_channel');
 

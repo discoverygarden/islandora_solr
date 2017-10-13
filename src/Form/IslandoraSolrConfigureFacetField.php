@@ -228,7 +228,7 @@ class IslandoraSolrConfigureFacetField extends FormBase {
       $response->addCommand(new ReplaceCommand('#facet_fields_modal', $form));
     }
     else {
-      $response->addCommand(new OpenModalDialogCommand('Saved', 'The configuration has been saved.', ['width' => 800]));
+      $response->addCommand(new OpenModalDialogCommand($this->t('Saved'), $this->t('The configuration has been saved.'), ['width' => 800]));
     }
 
     return $response;
