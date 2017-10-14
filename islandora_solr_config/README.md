@@ -2,7 +2,8 @@
 
 ## Introduction
 
-Islandora Solr display profiles provides Solr search results alternative display profiles and functionality for the Islandora Solr Search Module.
+Islandora Solr display profiles provides Solr search results alternative
+display profiles and functionality for the Islandora Solr Search Module.
 
 ## Requirements
 
@@ -15,15 +16,20 @@ This module requires the following modules/libraries:
 
 ## Installation
 
- Install as usual, see [this](https://drupal.org/documentation/install/modules-themes/modules-7) for further information.
+Install as usual, see
+[this](https://drupal.org/documentation/install/modules-themes/modules-7) for
+further information.
 
 ## Configuration
 
-Select and configure your prefered display handlers in Administration » Islandora » Solr Index » Solr Settings (admin/islandora/search/islandora_solr/settings).
+Select and configure your prefered display handlers in
+Administration » Islandora » Solr Index » Solr Settings
+(admin/islandora/search/islandora_solr/settings).
 
 ## Documentation
 
-Further documentation for this module is available at [our wiki](https://wiki.duraspace.org/display/ISLANDORA/Islandora+Solr+Search).
+Further documentation for this module is available at
+[our wiki](https://wiki.duraspace.org/display/ISLANDORA/Islandora+Solr+Search).
 
 ## Troubleshooting/Issues
 
@@ -34,7 +40,7 @@ Further documentation for this module is available at [our wiki](https://wiki.du
 
 ## Development
 
-If you would like to contribute to this module, please check out [CONTRIBUTING.md](CONTRIBUTING.md). In addition, we have helpful [Documentation for Developers](https://github.com/Islandora/islandora/wiki#wiki-documentation-for-developers) info, as well as our [Developers](http://islandora.ca/developers) section on the [Islandora.ca](http://islandora.ca) site.
+In addition, we have helpful [Documentation for Developers](https://github.com/Islandora/islandora/wiki#wiki-documentation-for-developers) info, as well as our [Developers](http://islandora.ca/developers) section on the [Islandora.ca](http://islandora.ca) site.
 
 ## License
 

@@ -92,3 +92,5 @@ islandora_solr.settings:
       type: sequence
     islandora_solr_num_of_results_advanced:
       type: sequence
+    islandora_solr_explore_config:
+      type: sequence
