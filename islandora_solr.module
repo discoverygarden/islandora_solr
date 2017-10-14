@@ -37,12 +37,6 @@ function islandora_solr_theme() {
   $file = 'theme.inc';
 
   return [
-    // Advanced solr search form/block.
-    'islandora_solr_advanced_search_form' => [
-      'variables' => [
-        'form' => NULL,
-      ],
-    ],
     // Results page.
     'islandora_solr_wrapper' => [
       'file' => "theme/$file",
