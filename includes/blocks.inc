@@ -6,81 +6,6 @@
  */
 
 /**
- * Implements hook_islandora_solr_query_blocks().
- */
-function islandora_solr_islandora_solr_query_blocks() {
-  // Note: As in the examples below, it is valid to specify
-  // *either* a class and method *or* a form.  The latter implies no
-  // class needs to be instantiated.
-  return array(
-    'advanced' => array(
-      'name' => t('Islandora advanced search'),
-      'module' => 'islandora_solr',
-      'file' => 'includes/blocks.inc',
-      'class' => NULL,
-      'function' => NULL,
-      'form' => 'islandora_solr_advanced_search_form',
-    ),
-    'basic_facets' => array(
-      'name' => t('Islandora facets'),
-      'module' => 'islandora_solr',
-      'file' => 'includes/results.inc',
-      'class' => 'IslandoraSolrResults',
-      'function' => 'displayFacets',
-      'form' => NULL,
-    ),
-    'current_query' => array(
-      'name' => t('Islandora query'),
-      'module' => 'islandora_solr',
-      'file' => 'includes/results.inc',
-      'class' => 'IslandoraSolrResults',
-      'function' => 'currentQuery',
-      'form' => NULL,
-    ),
-    'display_switch' => array(
-      'name' => t('Islandora displays'),
-      'module' => 'islandora_solr',
-      'file' => 'includes/blocks.inc',
-      'class' => NULL,
-      'function' => 'islandora_solr_display',
-      'form' => NULL,
-    ),
-    'sort' => array(
-      'name' => t('Islandora sort'),
-      'module' => 'islandora_solr',
-      'file' => 'includes/blocks.inc',
-      'class' => NULL,
-      'function' => 'islandora_solr_sort',
-      'form' => NULL,
-    ),
-    'explore' => array(
-      'name' => t('Islandora explore'),
-      'module' => 'islandora_solr',
-      'file' => 'includes/explore.inc',
-      'class' => NULL,
-      'function' => 'islandora_solr_explore_generate_links',
-      'form' => NULL,
-    ),
-    'search_navigation' => array(
-      'name' => t('Islandora search navigation'),
-      'module' => 'islandora_solr',
-      'file' => 'includes/blocks.inc',
-      'class' => NULL,
-      'function' => 'islandora_solr_search_navigation',
-      'form' => NULL,
-    ),
-    'result_limit' => array(
-      'name' => t('Islandora search result limit'),
-      'module' => 'islandora_solr',
-      'file' => 'includes/blocks.inc',
-      'class' => NULL,
-      'function' => 'islandora_solr_search_results_limit',
-      'form' => NULL,
-    ),
-  );
-}
-
-/**
  * Implements hook_form_FORM_ID_alter().
  *
  * Currently checks for delta of explore and modifies the form to add custom
@@ -193,11 +118,11 @@ $expore_config = (isset($form_state['islandora_solr_facet_filters']) ? $form_sta
 
         if ($facet_is_valid) {
           // Put values into config array.
-          $expore_config[$facet_filter] = array(
+          $expore_config[$facet_filter] = [
             'label' => $facet_label,
             'filter' => $facet_filter,
             'weight' => $facet_weight,
-          );
+          ];
 
           // Sort config array by weight and update drupal variable.
           uasort($expore_config, 'drupal_sort_weight');
@@ -212,36 +137,36 @@ $expore_config = (isset($form_state['islandora_solr_facet_filters']) ? $form_sta
     }
 
     // Set table row data to be rendered.
-    $rows = array();
+    $rows = [];
     if (!empty($expore_config)) {
       foreach ($expore_config as $row_index => $row) {
-        $rows["facet-row-$row_index"] = array(
+        $rows["facet-row-$row_index"] = [
           'display_label' => htmlentities($row['label']),
           'facet_filter' => htmlentities($row['filter']),
-          'facet_weight' => array(
-            'data' => array(
+          'facet_weight' => [
+            'data' => [
               '#type' => 'select',
               '#title' => t('Weight'),
               '#options' => array_combine(range(-50, 50), range(-50, 50)),
               '#value' => (isset($row['weight']) ? $row['weight'] : 0),
               '#title_display' => 'invisible',
-              '#attributes' => array(
+              '#attributes' => [
                 'name' => "select_weight[{$row['filter']}]",
-              ),
-            ),
-          ),
-        );
+              ],
+            ],
+          ],
+        ];
       }
     }
 
-    $form['facet'] = array(
+    $form['facet'] = [
       '#type' => 'fieldset',
       '#prefix' => '<div id="islandora-solr-facet-filter-wrapper">',
       '#suffix' => '</div>',
       '#title' => t('Setup Display Facets'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-    );
+    ];
     $form['facet']['table'] = array(
       '#type' => 'tableselect',
       '#header' => array(
@@ -251,7 +176,7 @@ $expore_config = (isset($form_state['islandora_solr_facet_filters']) ? $form_sta
       ),
       '#options' => $rows,
       '#empty' => t('No display facets'),
-      '#attributes' => array('class' => array('main-facet-table')),
+      '#attributes' => array('class' => ['main-facet-table']),
     );
     $form['facet']['actions'] = array(
       '#type' => 'actions',
