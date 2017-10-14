@@ -3,3 +3,8 @@ islandora-solr-admin:
   css:
     base:
       css/islandora_solr.admin.css: {}
+islandora-solr-theme:
+  version: 1.x
+  css:
+    base:
+      css/islandora_solr.theme.css: {}

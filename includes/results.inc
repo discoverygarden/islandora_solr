@@ -6,6 +6,9 @@
  * Depends on Apache_Solr_Php client.
  */
 
+use Drupal\Core\Url;
+use Drupal\Core\Template\Attribute;
+
 use Drupal\islandora_solr\IslandoraSolrFacets;
 
 /**
@@ -111,54 +114,37 @@ class IslandoraSolrResults {
     // Get secondary display profiles.
     $secondary_display_profiles = \Drupal::moduleHandler()->invokeAll('islandora_solr_secondary_display');
 
-    // $_GET['q'] didn't seem to work here.
-    $path = \Drupal\Core\Url::fromRoute("<current>")->toString();
-
     // Parameters set in URL.
     $params = $islandora_solr_query->internalSolrParams;
 
     // Get list of secondary displays.
-    // @FIXME
-// Could not extract the default value because it is either indeterminate, or
-// not scalar. You'll need to provide a default value in
-// config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
-$secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_solr_secondary_display');
+    $secondary_array = \Drupal::config('islandora_solr.settings')->get('islandora_solr_secondary_display');
     foreach ($secondary_array as $name => $status) {
       if ($status === $name) {
         // Generate URL.
         $query_secondary = array_merge($params, ['solr_profile' => $name]);
 
         // Set attributes variable for remove link.
-        $attr = [];
+        $attr = new Attribute();
         $attr['title'] = $secondary_display_profiles[$name]['description'];
         $attr['rel'] = 'nofollow';
-        // @FIXME
-// url() expects a route name or an external URI.
-// $attr['href'] = url($path, array('query' => $query_secondary));
+        $attr['href'] = Url::fromRoute('<current>', [], ['query' => $query_secondary])->toString();
 
         $logo = $secondary_display_profiles[$name]['logo'];
 
         // XXX: We are not using l() because of active classes:
         // @see http://drupal.org/node/41595
         // Create link.
-        $query_list[] = '<a' . drupal_attributes($attr) . '>' . $logo . '</a>';
+        $query_list[]['#markup'] = '<a' . $attr . '>' . $logo . '</a>';
       }
     }
-
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// return theme('item_list', array(
-//       'items' => $query_list,
-//       'title' => NULL,
-//       'type' => 'ul',
-//       'attributes' => array('id' => 'secondary-display-profiles'),
-//     ));
+   return [
+     '#theme' => 'item_list',
+     '#items' => $query_list,
+     '#title' => NULL,
+     '#type' => 'ul',
+     '#attributes' => ['id' => 'secondary-display-profiles'],
+   ];
 
   }
 

@@ -34,22 +34,22 @@ class IslandoraSolrQueryProcessor {
   public $display;
   // Parameters from URL.
   public $internalSolrParams;
-  public $differentKindsOfNothing = array(
+  public $differentKindsOfNothing = [
     ' ',
     '%20',
     '%252F',
     '%2F',
     '%252F-',
     '',
-  );
+  ];
 
   /**
-   * Handle deprectation of old class member gracefully.
+   * Handle deprecation of old class member gracefully.
    */
   public function __get($name) {
-    $map = array(
+    $map = [
       'different_kinds_of_nothing' => 'differentKindsOfNothing',
-    );
+    ];
 
     if (isset($map[$name])) {
       $new_name = $map[$name];
@@ -362,26 +362,27 @@ class IslandoraSolrQueryProcessor {
       if (!empty($object_results)) {
         if (isset($this->internalSolrParams['islandora_solr_search_navigation']) && $this->internalSolrParams['islandora_solr_search_navigation']) {
           $id = bin2hex(\Drupal\Component\Utility\Crypt::randomBytes(10));
-          $page_params = \Drupal\Component\Utility\UrlHelper::filterQueryParameters();
+          $page_params = \Drupal::request()->query->all();
           $search_nav_qp = $this;
           $search_nav_qp->islandoraSolrResult = NULL;
-          $_SESSION['islandora_solr_search_nav_params'][$id] = array(
-            'path' => \Drupal\Core\Url::fromRoute("<current>")->toString(),
+          $_SESSION['islandora_solr_search_nav_params'][$id] = [
+            'path' => Url::fromRoute("<current>")->toString(),
             'query' => $this->solrQuery,
             'query_internal' => $this->internalSolrQuery,
             'limit' => $this->solrLimit,
             'params' => $this->solrParams,
             'params_internal' => $this->internalSolrParams,
-          );
+          ];
 
-          $url_params = array(
-            'solr_nav' => array(
+          $url_params = [
+            'solr_nav' => [
               'id' => $id,
               'page' => (isset($page_params['page']) ? $page_params['page'] : 0),
-            ));
+            ],
+          ];
         }
         else {
-          $url_params = array();
+          $url_params = [];
         }
 
         foreach ($object_results as $object_index => $object_result) {
