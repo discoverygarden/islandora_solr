@@ -5,7 +5,7 @@
  * Miscellaneous helper functions.
  */
 
-use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 
 /**
  * Generates the links for the Islandora explore block.

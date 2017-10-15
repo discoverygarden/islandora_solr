@@ -7,7 +7,7 @@
 
 use Drupal\Core\Form\FormStateInterface;
 
-use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 
 define('ISLANDORA_SOLR_SEARCH_PATH', 'islandora/search');
 define('ISLANDORA_SOLR_QUERY_SPLIT_REGEX', '/(?<!\\\\) /');
@@ -102,7 +102,6 @@ function islandora_solr_islandora_solr_primary_display() {
     'default' => [
       'name' => t('List (default)'),
       'module' => 'islandora_solr',
-      'file' => 'includes/results.inc',
       'class' => "IslandoraSolrResults",
       'function' => "displayResults",
       'description' => t("Display search results as a list view"),

@@ -6,6 +6,8 @@
  * Apache_Solr_Php client.
  */
 
+use Drupal\islandora_solr\IslandoraSolrResults;
+
 /**
  * Extension of IslandoraSolrResults to create an alternative display type.
  */
@@ -28,8 +30,8 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
     // @FIXME
 // The Assets API has totally changed. CSS, JavaScript, and libraries are now
 // attached directly to render arrays using the #attached property.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2169605
 // @see https://www.drupal.org/node/2408597
 // drupal_add_css("$mod_path/css/islandora_solr_config.theme.css");
@@ -94,8 +96,8 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // $output = theme('islandora_solr_table', array('header' => $header, 'rows' => $rows));
 

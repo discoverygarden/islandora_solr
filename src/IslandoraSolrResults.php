@@ -6,6 +6,8 @@
  * Depends on Apache_Solr_Php client.
  */
 
+namespace Drupal\islandora_solr;
+
 use Drupal\Core\Url;
 use Drupal\Core\Template\Attribute;
 
@@ -675,4 +677,5 @@ class IslandoraSolrResults {
 
     $this->allSubsArray = array_merge($this->facetFieldArray, $this->searchFieldArray, $this->resultFieldArray);
   }
+
 }

@@ -4,6 +4,8 @@ namespace Drupal\islandora_solr\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 
+use Drupal\islandora_solr\IslandoraSolrResults;
+
 /**
  * Provides a faceting block.
  *
@@ -18,8 +20,7 @@ class Facets extends BlockBase {
    * {@inheritdoc}
    */
   public function build() {
-    module_load_include('inc', 'islandora_solr', 'includes/results.inc');
-    return \IslandoraSolrResults::displayFacets();
+    return IslandoraSolrResults::displayFacets();
   }
 
 }

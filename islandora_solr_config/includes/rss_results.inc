@@ -6,6 +6,8 @@
  * Apache_Solr_Php client.
  */
 
+use Drupal\islandora_solr\IslandoraSolrResults;
+
 /**
  * Extention of IslandoraSolrResults for templating purposes.
  * This overrides the displayResults function to provide an alternate display

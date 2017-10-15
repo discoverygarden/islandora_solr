@@ -5,7 +5,8 @@
  * Breadcrumb functions.
  */
 
-use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\islandora_solr\IslandoraSolrResults;
 
 /**
  * Implements callback_islandora_breadcrumbs_backends.

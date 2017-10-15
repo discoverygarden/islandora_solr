@@ -4,6 +4,8 @@ namespace Drupal\islandora_solr\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 
+use Drupal\islandora_solr\IslandoraSolrResults;
+
 /**
  * Provides a block for managing the current query.
  *
@@ -18,7 +20,6 @@ class IslandoraSolrQuery extends BlockBase {
    * {@inheritdoc}
    */
   public function build() {
-    module_load_include('inc', 'islandora_solr', 'includes/results');
     return IslandoraSolrResults::currentQuery();
   }
 

@@ -12,7 +12,8 @@ use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\islandora_solr\IslandoraSolrResults;
 
 /**
  * Default controller for the islandora_solr module.
@@ -110,22 +111,19 @@ class DefaultController extends ControllerBase {
     $solr_function = $profile['function'];
 
     // Check if the display's class exists.
-    $use_default_display = TRUE;
     if (class_exists($solr_class)) {
       $implementation = new $solr_class();
       // Check if the display's method exists.
       if (method_exists($implementation, $solr_function)) {
         // Implement results.
         $output = $implementation->$solr_function($_islandora_solr_queryclass);
-        $use_default_display = FALSE;
+        return $output;
       }
     }
 
     // Class and method could not be found, so use default.
-    if ($use_default_display) {
-      $results_class = new IslandoraSolrResults();
-      $output = $results_class->displayResults($_islandora_solr_queryclass);
-    }
+    $results_class = new IslandoraSolrResults();
+    $output = $results_class->displayResults($_islandora_solr_queryclass);
 
     // Debug dump.
     if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode')) {
