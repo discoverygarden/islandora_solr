@@ -9,7 +9,7 @@
  * Ajax Callback to reload the facet form when adding rows to the table.
  */
 function _islandora_solr_update_filter_table($form, &$form_state) {
-  return $form['facet'];
+  return $form['settings']['facet'];
 }
 
 /**

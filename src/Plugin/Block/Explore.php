@@ -68,14 +68,6 @@ class Explore extends BlockBase {
       $facet_filter = $form_state->getCompleteFormState()->getValue('filter');
       $facet_weight = $form_state->getCompleteFormState()->getValue('facet_weight');
 
-      if (empty($facet_filter)) {
-        $form_state->setErrorByName('filter', t('Facet Filter is required to add a display facet.'));
-      }
-
-      if (empty($facet_label)) {
-        $form_state->setErrorByName('label', t('Display Label is required to add a display facet.'));
-      }
-
       if (!empty($facet_label) && !empty($explore_config)) {
         foreach ($explore_config as $row) {
           if ($row['label'] == $facet_label) {
@@ -90,11 +82,9 @@ class Explore extends BlockBase {
           }
         }
         if ($duplicate_label) {
-          $form_state->setErrorByName('label', t('Display Label must be unique.'));
           $duplicate = TRUE;
         }
         elseif ($duplicate_filter) {
-          $form_state->setErrorByName('filter', t('Facet Filter must be unique.'));
           $duplicate = TRUE;
         }
       }
@@ -123,9 +113,6 @@ class Explore extends BlockBase {
           }
           // Restore the original messages.
           $_SESSION['messages'] = $old_msg;
-          if (!$facet_is_valid) {
-            $form_state->setErrorByName('filter', t('Invalid Facet Query Filter.'));
-          }
         }
 
         if ($facet_is_valid) {
@@ -226,15 +213,13 @@ class Explore extends BlockBase {
       '#description' => t('The text displayed for the generated link.'),
       '#attributes' => ['class' => ['new-facet-label']],
     ];
-    // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// $form['facet']['fieldset']['filter'] = [
-//       '#type' => 'textarea',
-//       '#title' => t('Facet Query Filter'),
-//       '#size' => 60,
-//       '#description' => t("Write a custom facet query, for information on available tags see:") . l(t('Solr Luke Schema.'), "{$GLOBALS['base_url']}:8080/solr/admin/luke"),
-//       '#attributes' => ['class' => ['new-facet-filter']],
-//     ];
+    $form['facet']['fieldset']['filter'] = [
+      '#type' => 'textarea',
+      '#title' => t('Facet Query Filter'),
+      '#size' => 60,
+      '#description' => t('Write a custom facet query, for information on available tags see your Solr admin.'),
+      '#attributes' => ['class' => ['new-facet-filter']],
+    ];
 
     $form['facet']['fieldset']['facet_weight'] = [
       '#type' => 'select',
@@ -255,6 +240,74 @@ class Explore extends BlockBase {
       ],
     ];
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function blockValidate($form, FormStateInterface $form_state) {
+    $facet_label = $form_state->getCompleteFormState()->getValue('label');
+    $facet_filter = $form_state->getCompleteFormState()->getValue('filter');
+    $facet_weight = $form_state->getCompleteFormState()->getValue('facet_weight');
+
+    if (empty($facet_filter)) {
+      $form_state->setErrorByName('filter', t('Facet Filter is required to add a display facet.'));
+    }
+
+    if (empty($facet_label)) {
+      $form_state->setErrorByName('label', t('Display Label is required to add a display facet.'));
+    }
+    if (!empty($facet_label) && !empty($explore_config)) {
+      foreach ($explore_config as $row) {
+        if ($row['label'] == $facet_label) {
+          // Label exists return form error.
+          $duplicate_label = TRUE;
+          break;
+        }
+        elseif ($row['filter'] == $facet_filter) {
+          // Facet filter exists return form error.
+          $duplicate_filter = TRUE;
+          break;
+        }
+      }
+      if ($duplicate_label) {
+        $form_state->setErrorByName('label', t('Display Label must be unique.'));
+        $duplicate = TRUE;
+      }
+      elseif ($duplicate_filter) {
+        $form_state->setErrorByName('filter', t('Facet Filter must be unique.'));
+        $duplicate = TRUE;
+      }
+    }
+    if (!empty($facet_label) && !empty($facet_filter) && !$duplicate) {
+      // Before it's added try to run the facet query and see if it's valid.
+      $facet_is_valid = TRUE;
+      if (!empty($facet_filter)) {
+        module_load_include('inc', 'islandora_solr', 'includes/explore');
+
+        // Store current messages.
+        $old_msg = drupal_get_messages();
+
+        // Clear current error messages.
+        drupal_get_messages('error', TRUE);
+
+        // Run a facet query on the supplied filter.
+        islandora_solr_explore_test_facet_query($facet_filter);
+
+        // Clear error messages run facet query and check if there are any
+        // error messages.  If there are error messages assume that the query
+        // failed and set facet to invalid.
+        $error_msgs = drupal_get_messages('error');
+        if (isset($error_msgs['error'])) {
+          $facet_is_valid = FALSE;
+        }
+        // Restore the original messages.
+        $_SESSION['messages'] = $old_msg;
+        if (!$facet_is_valid) {
+          $form_state->setErrorByName('filter', t('Invalid Facet Query Filter.'));
+        }
+      }
+    }
   }
 
   /**
