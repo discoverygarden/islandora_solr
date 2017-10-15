@@ -12,21 +12,21 @@ function islandora_solr_date_filter_form($form, &$form_state, $elements) {
   global $_islandora_solr_queryclass;
   extract($elements);
 
-  $form = array(
+  $form = [
     '#tree' => TRUE,
     '#prefix' => '<div class="islandora-solr-date-filter">',
     '#suffix' => '</div>',
-  );
+  ];
   // Field.
-  $form['date_filter_facet_field'] = array(
+  $form['date_filter_facet_field'] = [
     '#type' => 'hidden',
     '#value' => $facet_field,
     '#name' => 'date_filter_facet_field_' . $form_key,
-  );
+  ];
 
   // Check if default value is possible.
   // Parameters set in URL.
-  $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : array();
+  $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : [];
   $filter_count = 0;
   if (isset($params['f'])) {
     $format = 'Y/m/d';
@@ -84,11 +84,11 @@ function islandora_solr_date_filter_form($form, &$form_state, $elements) {
     $value = t('Show');
   }
 
-  $form['date_range_expand'] = array(
-    '#markup' => t('Specify date range: <a href="#" class="toggle-date-range-filter @class">@value</a>', array('@class' => $class, '@value' => $value)),
+  $form['date_range_expand'] = [
+    '#markup' => t('Specify date range: <a href="#" class="toggle-date-range-filter @class">@value</a>', ['@class' => $class, '@value' => $value]),
     '#prefix' => '<span class="date-filter-toggle-text">',
     '#suffix' => '</span>',
-  );
+  ];
   $form['date_filter'] = array(
     '#prefix' => '<div class="date-range-filter-wrapper">',
     '#suffix' => '</div>',
@@ -170,7 +170,7 @@ function islandora_solr_date_filter_form_validate($form, &$form_state) {
 
     // Check from date.
     if (!checkdate(intval($from[1]), intval($from[2]), intval($from[0]))) {
-      form_set_error($form_key . '][date_filter_from', t('<em>From</em> date is not formatted correctly.'));
+      $form_state->setErrorByName($form_key . '][date_filter_from', t('<em>From</em> date is not formatted correctly.'));
     }
   }
   // If the 'to' value is '*' just skip all checks.
@@ -184,7 +184,7 @@ function islandora_solr_date_filter_form_validate($form, &$form_state) {
     }
     // Check to date.
     if (!checkdate(intval($to[1]), intval($to[2]), intval($to[0]))) {
-      form_set_error($form_key . '][date_filter_to', t('<em>To</em> date is not formatted correctly.'));
+      $form_state->setErrorByName($form_key . '][date_filter_to', t('<em>To</em> date is not formatted correctly.'));
     }
   }
 }

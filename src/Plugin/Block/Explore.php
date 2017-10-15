@@ -3,6 +3,7 @@
 namespace Drupal\islandora_solr\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Provides a block for exploring objects through facets.
@@ -26,6 +27,7 @@ class Explore extends BlockBase {
    * {@inheritdoc}
    */
   public function blockForm($form, FormStateInterface $form_state) {
+    $form_state->loadInclude('islandora_solr', 'inc', 'includes/blocks');
     $form = parent::blockForm($form, $form_state);
     // Get the variables for the form display facets.
     $explore_config = ($form_state->get('islandora_solr_facet_filters') ? $form_state->get('islandora_solr_facet_filters') : \Drupal::config('islandora_solr.settings')->get('islandora_solr_explore_config'));
@@ -33,7 +35,7 @@ class Explore extends BlockBase {
     // Check if remove was clicked and removed the label and filter from the
     // values and the table.
     if ($triggering_element && $triggering_element['#value'] == t('Remove selected')) {
-      foreach ($form_state->getValue('table') as $key => $row) {
+      foreach ($form_state->getCompleteFormState()->getValue('table') as $key => $row) {
         if (!empty($row)) {
           // Get selected row index.
           $row_index = str_replace("facet-row-", "", $key);
@@ -62,16 +64,16 @@ class Explore extends BlockBase {
       $duplicate_label = FALSE;
       $duplicate_filter = FALSE;
       $duplicate = FALSE;
-      $facet_label = $form_state->getValue('label');
-      $facet_filter = $form_state->getValue('filter');
-      $facet_weight = $form_state->getValue('facet_weight');
+      $facet_label = $form_state->getCompleteFormState()->getValue('label');
+      $facet_filter = $form_state->getCompleteFormState()->getValue('filter');
+      $facet_weight = $form_state->getCompleteFormState()->getValue('facet_weight');
 
       if (empty($facet_filter)) {
-        form_set_error('filter', t('Facet Filter is required to add a display facet.'));
+        $form_state->setErrorByName('filter', t('Facet Filter is required to add a display facet.'));
       }
 
       if (empty($facet_label)) {
-        form_set_error('label', t('Display Label is required to add a display facet.'));
+        $form_state->setErrorByName('label', t('Display Label is required to add a display facet.'));
       }
 
       if (!empty($facet_label) && !empty($explore_config)) {
@@ -88,11 +90,11 @@ class Explore extends BlockBase {
           }
         }
         if ($duplicate_label) {
-          form_set_error('label', t('Display Label must be unique.'));
+          $form_state->setErrorByName('label', t('Display Label must be unique.'));
           $duplicate = TRUE;
         }
         elseif ($duplicate_filter) {
-          form_set_error('filter', t('Facet Filter must be unique.'));
+          $form_state->setErrorByName('filter', t('Facet Filter must be unique.'));
           $duplicate = TRUE;
         }
       }
@@ -122,7 +124,7 @@ class Explore extends BlockBase {
           // Restore the original messages.
           $_SESSION['messages'] = $old_msg;
           if (!$facet_is_valid) {
-            form_set_error('filter', t('Invalid Facet Query Filter.'));
+            $form_state->setErrorByName('filter', t('Invalid Facet Query Filter.'));
           }
         }
 
