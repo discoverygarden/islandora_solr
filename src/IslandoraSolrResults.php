@@ -106,7 +106,7 @@ class IslandoraSolrResults {
    *   The IslandoraSolrQueryProcessor object which includes the current query
    *   settings and the raw Solr results.
    *
-   * @return string
+   * @return array
    *   Themed list of secondary displays
    *
    * @see IslandoraSolrResults::displayResults()

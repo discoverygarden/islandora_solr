@@ -34,7 +34,7 @@ class Explore extends BlockBase {
     $triggering_element = $form_state->getTriggeringElement();
     // Check if remove was clicked and removed the label and filter from the
     // values and the table.
-    if ($triggering_element && $triggering_element['#value'] == t('Remove selected')) {
+    if ($triggering_element && $triggering_element['#id'] == 'facet-filter-remove') {
       foreach ($form_state->getCompleteFormState()->getValue(['settings', 'facet', 'table']) as $key => $row) {
         if (!empty($row)) {
           // Get selected row index.
@@ -47,7 +47,7 @@ class Explore extends BlockBase {
     }
 
     // Check if weights are being updated.
-    if ($triggering_element && $triggering_element['#value'] == t('Update weights') && !empty($expore_config)) {
+    if ($triggering_element && $triggering_element['#id'] == 'facet-filter-weight' && !empty($expore_config)) {
       // Note: select_weight is only in the $form_state['input'] and doesn't
       // exist in $form_state['values'].
       $selected_weights = $form_state->get(['input', 'select_weight']);
@@ -184,6 +184,7 @@ class Explore extends BlockBase {
     $form['facet']['actions']['remove'] = [
       '#type' => 'button',
       '#value' => t('Remove selected'),
+      '#id' => 'facet-filter-remove',
       '#weight' => 0,
       '#ajax' => [
         'callback' => '_islandora_solr_update_filter_table',
@@ -194,6 +195,7 @@ class Explore extends BlockBase {
       '#type' => 'button',
       '#value' => t('Update weights'),
       '#weight' => 1,
+      '#id' => 'facet-filter-weight',
       '#ajax' => [
         'callback' => '_islandora_solr_update_filter_table',
         'wrapper' => 'islandora-solr-facet-filter-wrapper',

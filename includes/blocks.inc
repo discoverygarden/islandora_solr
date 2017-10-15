@@ -5,6 +5,9 @@
  * Contains some block related functionality.
  */
 
+use Drupal\Core\Url;
+use Drupal\Core\Template\Attribute;
+
 /**
  * Ajax Callback to reload the facet form when adding rows to the table.
  */
@@ -38,8 +41,8 @@ function _islandora_solr_advanced_search_terms($form, &$form_state) {
  *   The IslandoraSolrQueryProcessor object which includes the current query
  *   settings and the raw Solr results.
  *
- * @return string
- *   A rendered list containing enabled primary display links.
+ * @return array
+ *   A render array list containing enabled primary display links.
  */
 function islandora_solr_display() {
   global $_islandora_solr_queryclass;
@@ -50,16 +53,11 @@ function islandora_solr_display() {
   if (islandora_solr_results_page($_islandora_solr_queryclass)) {
 
     // Parameters set in URL.
-    $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : array();
-    $path = \Drupal\Core\Url::fromRoute("<current>")->toString();
+    $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : [];
 
     $profiles = \Drupal::moduleHandler()->invokeAll("islandora_solr_primary_display");
     // Get the table settings.
-    // @FIXME
-// Could not extract the default value because it is either indeterminate, or
-// not scalar. You'll need to provide a default value in
-// config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
-$primary_display_array = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display_table');
+    $primary_display_array = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display_table');
 
     if (!empty($primary_display_array)) {
 
@@ -70,7 +68,7 @@ $primary_display_array = \Drupal::config('islandora_solr.settings')->get('island
       // Sort by weight.
       array_multisort(array_values($weight), SORT_ASC, array_keys($weight), SORT_ASC, $weight);
 
-      $list_items = array();
+      $list_items = [];
 
       foreach ($weight as $key => $value) {
         if ($enabled[$key] !== 0) {
@@ -85,23 +83,21 @@ $primary_display_array = \Drupal::config('islandora_solr.settings')->get('island
 
           $display_description = isset($profiles[$key]['description']) ? $profiles[$key]['description'] : NULL;
 
-          $query = array_merge($params, array('display' => $key));
+          $query = array_merge($params, ['display' => $key]);
 
-          $attr = array();
+          $attr = new Attribute();
           $attr['class'] = 'display-' . \Drupal\Component\Utility\Unicode::strtolower(preg_replace('/[^A-Za-z0-9]/', '-', $key));
           if ($key == $current_display) {
             $attr['class'] .= ' active';
           }
           $attr['rel'] = 'nofollow';
           $attr['title'] = $display_description;
-          // @FIXME
-// url() expects a route name or an external URI.
-// $attr['href'] = url($path, array('query' => $query));
+          $attr['href'] = Url::fromRoute('<current>', [], ['query' => $query])->toString();
 
 
           // XXX: We're not using l() because of
           // @link http://drupal.org/node/41595 active classes. @endlink
-          $item = '<a' . drupal_attributes($attr) . '>' . \Drupal\Component\Utility\Html::escape($display_name) . '</a>';
+          $item = '<a' . $attr . '>' . \Drupal\Component\Utility\Html::escape($display_name) . '</a>';
 
           // Add link to list.
           $list_items[] = $item;
@@ -109,21 +105,13 @@ $primary_display_array = \Drupal::config('islandora_solr.settings')->get('island
       }
       // Theme item list (if more than one displays are available).
       if (count($list_items) > 1) {
-        // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $output = theme('item_list', array(
-//           'items' => $list_items,
-//           'title' => NULL,
-//           'type' => 'ul',
-//           'attributes' => array('class' => 'islandora-solr-display'),
-//         ));
-
+        return [
+          '#theme' => 'item_list',
+          '#items' => $list_items,
+          '#title' => NULL,
+          '#type' => 'ul',
+          '#attributes' => ['class' => 'islandora-solr-display'],
+        ];
       }
     }
   }
@@ -153,7 +141,7 @@ function islandora_solr_sort() {
     // Parameters set in URL.
     $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : array();
 
-    $path = \Drupal\Core\Url::fromRoute("<current>")->toString();
+    $path = Url::fromRoute("<current>")->toString();
 
     $sort_terms = islandora_solr_get_fields('sort_fields');
 
@@ -174,7 +162,7 @@ function islandora_solr_sort() {
       $current_sort_order = 'desc';
     }
 
-    $list_items = array();
+    $list_items = [];
 
     foreach ($sort_terms as $term => $label) {
       $indicator = '';
@@ -446,17 +434,17 @@ function islandora_solr_search_results_limit() {
 // config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
 $limits = \Drupal::config('islandora_solr.settings')->get('islandora_solr_num_of_results_advanced');
     $params = \Drupal\Component\Utility\UrlHelper::filterQueryParameters();
-    $path = \Drupal\Core\Url::fromRoute("<current>")->toString();
+    $path = Url::fromRoute("<current>")->toString();
     if (isset($params['limit']) && is_numeric($params['limit'])) {
       $default_limit = $params['limit'];
     }
-    $limit_list = array();
+    $limit_list = [];
     foreach ($limits as $limit) {
       if ($limit == $default_limit) {
         $limit_list[] = $limit;
       }
       else {
-        $attr = array();
+        $attr = [];
         $attr['rel'] = 'nofollow';
         $query = $params;
         $query['limit'] = $limit;
