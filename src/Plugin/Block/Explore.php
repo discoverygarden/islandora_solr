@@ -124,7 +124,7 @@ class Explore extends BlockBase {
           ];
 
           // Sort config array by weight and update drupal variable.
-          uasort($explore_config, 'drupal_sort_weight');
+          uasort($explore_config, ['Drupal\Component\Utility\SortArray', 'sortByWeightElement']);
 
           // Reset input values on successful add.
           $form_state->set(['input', 'label'], '');
@@ -249,6 +249,7 @@ class Explore extends BlockBase {
     $facet_label = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'label']);
     $facet_filter = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'filter']);
     $facet_weight = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'facet_weight']);
+    $duplicate = FALSE;
 
     if (empty($facet_filter)) {
       $form_state->setErrorByName('filter', t('Facet Filter is required to add a display facet.'));
