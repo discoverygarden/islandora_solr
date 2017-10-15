@@ -35,7 +35,7 @@ class Explore extends BlockBase {
     // Check if remove was clicked and removed the label and filter from the
     // values and the table.
     if ($triggering_element && $triggering_element['#value'] == t('Remove selected')) {
-      foreach ($form_state->getCompleteFormState()->getValue('table') as $key => $row) {
+      foreach ($form_state->getCompleteFormState()->getValue(['settings', 'facet', 'table']) as $key => $row) {
         if (!empty($row)) {
           // Get selected row index.
           $row_index = str_replace("facet-row-", "", $key);
@@ -64,9 +64,9 @@ class Explore extends BlockBase {
       $duplicate_label = FALSE;
       $duplicate_filter = FALSE;
       $duplicate = FALSE;
-      $facet_label = $form_state->getCompleteFormState()->getValue('label');
-      $facet_filter = $form_state->getCompleteFormState()->getValue('filter');
-      $facet_weight = $form_state->getCompleteFormState()->getValue('facet_weight');
+      $facet_label = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'label']);
+      $facet_filter = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'filter']);
+      $facet_weight = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'facet_weight']);
 
       if (!empty($facet_label) && !empty($explore_config)) {
         foreach ($explore_config as $row) {
@@ -246,9 +246,9 @@ class Explore extends BlockBase {
    * {@inheritdoc}
    */
   public function blockValidate($form, FormStateInterface $form_state) {
-    $facet_label = $form_state->getCompleteFormState()->getValue('label');
-    $facet_filter = $form_state->getCompleteFormState()->getValue('filter');
-    $facet_weight = $form_state->getCompleteFormState()->getValue('facet_weight');
+    $facet_label = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'label']);
+    $facet_filter = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'filter']);
+    $facet_weight = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'facet_weight']);
 
     if (empty($facet_filter)) {
       $form_state->setErrorByName('filter', t('Facet Filter is required to add a display facet.'));
