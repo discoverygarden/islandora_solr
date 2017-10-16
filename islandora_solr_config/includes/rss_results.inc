@@ -31,9 +31,6 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
    *   output manually, should refactor to use drupal forms api.
    */
   public function printRSS($islandora_solr_query, $title = "Search Results") {
-
-    global $base_url;
-
     drupal_add_http_header('Content-Type', 'application/rss+xml; charset=utf-8');
 
     // Get raw results.
@@ -63,7 +60,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
       \Drupal::moduleHandler()->alter('islandora_solr_search_rss_item', $item, $doc);
 
       // Render rss item.
-      $rendered_item = format_rss_item($item['title'], $item['link'], $item['description'], $item['items']);
+      $rendered_item = $this->format_rss_item($item['title'], $item['link'], $item['description'], $item['items']);
 
       // ... allow it to be altered...
       \Drupal::moduleHandler()->alter('islandora_solr_config_rss_item_post_render', $rendered_item, $doc);
@@ -126,15 +123,10 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
       $enclosure_url = $object_url . '/datastream/' . $dsid;
     }
 
-    // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $rss_source = variable_get('site_name', "Default site name");
-
+    $rss_source = \Drupal::config('system.site')->get('name');
 
     // Set the variables to be rendered as elements in the <item> element.
-    $result = array();
+    $result = [];
     $result['title'] = ($rss_item['title'] && isset($doc[$rss_item['title']])) ? $doc[$rss_item['title']] : '';
     $result['link'] = $object_url;
     $result['description'] = ($rss_item['description'] && isset($doc[$rss_item['description']])) ? $doc[$rss_item['description']] : '';
@@ -182,11 +174,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
   public function rssChannel($query) {
     // Set variables.
     global $base_url;
-    // @FIXME
-// Could not extract the default value because it is either indeterminate, or
-// not scalar. You'll need to provide a default value in
-// config/install/islandora_solr_config.settings.yml and config/schema/islandora_solr_config.schema.yml.
-$rss_channel = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_config_rss_channel');
+    $rss_channel = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_config_rss_channel');
 
     // Set the variables to be rendered as elements in the <channel> element.
     $result = array();
@@ -212,4 +200,20 @@ $rss_channel = \Drupal::config('islandora_solr_config.settings')->get('islandora
     );
     return $result;
   }
+
+  /**
+   * Format an RSS item.
+   *
+   * @see https://api.drupal.org/api/drupal/includes%21common.inc/function/format_rss_item/7.x
+   */
+  public function format_rss_item($title, $link, $description, $args = []) {
+    $output = "<item>\n";
+    $output .= ' <title>' . check_plain($title) . "</title>\n";
+    $output .= ' <link>' . check_url($link) . "</link>\n";
+    $output .= ' <description>' . check_plain($description) . "</description>\n";
+    $output .= format_xml_elements($args);
+    $output .= "</item>\n";
+    return $output;
+  }
+
 }
