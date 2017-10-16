@@ -185,7 +185,7 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
     [
       'data' => t('Solr field'),
       'colspan' => 2,
-      'class' => 'islandora-solr-solr-field-header',
+      'class' => ['islandora-solr-solr-field-header'],
     ],
     ['data' => t('Settings')],
     ['data' => t('Operations'), 'colspan' => 2],

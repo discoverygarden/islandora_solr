@@ -140,13 +140,13 @@ class IslandoraSolrResults {
         $query_list[]['#markup'] = '<a' . $attr . '>' . $logo . '</a>';
       }
     }
-   return [
-     '#theme' => 'item_list',
-     '#items' => $query_list,
-     '#title' => NULL,
-     '#type' => 'ul',
-     '#attributes' => ['id' => 'secondary-display-profiles'],
-   ];
+    return [
+      '#theme' => 'item_list',
+      '#items' => $query_list,
+      '#title' => NULL,
+      '#type' => 'ul',
+      '#attributes' => ['id' => 'secondary-display-profiles'],
+    ];
 
   }
 
@@ -184,7 +184,6 @@ class IslandoraSolrResults {
 
   }
 
-
   /**
    * Displays elements of the current solr query.
    *
@@ -200,9 +199,8 @@ class IslandoraSolrResults {
    */
   public function currentQuery($islandora_solr_query) {
     module_load_include('inc', 'islandora', 'includes/utilities');
-
     $output = '';
-    $path = \Drupal\Core\Url::fromRoute("<current>")->toString();
+    $path = Url::fromRoute("<current>")->toString();
     $format = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_date_format');
 
     // Get user provided filter parameters.
@@ -224,14 +222,11 @@ class IslandoraSolrResults {
       // Remove link keeps all parameters (query gets removed instead).
       $query_minus = $params;
 
-      // Remove query from path.
-      $path_minus = implode('/', explode('/', $path, -1));
-
       // Set attributes variable for remove link.
       $attributes = [
         'minus' => [
           'attr' => [],
-          'path' => $path_minus,
+          'path' => $path,
           'query' => $query_minus,
         ],
       ];
@@ -239,44 +234,36 @@ class IslandoraSolrResults {
       $attr_minus['title'] = t('Remove') . ' ' . $query_value;
       $attr_minus['class'] = ['remove-query'];
       $attr_minus['rel'] = 'nofollow';
-      // @FIXME
-// url() expects a route name or an external URI.
-// $attr_minus['href'] = url($path_minus, array('query' => $query_minus));
+      $attr_minus['href'] = Url::fromRoute('islandora_solr.islandora_solr', ['query' => $query_minus]);
 
 
       $hooks = islandora_build_hook_list(ISLANDORA_SOLR_FACET_BUCKET_CLASSES_HOOK_BASE);
       \Drupal::moduleHandler()->alter($hooks, $attributes, $islandora_solr_query);
-
+      $attributes= new Attribute($attributes);
       // XXX: We are not using l() because of active classes:
       // @see http://drupal.org/node/41595
       // Create link.
-      $query_list[] = '<a' . drupal_attributes($attributes['minus']['attr']) . '>(-)</a> ' . \Drupal\Component\Utility\Html::escape($query_value);
+      $query_list[]['#markup'] = '<a' . $attributes['minus']['attr'] . '>(-)</a> ' . \Drupal\Component\Utility\Html::escape($query_value);
 
       // Add wrap and list.
       $output .= '<div class="islandora-solr-query-wrap">';
-      // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $output .= theme('item_list', array(
-//         'items' => $query_list,
-//         'title' => t('Query'),
-//         'type' => 'ul',
-//         'attributes' => array('class' => 'islandora-solr-query-list query-list'),
-//       ));
+      $list = [
+        '#theme' => 'item_list',
+        '#items' => $query_list,
+        '#title' => t('Query'),
+        '#type' => 'ul',
+        '#attributes' => ['class' => ['islandora-solr-query-list', 'query-list']],
+      ];
+      $output .= \Drupal::service('renderer')->render($list);
 
       $output .= '</div>';
 
     }
 
+    $filter_list = [];
     // Get filter values.
     if (!empty($fq)) {
       // Set list variables.
-      $filter_list = [];
       foreach ($fq as $key => $filter) {
         // Check for exclude filter.
         if ($filter[0] == '-') {
@@ -312,37 +299,28 @@ class IslandoraSolrResults {
         $attr_minus['title'] = t('Remove') . ' ' . $filter;
         $attr_minus['class'] = ['remove-filter'];
         $attr_minus['rel'] = 'nofollow';
-        // @FIXME
-// url() expects a route name or an external URI.
-// $attr_minus['href'] = url($path, array('query' => $query_minus));
+        $attr_minus['href'] = Url::fromRoute('islandora_solr.islandora_solr', ['query' => $query_minus]);
 
 
         $hooks = islandora_build_hook_list(ISLANDORA_SOLR_FACET_BUCKET_CLASSES_HOOK_BASE);
         \Drupal::moduleHandler()->alter($hooks, $attributes, $islandora_solr_query);
-
+        $attributes = new Attribute($attributes);
         // XXX: We are not using l() because of active classes:
         // @see http://drupal.org/node/41595
         // Create link.
-        $filter_list[] = '<a' . drupal_attributes($attributes['minus']['attr']) . '>(-)</a> ' . $symbol . ' ' . \Drupal\Component\Utility\Html::escape($filter_string);
-
+        $filter_list[]['#markup'] = '<a' . $attributes['minus']['attr'] . '>(-)</a> ' . $symbol . ' ' . \Drupal\Component\Utility\Html::escape($filter_string);
       }
 
       // Return filter list.
       $output .= '<div class="islandora-solr-filter-wrap">';
-      // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $output .= theme('item_list', array(
-//         'items' => $filter_list,
-//         'title' => t("Enabled Filters"),
-//         'type' => 'ul',
-//         'attributes' => array('class' => 'islandora-solr-filter-list filter-list'),
-//       ));
+      $list = [
+        '#theme' => 'item_list',
+        '#items' => $filter_list,
+        '#title' => t("Enabled Filters"),
+        '#type' => 'ul',
+        '#attributes' => ['class' => ['islandora-solr-filter-list', 'filter-list']],
+      ];
+      $output .= \Drupal::service('renderer')->render($list);
 
       $output .= '</div>';
     }
@@ -364,7 +342,7 @@ class IslandoraSolrResults {
    */
   public function getBreadcrumbs($islandora_solr_query) {
     // $_GET['q'] didn't seem to work here.
-    $path = \Drupal\Core\Url::fromRoute("<current>")->toString();
+    $path = Url::fromRoute("<current>")->toString();
     // Get date format.
     $format = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_date_format');
 
@@ -418,11 +396,11 @@ class IslandoraSolrResults {
         }
 
         // Set attributes variable.
-        $attr = [];
+        $attr = new Attribute;
         $attr['title'] = $filter;
         $attr['rel'] = 'nofollow';
         if ($exclude) {
-          $attr['class'] = 'strikethrough';
+          $attr['class'][] = 'strikethrough';
         }
         // @FIXME
 // url() expects a route name or an external URI.
@@ -430,7 +408,7 @@ class IslandoraSolrResults {
 
 
         // Set attributes variable for remove link.
-        $attr_x = [];
+        $attr_x = new Attribute();
         $attr_x['title'] = t('Remove') . ' ' . $filter;
         $attr_x['rel'] = 'nofollow';
         // @FIXME
@@ -441,8 +419,8 @@ class IslandoraSolrResults {
         // XXX: We are not using l() because of active classes:
         // @see http://drupal.org/node/41595
         // Create link.
-        $breadcrumb[] = '<a' . drupal_attributes($attr) . '>' . \Drupal\Component\Utility\Html::escape($filter_string) . '</a>'
-              . '<span class="islandora-solr-breadcrumb-super"> <a' . drupal_attributes($attr_x) . '>(' . t('x') . ')</a></span>';
+        $breadcrumb[] = '<a' . $attr . '>' . \Drupal\Component\Utility\Html::escape($filter_string) . '</a>'
+              . '<span class="islandora-solr-breadcrumb-super"> <a' . $attr_x . '>(' . t('x') . ')</a></span>';
 
       }
       // At this point reverse the breadcrumbs array (only contains filters).
@@ -468,7 +446,7 @@ class IslandoraSolrResults {
       $path_x = implode('/', explode('/', $path, -1)) . '/ ';
 
       // Set attributes variable.
-      $attr = [];
+      $attr = new Attribute();
       $attr['title'] = $query_value;
       $attr['rel'] = 'nofollow';
       // @FIXME
@@ -477,7 +455,7 @@ class IslandoraSolrResults {
 
 
       // Set attributes variable for remove link.
-      $attr_x = [];
+      $attr_x = new Attribute();
       $attr_x['title'] = t('Remove') . ' ' . $query_value;
       $attr_x['rel'] = 'nofollow';
       // @FIXME
@@ -511,8 +489,8 @@ class IslandoraSolrResults {
       // XXX: We are not using l() because of active classes:
       // @see http://drupal.org/node/41595
       // Create link.
-      $breadcrumb[] = '<a' . drupal_attributes($attr) . '>' . stripslashes(\Drupal\Component\Utility\Html::escape($query_value)) . '</a>'
-            . '<span class="islandora-solr-breadcrumb-super"> <a' . drupal_attributes($attr_x) . '>(' . t('x') . ')</a></span>';
+      $breadcrumb[] = '<a' . $attr . '>' . stripslashes(\Drupal\Component\Utility\Html::escape($query_value)) . '</a>'
+            . '<span class="islandora-solr-breadcrumb-super"> <a' . $attr_x . '>(' . t('x') . ')</a></span>';
     }
 
     // @FIXME

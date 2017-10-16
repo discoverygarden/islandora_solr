@@ -41,6 +41,7 @@ class IslandoraSolrQueryProcessor {
     '%2F',
     '%252F-',
     '',
+    NULL,
   ];
 
   /**
@@ -55,14 +56,14 @@ class IslandoraSolrQueryProcessor {
       $new_name = $map[$name];
       $trace = debug_backtrace();
 
-      $message = t('Use of variable name "@class->@old_name" on line @line of @file deprecated as of version @version. Refactor to use "@class->@name" before the next release.', array(
+      $message = t('Use of variable name "@class->@old_name" on line @line of @file deprecated as of version @version. Refactor to use "@class->@name" before the next release.', [
         '@old_name' => $name,
         '@name' => $new_name,
         '@class' => __CLASS__,
         '@version' => '7.x-1.2',
         '@line' => $trace[0]['line'],
         '@file' => $trace[0]['file'],
-      ));
+      ]);
 
       trigger_error($message, E_USER_DEPRECATED);
 
@@ -109,7 +110,7 @@ class IslandoraSolrQueryProcessor {
    * @param array $params
    *   All URL parameters from the Solr results page.
    */
-  public function buildQuery($query, $params = array()) {
+  public function buildQuery($query, $params = []) {
     // Set internal parameters gathered from the URL but not 'q' and 'page'.
     $this->internalSolrParams = $params;
     unset($this->internalSolrParams['q']);
@@ -190,12 +191,12 @@ class IslandoraSolrQueryProcessor {
     $facet_fields = implode(",", array_keys($facet_array));
 
     // Set params.
-    $params_array = array(
+    $params_array = [
       'facet' => 'true',
       'facet.mincount' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_min_limit'),
       'facet.limit' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_max_limit'),
       'facet.field' => explode(',', $facet_fields),
-    );
+    ];
 
     $request_handler = \Drupal::config('islandora_solr.settings')->get('islandora_solr_request_handler');
     if ($request_handler) {

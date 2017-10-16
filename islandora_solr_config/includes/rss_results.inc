@@ -6,6 +6,8 @@
  * Apache_Solr_Php client.
  */
 
+use Drupal\Core\Template\Attribute;
+
 use Drupal\islandora_solr\IslandoraSolrResults;
 
 /**
@@ -75,7 +77,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
 
     // Get the variables for the <channel> element.
     $channel = $this->rssChannel($query);
-    $rss_attributes = array('version' => '2.0');
+    $rss_attributes = ['version' => '2.0'];
     \Drupal::moduleHandler()->alter('islandora_solr_config_rss_root_element_attributes', $rss_attributes, $channel, $items);
 
     // Give the results clean variable names.
@@ -84,9 +86,9 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
     $description = $channel['description'];
     $langcode = $channel['langcode'];
     $args = $channel['args'];
-
+    $rss_attributes = new Attribute($rss_attributes);
     $output = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-    $output .= '<rss' . drupal_attributes($rss_attributes) . ">\n";
+    $output .= '<rss' . $rss_attributes . ">\n";
     $output .= format_rss_channel($title, $url, $description, $items, $langcode, $args);
     $output .= "</rss>\n";
 
@@ -108,11 +110,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
     global $base_url;
 
     // Get variables.
-    // @FIXME
-// Could not extract the default value because it is either indeterminate, or
-// not scalar. You'll need to provide a default value in
-// config/install/islandora_solr_config.settings.yml and config/schema/islandora_solr_config.schema.yml.
-$rss_item = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_config_rss_item');
+    $rss_item = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_config_rss_item');
 
     // Object url.
     // @FIXME

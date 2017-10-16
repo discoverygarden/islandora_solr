@@ -47,7 +47,7 @@ function _islandora_solr_advanced_search_terms($form, &$form_state) {
 function islandora_solr_display() {
   global $_islandora_solr_queryclass;
 
-  $output = '';
+  $output = [];
 
   // Check if the page is dealing with search results.
   if (islandora_solr_results_page($_islandora_solr_queryclass)) {
@@ -86,9 +86,9 @@ function islandora_solr_display() {
           $query = array_merge($params, ['display' => $key]);
 
           $attr = new Attribute();
-          $attr['class'] = 'display-' . \Drupal\Component\Utility\Unicode::strtolower(preg_replace('/[^A-Za-z0-9]/', '-', $key));
+          $attr['class'][] = 'display-' . \Drupal\Component\Utility\Unicode::strtolower(preg_replace('/[^A-Za-z0-9]/', '-', $key));
           if ($key == $current_display) {
-            $attr['class'] .= ' active';
+            $attr['class'][] = 'active';
           }
           $attr['rel'] = 'nofollow';
           $attr['title'] = $display_description;
@@ -97,7 +97,7 @@ function islandora_solr_display() {
 
           // XXX: We're not using l() because of
           // @link http://drupal.org/node/41595 active classes. @endlink
-          $item = '<a' . $attr . '>' . \Drupal\Component\Utility\Html::escape($display_name) . '</a>';
+          $item['#markup'] = '<a' . $attr . '>' . \Drupal\Component\Utility\Html::escape($display_name) . '</a>';
 
           // Add link to list.
           $list_items[] = $item;
@@ -110,14 +110,13 @@ function islandora_solr_display() {
           '#items' => $list_items,
           '#title' => NULL,
           '#type' => 'ul',
-          '#attributes' => ['class' => 'islandora-solr-display'],
+          '#attributes' => ['class' => ['islandora-solr-display']],
         ];
       }
     }
   }
   return $output;
 }
-
 
 /**
  * Provides a list to change the sorting on a current search query.
@@ -139,9 +138,7 @@ function islandora_solr_sort() {
   if (islandora_solr_results_page($_islandora_solr_queryclass)) {
 
     // Parameters set in URL.
-    $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : array();
-
-    $path = Url::fromRoute("<current>")->toString();
+    $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : [];
 
     $sort_terms = islandora_solr_get_fields('sort_fields');
 
@@ -205,34 +202,32 @@ function islandora_solr_sort() {
       }
       $sort_param = $term . ' ' . $order;
 
-      $query = array_merge($params, array('sort' => $sort_param));
+      $query = array_merge($params, ['sort' => $sort_param]);
 
-      $attributes = array(
-        'sort' => array(
-          'attr' => array(
-            'class' => array(),
-          ),
+      $attributes = [
+        'sort' => [
+          'attr' => [
+            'class' => [],
+          ],
           'query' => $query,
-          'path' => $path,
-        ),
-      );
+          'path' => Url::fromRoute("<current>")->toString(),
+        ],
+      ];
+
       $attr =& $attributes['sort']['attr'];
       if ($term == $current_sort_term) {
-        $attr['class'] = array('active');
+        $attr['class'] = ['active'];
       }
       $attr['rel'] = 'nofollow';
       $attr['title'] = $label;
-      // @FIXME
-// url() expects a route name or an external URI.
-// $attr['href'] = url($path, array('query' => $query));
-
+      $attr['href'] = Url::fromRoute('<current>', [], ['query' => $query])->toString();
 
       $hooks = islandora_build_hook_list(ISLANDORA_SOLR_FACET_BUCKET_CLASSES_HOOK_BASE);
       \Drupal::moduleHandler()->alter($hooks, $attributes, $_islandora_solr_queryclass);
-
+      $attr = new Attribute($attr);
       // XXX: We're not using l() because of
       // @link http://drupal.org/node/41595 active classes. @endlink
-      $item = '<a' . drupal_attributes($attr) . '>' . $label . ' ' . $indicator . '</a>';
+      $item['#markup'] = '<a' . $attr . '>' . $label . ' ' . $indicator . '</a>';
 
       // Add link to list.
       $list_items[] = $item;
@@ -240,21 +235,14 @@ function islandora_solr_sort() {
 
     // Theme item list.
     if (!empty($list_items)) {
-      // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $output = theme('item_list', array(
-//         'items' => $list_items,
-//         'title' => NULL,
-//         'type' => 'ul',
-//         'attributes' => array('class' => 'islandora-solr-sort'),
-//       ));
-
+      $list = [
+        '#theme' => 'item_list',
+        '#items' => $list_items,
+        '#title' => NULL,
+        '#type' => 'ul',
+        '#attributes' => ['class' => ['islandora-solr-sort']],
+      ];
+      $output = \Drupal::service('renderer')->render($list);
     }
   }
 
@@ -275,7 +263,7 @@ function islandora_solr_sort() {
  */
 function islandora_solr_search_navigation() {
   $return = NULL;
-  $params = \Drupal\Component\Utility\UrlHelper::filterQueryParameters();
+  $params = \Drupal::request()->query->all();
   if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_search_navigation') &&
     isset($params['solr_nav']['id']) &&
     isset($params['solr_nav']['page']) &&
@@ -303,7 +291,7 @@ function islandora_solr_search_navigation() {
     // Get solr objects for current page.
     $query_processor->executeQuery();
 
-    $objects = array();
+    $objects = [];
     if (!empty($query_processor->islandoraSolrResult)) {
       $objects = $query_processor->islandoraSolrResult['response']['objects'];
     }
@@ -358,7 +346,7 @@ function islandora_solr_search_navigation() {
     // Get URL details from the prev and next objects
     // to populate navigation links.
     if (isset($nav_params['path'])) {
-      $return_query = array_merge($query_processor->internalSolrParams, array('page' => $page));
+      $return_query = array_merge($query_processor->internalSolrParams, ['page' => $page]);
       // @FIXME
 // url() expects a route name or an external URI.
 // $return_link = url($nav_params['path'], array('query' => $return_query, 'absolute' => TRUE));
@@ -428,13 +416,8 @@ function islandora_solr_search_results_limit() {
   // Check if the page is dealing with search results.
   if (islandora_solr_results_page($_islandora_solr_queryclass)) {
     $default_limit = \Drupal::config('islandora_solr.settings')->get('islandora_solr_num_of_results');
-    // @FIXME
-// Could not extract the default value because it is either indeterminate, or
-// not scalar. You'll need to provide a default value in
-// config/install/islandora_solr.settings.yml and config/schema/islandora_solr.schema.yml.
-$limits = \Drupal::config('islandora_solr.settings')->get('islandora_solr_num_of_results_advanced');
-    $params = \Drupal\Component\Utility\UrlHelper::filterQueryParameters();
-    $path = Url::fromRoute("<current>")->toString();
+    $limits = \Drupal::config('islandora_solr.settings')->get('islandora_solr_num_of_results_advanced');
+    $params = \Drupal::request()->query->all();
     if (isset($params['limit']) && is_numeric($params['limit'])) {
       $default_limit = $params['limit'];
     }
@@ -444,37 +427,29 @@ $limits = \Drupal::config('islandora_solr.settings')->get('islandora_solr_num_of
         $limit_list[] = $limit;
       }
       else {
-        $attr = [];
+        $attr = new Attribute();
         $attr['rel'] = 'nofollow';
         $query = $params;
         $query['limit'] = $limit;
         unset($query['page']);
-        // @FIXME
-// url() expects a route name or an external URI.
-// $attr['href'] = url($path, array('query' => $query));
+
+        $attr['href'] = Url::fromRoute('<current>', [], ['query' => $query])->toString();
 
         // XXX: We're not using l() because of
         // @link http://drupal.org/node/41595 active classes. @endlink
-        $limit_list[] = '<a' . drupal_attributes($attr) . '>' . $limit . '</a>';
+        $limit_list[]['#markup'] = '<a' . $attr . '>' . $limit . '</a>';
       }
     }
 
     if (!empty($limit_list)) {
-      // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// return theme('item_list', array(
-//         'items' => $limit_list,
-//         'title' => NULL,
-//         'type' => 'ul',
-//         'attributes' => array('id' => 'islandora_solr_results_limit'),
-//       ));
-
+      $list = [
+        '#theme' => 'item_list',
+        '#items' => $limit_list,
+        '#title' => NULL,
+        '#type' => 'ul',
+        '#attributes' => ['id' => 'islandora_solr_results_limit'],
+      ];
+      $output = \Drupal::service('renderer')->render($list);
     }
   }
 }

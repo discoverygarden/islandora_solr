@@ -272,7 +272,7 @@ function islandora_solr_prepare_solr_doc($object_results) {
   // Loop over object results.
   foreach ($object_results as $object_index => $object_result) {
     $doc = $object_result['solr_doc'];
-    $rows = array();
+    $rows = [];
     foreach ($doc as $field => $value) {
       if (isset($fields_all[$field])) {
         $label = $fields_all[$field];
@@ -307,7 +307,7 @@ function islandora_solr_prepare_solr_results($solr_results) {
   module_load_include('inc', 'islandora_solr', 'includes/field_truncation');
 
   $object_results = $solr_results['response']['objects'];
-  $highlighting = isset($solr_results['highlighting']) ? $solr_results['highlighting'] : array();
+  $highlighting = isset($solr_results['highlighting']) ? $solr_results['highlighting'] : [];
   $fields_all = islandora_solr_get_fields('result_fields', FALSE);
   $link_to_object = islandora_solr_get_link_to_object_fields();
   $truncate_length = islandora_solr_get_truncate_length_fields();
@@ -318,8 +318,8 @@ function islandora_solr_prepare_solr_results($solr_results) {
   foreach ($object_results as $object_index => $object_result) {
     $solr_doc = $object_result['solr_doc'];
     $pid = $object_result['PID'];
-    $rows = array();
-    $options = array('html' => TRUE);
+    $rows = [];
+    $options = ['html' => TRUE];
     if (isset($object_result['object_label'])) {
       $options['attributes']['title'] = $object_result['object_label'];
     }
@@ -388,23 +388,23 @@ function islandora_solr_prepare_solr_results($solr_results) {
       // Truncate output based on the field rather than by value.
       if (array_key_exists($field, $truncate_length) && $truncate_length[$field]['maximum_length'] > 0 && isset($truncate_length[$field]['truncation_type']) && $truncate_length[$field]['truncation_type'] == 'whole_field_option') {
         // Handle linking and truncating together.
-        $link_options = array(
+        $link_options = [
           'link_to_object' => in_array($field, $link_to_object),
           'link_to_search' => in_array($field, $link_to_search),
           'field' => $field,
           'url' => $object_result['object_url'],
           'options' => $options,
-        );
+        ];
         $value = islandora_solr_truncate_field_display($value, $truncate_length[$field]['maximum_length'], $truncate_length[$field]['add_ellipsis'], $truncate_length[$field]['wordsafe'], $truncate_length[$field]['wordsafe_length'], $separator, $link_options);
       }
       else {
         // Add link to search.
         if (in_array($field, $link_to_search)) {
           $map_to_link = function ($original_value, $formatted_value) use ($field) {
-            $solr_query = format_string('!field:"!value"', array(
+            $solr_query = strtr('!field:"!value"', [
               '!field' => $field,
               '!value' => islandora_solr_lesser_escape($original_value),
-            ));
+            ]);
             // @FIXME
 // l() expects a Url object, created from a route name or external URI.
 // return l($formatted_value, "islandora/search/$solr_query", array(

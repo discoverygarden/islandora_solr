@@ -20,7 +20,10 @@ class Explore extends BlockBase {
    */
   public function build() {
     module_load_include('inc', 'islandora_solr', 'includes/explore');
-    return islandora_solr_explore_generate_links();
+    $explore = islandora_solr_explore_generate_links();
+    if ($explore) {
+      return ['#markup' => $explore];
+    }
   }
 
   /**
