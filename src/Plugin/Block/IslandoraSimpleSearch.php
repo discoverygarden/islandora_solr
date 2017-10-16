@@ -3,6 +3,8 @@
 namespace Drupal\islandora_solr\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Session\AccountInterface;
 
 /**
  * Provides a simple search block.
@@ -19,6 +21,18 @@ class IslandoraSimpleSearch extends BlockBase {
    */
   public function build() {
     return \Drupal::formBuilder()->getForm('Drupal\islandora_solr\Form\IslandoraSimpleSearch');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function blockAccess(AccountInterface $account) {
+    if ($account->hasPermission('search islandora solr')) {
+      return AccessResult::allowed();
+    }
+    else {
+      return AccessResult::forbidden();
+    }
   }
 
 }

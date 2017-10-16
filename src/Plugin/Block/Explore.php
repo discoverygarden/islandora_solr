@@ -3,6 +3,8 @@
 namespace Drupal\islandora_solr\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -23,6 +25,18 @@ class Explore extends BlockBase {
     $explore = islandora_solr_explore_generate_links();
     if ($explore) {
       return ['#markup' => $explore];
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function blockAccess(AccountInterface $account) {
+    if ($account->hasPermission('search islandora solr')) {
+      return AccessResult::allowed();
+    }
+    else {
+      return AccessResult::forbidden();
     }
   }
 

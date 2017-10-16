@@ -3,6 +3,8 @@
 namespace Drupal\islandora_solr\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Session\AccountInterface;
 
 use Drupal\islandora_solr\IslandoraSolrResults;
 
@@ -28,6 +30,18 @@ class Facets extends BlockBase {
     $output = $results->displayFacets($_islandora_solr_queryclass);
     if ($output) {
       return ['#markup' => $output];
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function blockAccess(AccountInterface $account) {
+    if ($account->hasPermission('search islandora solr')) {
+      return AccessResult::allowed();
+    }
+    else {
+      return AccessResult::forbidden();
     }
   }
 

@@ -3,6 +3,8 @@
 namespace Drupal\islandora_solr\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Session\AccountInterface;
 
 /**
  * Provides a results sorting block.
@@ -22,6 +24,18 @@ class ResultsSort extends BlockBase {
     $sort = islandora_solr_sort();
     if ($sort) {
       return ['#markup' => islandora_solr_sort()];
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function blockAccess(AccountInterface $account) {
+    if ($account->hasPermission('search islandora solr')) {
+      return AccessResult::allowed();
+    }
+    else {
+      return AccessResult::forbidden();
     }
   }
 

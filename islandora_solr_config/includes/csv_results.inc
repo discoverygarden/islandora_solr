@@ -9,7 +9,6 @@
 
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\Component\Utility\Xss;
 
 use Drupal\islandora_solr\IslandoraSolrResults;
 
@@ -23,8 +22,6 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
    *
    * Renders the Solr results as a comma separated values file (.csv). Resets
    * the html headers so it'll prompt to be downloaded.
-   *
-   * @see IslandoraSolrResults
    *
    * @param object $islandora_solr_query
    *   The IslandoraSolrQueryProcessor object which includes the current query
@@ -57,6 +54,7 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
       'finished' => 'islandora_solr_config_csv_download_csv',
     ];
   }
+
 }
 
 /**
@@ -120,8 +118,6 @@ function islandora_solr_config_csv_batch_update_operation($islandora_solr_query,
 /**
  * Copies file from tmp and appends headers on the front for export.
  *
- * @global type $user
- *
  * @param array $success
  *   The success array from the batch.
  * @param array $results
@@ -129,7 +125,7 @@ function islandora_solr_config_csv_batch_update_operation($islandora_solr_query,
  * @param array $operations
  *   The operations array from the batch.
  */
-function islandora_solr_config_csv_download_csv($success, $results, $operations) {
+function islandora_solr_config_csv_download_csv(array $success, array $results, array $operations) {
   $user = \Drupal::currentUser();
   $export_uri = 'public://csv_export_' . time() . '.csv';
   // We register this file into Drupal so it will be deleted.
