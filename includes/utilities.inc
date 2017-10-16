@@ -6,6 +6,7 @@
  */
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\Component\Utility\Xss;
 
 /**
  * Initialize a pager for theme('pager') without running an SQL query.
@@ -401,15 +402,11 @@ function islandora_solr_prepare_solr_results($solr_results) {
         // Add link to search.
         if (in_array($field, $link_to_search)) {
           $map_to_link = function ($original_value, $formatted_value) use ($field) {
-            $solr_query = strtr('!field:"!value"', [
-              '!field' => $field,
-              '!value' => islandora_solr_lesser_escape($original_value),
+            $solr_query = format_string('@field:"@value"', [
+              '@field' => $field,
+              '@value' => islandora_solr_lesser_escape($original_value),
             ]);
-            // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// return l($formatted_value, "islandora/search/$solr_query", array(
-//               'html' => TRUE,
-//             ));
+            return Link::createFromRoute($formatted_value, 'islandora_solr.islandora_solr', ['query' => $solr_query])->toString();
 
           };
           $value = array_map($map_to_link, (array) $original_value, (array) $value);
@@ -422,8 +419,8 @@ function islandora_solr_prepare_solr_results($solr_results) {
         }
       }
       // Implode.
-      $value = is_array($value) ? implode(\Drupal\Component\Utility\Xss::filter($separator, islandora_solr_get_filter_tags()), $value) : $value;
-      $solr_doc[$field] = $value;
+      $value = is_array($value) ? implode(Xss::filter($separator, islandora_solr_get_filter_tags()), $value) : $value;
+      $solr_doc[$field] = ['#markup' => $value];
     }
     // Replace Solr doc rows.
     $solr_results['response']['objects'][$object_index]['solr_doc'] = $solr_doc;
@@ -508,7 +505,7 @@ function islandora_solr_truncate_field_display($display_values, $max_length, $ad
   module_load_include('inc', 'islandora_solr', 'includes/field_truncation');
 
   $updated_display_values = $display_values;
-  $separator = \Drupal\Component\Utility\Xss::filter($separator, islandora_solr_get_filter_tags());
+  $separator = Xss::filter($separator, islandora_solr_get_filter_tags());
 
   if (count($updated_display_values) > 0) {
     $value_is_truncated = FALSE;
@@ -565,10 +562,10 @@ function islandora_solr_truncate_field_display($display_values, $max_length, $ad
 
       }
       elseif (isset($link_options['link_to_search']) && $link_options['link_to_search'] == TRUE) {
-        $solr_query = format_string('!field:"!value"', array(
-          '!field' => $link_options['field'],
-          '!value' => islandora_solr_lesser_escape($original_value),
-          ));
+        $solr_query = format_string('@field:"@value"', [
+          '@field' => $link_options['field'],
+          '@value' => islandora_solr_lesser_escape($original_value),
+          ]);
         // @FIXME
 // l() expects a Url object, created from a route name or external URI.
 // $original_value = l(
@@ -592,16 +589,22 @@ function islandora_solr_truncate_field_display($display_values, $max_length, $ad
       }
     }
 
-    $updated_display_values
-      = "<span class='toggle-wrapper'>" .
-      t("<span>!value <br />!show_more</span>", array(
-        '!value' => $truncated_value,
-        '!show_more' => ($value_is_truncated ? "<a href='#' class='toggler'>Show more</a>" : ""),
-      ));
     if ($value_is_truncated) {
-      $updated_display_values .= t("<span>!original_value <br /><a href='#' class='toggler'>Show less</a></span>", array(
-        '!original_value' => $original_value,
-      ));
+      $updated_display_values
+        = "<span class='toggle-wrapper'>" .
+        t("<span>@value <br /><a href='#' class='toggler'>Show more</a></span>", [
+          '@value' => $truncated_value,
+      ]);
+      $updated_display_values .= t("<span>@original_value <br /><a href='#' class='toggler'>Show less</a></span>", [
+        '@original_value' => $original_value,
+      ]);
+    }
+    else {
+      $updated_display_values
+        = "<span class='toggle-wrapper'>" .
+        t("<span>@value <br /></span>", [
+          '@value' => $truncated_value,
+      ]);
     }
     $updated_display_values .= '</span>';
 
@@ -609,7 +612,6 @@ function islandora_solr_truncate_field_display($display_values, $max_length, $ad
   else {
     $updated_display_values = '';
   }
-
   return $updated_display_values;
 };
 
