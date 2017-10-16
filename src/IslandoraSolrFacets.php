@@ -395,7 +395,7 @@ class IslandoraSolrFacets {
       }
 
       // Current URL query.
-      $fq = isset($islandora_solr_query->solrParams['fq']) ? $islandora_solr_query->solrParams['fq'] : array();
+      $fq = isset($islandora_solr_query->solrParams['fq']) ? $islandora_solr_query->solrParams['fq'] : [];
       // 1: Check minimum count.
       // 2: Check if the filter isn't active.
       if ($count < self::$minimum_count || array_search($filter, $fq) !== FALSE) {
@@ -403,7 +403,7 @@ class IslandoraSolrFacets {
       }
       // Current path including query, for example islandora/solr/query.
       // $_GET['q'] didn't seem to work here.
-      $path = \Drupal\Core\Url::fromRoute("<current>")->toString();
+      $path = \Drupal\Core\Url::fromRoute('<current>')->toString();
       // Parameters set in URL.
       $params = $islandora_solr_query->internalSolrParams;
       // Set filter key if there are no filters included.
@@ -430,9 +430,9 @@ class IslandoraSolrFacets {
       $attributes['link']['attr'] = new Attribute($attribute_array);
       $attributes['minus']['attr'] = new Attribute($attribute_array);
       $attributes['plus']['attr'] = new Attribute($attribute_array);
-      $attributes['plus']['attr']['href'] = Url::fromRoute($path, [], ['query' => $query_plus])->toString();
-      $attributes['link']['attr']['href'] = Url::fromRoute($path, [], ['query' => $query_plus])->toString();
-      $attributes['minus']['attr']['href'] = Url::fromRoute($path, [], ['query' => $query_minus])->toString();
+      $attributes['plus']['attr']['href'] = Url::fromRoute('<current>', [], ['query' => $query_plus])->toString();
+      $attributes['link']['attr']['href'] = Url::fromRoute('<current>', [], ['query' => $query_plus])->toString();
+      $attributes['minus']['attr']['href'] = Url::fromRoute('<current>', [], ['query' => $query_minus])->toString();
 
       $attributes['link']['query'] = $attributes['plus']['query'] = $query_plus;
 
@@ -551,7 +551,7 @@ class IslandoraSolrFacets {
     }
     $range_slider_key = $this->sliderKey;
 
-    $date_results = array();
+    $date_results = [];
     // Grab gap and end, and strip all non-buckets in results.
     $results_gap = $results['gap'];
     $results_end = $results['end'];
@@ -576,7 +576,7 @@ class IslandoraSolrFacets {
       foreach ($results as $bucket => $count) {
         if ($count == 0) {
           unset($results[$bucket]);
-          $new_end = array('bucket' => $bucket, 'count' => $count);
+          $new_end = ['bucket' => $bucket, 'count' => $count];
         }
         else {
           break;

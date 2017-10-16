@@ -86,10 +86,12 @@ function islandora_solr_display() {
           $query = array_merge($params, ['display' => $key]);
 
           $attr = new Attribute();
-          $attr['class'][] = 'display-' . \Drupal\Component\Utility\Unicode::strtolower(preg_replace('/[^A-Za-z0-9]/', '-', $key));
+          $class = [];
+          $class[] = 'display-' . \Drupal\Component\Utility\Unicode::strtolower(preg_replace('/[^A-Za-z0-9]/', '-', $key));
           if ($key == $current_display) {
-            $attr['class'][] = 'active';
+            $class[] = 'active';
           }
+          $attr['class'] = $class;
           $attr['rel'] = 'nofollow';
           $attr['title'] = $display_description;
           $attr['href'] = Url::fromRoute('<current>', [], ['query' => $query])->toString();
@@ -214,17 +216,17 @@ function islandora_solr_sort() {
         ],
       ];
 
-      $attr =& $attributes['sort']['attr'];
+      $attr = new Attribute();
       if ($term == $current_sort_term) {
         $attr['class'] = ['active'];
       }
       $attr['rel'] = 'nofollow';
       $attr['title'] = $label;
       $attr['href'] = Url::fromRoute('<current>', [], ['query' => $query])->toString();
+      $attributes['sort']['attr'] = $attr;
 
       $hooks = islandora_build_hook_list(ISLANDORA_SOLR_FACET_BUCKET_CLASSES_HOOK_BASE);
       \Drupal::moduleHandler()->alter($hooks, $attributes, $_islandora_solr_queryclass);
-      $attr = new Attribute($attr);
       // XXX: We're not using l() because of
       // @link http://drupal.org/node/41595 active classes. @endlink
       $item['#markup'] = '<a' . $attr . '>' . $label . ' ' . $indicator . '</a>';

@@ -225,25 +225,23 @@ class IslandoraSolrResults {
       // Set attributes variable for remove link.
       $attributes = [
         'minus' => [
-          'attr' => [],
           'path' => $path,
           'query' => $query_minus,
         ],
       ];
-      $attr_minus =& $attributes['minus']['attr'];
+      $attr_minus = new Attribute();
       $attr_minus['title'] = t('Remove') . ' ' . $query_value;
       $attr_minus['class'] = ['remove-query'];
       $attr_minus['rel'] = 'nofollow';
-      $attr_minus['href'] = Url::fromRoute('islandora_solr.islandora_solr', ['query' => $query_minus]);
-
+      $attr_minus['href'] = Url::fromRoute('islandora_solr.islandora_solr', [], ['query' => $query_minus])->toString();
+      $attributes['minus']['attr'] = $attr_minus;
 
       $hooks = islandora_build_hook_list(ISLANDORA_SOLR_FACET_BUCKET_CLASSES_HOOK_BASE);
       \Drupal::moduleHandler()->alter($hooks, $attributes, $islandora_solr_query);
-      $attributes= new Attribute($attributes);
       // XXX: We are not using l() because of active classes:
       // @see http://drupal.org/node/41595
       // Create link.
-      $query_list[]['#markup'] = '<a' . $attributes['minus']['attr'] . '>(-)</a> ' . \Drupal\Component\Utility\Html::escape($query_value);
+      $query_list[]['#markup'] = '<a' . $attr_minus . '>(-)</a> ' . \Drupal\Component\Utility\Html::escape($query_value);
 
       // Add wrap and list.
       $output .= '<div class="islandora-solr-query-wrap">';
@@ -295,20 +293,20 @@ class IslandoraSolrResults {
             'query' => $query_minus,
           ],
         ];
-        $attr_minus =& $attributes['minus']['attr'];
+        $attr_minus = new Attribute();
         $attr_minus['title'] = t('Remove') . ' ' . $filter;
         $attr_minus['class'] = ['remove-filter'];
         $attr_minus['rel'] = 'nofollow';
-        $attr_minus['href'] = Url::fromRoute('islandora_solr.islandora_solr', ['query' => $query_minus]);
+        $attr_minus['href'] = Url::fromRoute('islandora_solr.islandora_solr', ['query' => $query_minus])->toString();
+        $attributes['minus']['attr'] = $attr_minus;
 
 
         $hooks = islandora_build_hook_list(ISLANDORA_SOLR_FACET_BUCKET_CLASSES_HOOK_BASE);
         \Drupal::moduleHandler()->alter($hooks, $attributes, $islandora_solr_query);
-        $attributes = new Attribute($attributes);
         // XXX: We are not using l() because of active classes:
         // @see http://drupal.org/node/41595
         // Create link.
-        $filter_list[]['#markup'] = '<a' . $attributes['minus']['attr'] . '>(-)</a> ' . $symbol . ' ' . \Drupal\Component\Utility\Html::escape($filter_string);
+        $filter_list[]['#markup'] = '<a' . $attr_minus . '>(-)</a> ' . $symbol . ' ' . \Drupal\Component\Utility\Html::escape($filter_string);
       }
 
       // Return filter list.

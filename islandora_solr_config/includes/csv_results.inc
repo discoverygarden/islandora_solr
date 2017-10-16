@@ -35,7 +35,7 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
     $params = \Drupal::request()->query->all();
     unset($params['solr_profile']);
     batch_set($this->batchSolrResults($islandora_solr_query));
-    return batch_process(Url::fromRoute('<current>', ['query' => $params]));
+    return batch_process(Url::fromRoute('<current>', ['query' => $params])->toString());
   }
 
   /**
@@ -70,8 +70,6 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
  *   The context array for the current batch.
  */
 function islandora_solr_config_csv_batch_update_operation($islandora_solr_query, &$context) {
-ksm('my batch');
-dd('my batch');
   $csv_batch_limit = 100;
   $sandbox = &$context['sandbox'];
 
@@ -139,8 +137,8 @@ function islandora_solr_config_csv_download_csv($success, $results, $operations)
   $file->fid = NULL;
   $file->uri = $export_uri;
   $file->filename = \Drupal::service("file_system")->basename($export_uri);
-  $file->filemime = file_get_mimetype($file->uri);
-  $file->uid = $user->uid;
+  $file->filemime = \Drupal::service('file.mime_type.guesser')->guess($file->uri);
+  $file->uid = $user->id();
   $fp = fopen($export_uri, 'w');
   fputcsv($fp, $results['islandora_solr_csv_headers']);
 
@@ -149,8 +147,7 @@ function islandora_solr_config_csv_download_csv($success, $results, $operations)
   fclose($fp);
   fclose($tmp_file);
   file_unmanaged_delete($results['islandora_solr_csv_file']);
-  drupal_set_message(Xss::filter(t('The exported results CSV is available for download @url.', [
-    '@url' => Link::createFromTextAndUrl(t('here'), Url::fromUri($export_uri)),
-  ])));
-
+  drupal_set_message(t('The exported results CSV is available for download @url.', [
+    '@url' => Link::fromTextAndUrl(t('here'), Url::fromUri(file_create_url($export_uri)))->toString(),
+  ]));
 }
