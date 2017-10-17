@@ -4,8 +4,5 @@ dependencies:
 description: 'Searches an Islandora Solr index'
 package: 'Islandora Search'
 core: 8.x
-stylesheets:
-  all:
-    - css/islandora_solr.base.css
 php: '5.5.9'
 type: module

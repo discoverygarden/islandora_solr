@@ -8,6 +8,7 @@ islandora-solr-theme:
   css:
     base:
       css/islandora_solr.theme.css: {}
+      css/islandora_solr.base.css: {}
 facets-js:
   js:
     js/islandora_solr_facets.js: {}
