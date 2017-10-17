@@ -62,7 +62,6 @@ function template_preprocess_islandora_solr_wrapper(&$variables) {
 function template_preprocess_islandora_solr(&$variables) {
   $results = $variables['results'];
   foreach ($results as $key => $result) {
-
     $options = ['html' => TRUE];
     if (isset($result['object_label'])) {
       $options['attributes']['title'] = $result['object_label'];
@@ -83,8 +82,7 @@ function template_preprocess_islandora_solr(&$variables) {
     }
     $variables['results'][$key]['thumbnail'] = Link::fromTextAndUrl(
       \Drupal::service('renderer')->render($image),
-      Url::fromUri($result['object_url']),
-      $options
+      Url::fromUri($result['object_url'], $options)
     );
   }
 }
@@ -118,23 +116,23 @@ function islandora_solr_facet_wrapper($variables) {
 }
 
 /**
- * Implements hook_process_islandora_solr_search_navigation_block().
+ * Implements hook_preprocess_islandora_solr_search_navigation_block().
  */
-function template_process_islandora_solr_search_navigation_block(&$variables) {
+function template_preprocess_islandora_solr_search_navigation_block(&$variables) {
   if ($variables['prev_link']) {
-    $variables['prev_link'] = format_string('<a href="@link">@text</a>', array(
+    $variables['prev_link'] = format_string('<a href="@link">@text</a>', [
       '@link' => $variables['prev_link'],
       '@text' => $variables['prev_text'],
-    ));
+    ]);
   }
-  $variables['return_link'] = format_string('<a href="@link">@text</a>', array(
+  $variables['return_link'] = format_string('<a href="@link">@text</a>', [
     '@link' => $variables['return_link'],
     '@text' => $variables['return_text'],
-  ));
+  ]);
   if ($variables['next_link']) {
-    $variables['next_link'] = format_string('<a href="@link">@text</a>', array(
+    $variables['next_link'] = format_string('<a href="@link">@text</a>', [
       '@link' => $variables['next_link'],
       '@text' => $variables['next_text'],
-    ));
+    ]);
   }
 }

@@ -21,7 +21,10 @@ class ResultLimit extends BlockBase {
    */
   public function build() {
     module_load_include('inc', 'islandora_solr', 'includes/blocks');
-    return islandora_solr_search_results_limit();
+    $limits = islandora_solr_search_results_limit();
+    if ($limits) {
+      return ['#markup' => $limits];
+    }
   }
 
   /**

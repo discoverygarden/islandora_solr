@@ -21,7 +21,10 @@ class SearchNavigation extends BlockBase {
    */
   public function build() {
     module_load_include('inc', 'islandora_solr', 'includes/blocks');
-    return islandora_solr_search_navigation();
+    $nav = islandora_solr_search_navigation();
+    if ($nav) {
+      return ['#markup' => $nav];
+    }
   }
 
   /**

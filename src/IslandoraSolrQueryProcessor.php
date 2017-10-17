@@ -367,7 +367,7 @@ class IslandoraSolrQueryProcessor {
           $search_nav_qp = $this;
           $search_nav_qp->islandoraSolrResult = NULL;
           $_SESSION['islandora_solr_search_nav_params'][$id] = [
-            'path' => Url::fromRoute("<current>")->toString(),
+            'path' => Url::fromRoute("<current>", [], ['absolute' => TRUE])->toString(),
             'query' => $this->solrQuery,
             'query_internal' => $this->internalSolrQuery,
             'limit' => $this->solrLimit,

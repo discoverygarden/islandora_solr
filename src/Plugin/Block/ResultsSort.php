@@ -23,7 +23,7 @@ class ResultsSort extends BlockBase {
     module_load_include('inc', 'islandora_solr', 'includes/blocks');
     $sort = islandora_solr_sort();
     if ($sort) {
-      return ['#markup' => islandora_solr_sort()];
+      return ['#markup' => $sort];
     }
   }
 

@@ -8,6 +8,8 @@
 use Drupal\Core\Url;
 use Drupal\Core\Template\Attribute;
 
+use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+
 /**
  * Ajax Callback to reload the facet form when adding rows to the table.
  */
@@ -333,25 +335,24 @@ function islandora_solr_search_navigation() {
     // to populate navigation links.
     if (isset($nav_params['path'])) {
       $return_query = array_merge($query_processor->internalSolrParams, ['page' => $page]);
-      // @FIXME
-// url() expects a route name or an external URI.
-// $return_link = url($nav_params['path'], array('query' => $return_query, 'absolute' => TRUE));
-
+      $return_link = Url::fromUri(
+        $nav_params['path'],
+        ['query' => $return_query, 'absolute' => TRUE]
+      )->toString();
     }
     if ($prev_solr_object) {
       $prev_params = $prev_solr_object['object_url_params'];
       $prev_params['solr_nav']['offset'] = $prev_offset;
       $prev_params['solr_nav']['page'] = $prev_page;
       $prev_params['solr_nav']['id'] = $params['solr_nav']['id'];
-      // @FIXME
-// url() expects a route name or an external URI.
-// $prev_link = url($prev_solr_object['object_url'], array(
-//         'query' => $prev_params,
-//         'fragment' => (isset($prev_solr_object['object_url_fragment']) ? $prev_solr_object['object_url_fragment'] : ''),
-//         'absolute' => TRUE,
-//       ));
-
-
+      $prev_link = Url::fromUri(
+        $prev_solr_object['object_url'],
+        [
+          'query' => $prev_params,
+          'fragment' => (isset($prev_solr_object['object_url_fragment']) ? $prev_solr_object['object_url_fragment'] : ''),
+          'absolute' => TRUE,
+        ]
+      )->toString();
     }
 
     if ($next_solr_object) {
@@ -359,32 +360,25 @@ function islandora_solr_search_navigation() {
       $next_params['solr_nav']['offset'] = $next_offset;
       $next_params['solr_nav']['page'] = $next_page;
       $next_params['solr_nav']['id'] = $params['solr_nav']['id'];
-      // @FIXME
-// url() expects a route name or an external URI.
-// $next_link = url($next_solr_object['object_url'], array(
-//         'query' => $next_params,
-//         'fragment' => (isset($next_solr_object['object_url_fragment']) ? $next_solr_object['object_url_fragment'] : ''),
-//         'absolute' => TRUE,
-//       ));
-
+      $next_link = Url::fromUri(
+        $next_solr_object['object_url'],
+        [
+          'query' => $next_params,
+          'fragment' => (isset($next_solr_object['object_url_fragment']) ? $next_solr_object['object_url_fragment'] : ''),
+          'absolute' => TRUE,
+        ]
+      )->toString();
     }
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $return = theme('islandora_solr_search_navigation_block', array(
-//       'return_link' => $return_link,
-//       'return_text' => t('Return to search'),
-//       'prev_link' => $prev_link,
-//       'prev_text' => t('Previous Object'),
-//       'next_link' => $next_link,
-//       'next_text' => t('Next Object'),
-//     ));
-
+    $element = [
+      '#theme' => 'islandora_solr_search_navigation_block',
+      '#return_link' => $return_link,
+      '#return_text' => t('Return to search'),
+      '#prev_link' => $prev_link,
+      '#prev_text' => t('Previous Object'),
+      '#next_link' => $next_link,
+      '#next_text' => t('Next Object'),
+    ];
+    $return = \Drupal::service('renderer')->render($element);
   }
   return $return;
 }
@@ -435,7 +429,7 @@ function islandora_solr_search_results_limit() {
         '#type' => 'ul',
         '#attributes' => ['id' => 'islandora_solr_results_limit'],
       ];
-      $output = \Drupal::service('renderer')->render($list);
+      return \Drupal::service('renderer')->render($list);
     }
   }
 }
