@@ -1,0 +1,21 @@
+{#
+/**
+ * @file
+ * Template file for default facets
+ *
+ * @TODO document available variables
+ */
+?>
+#}
+<ul class="{{ classes }}">
+  {% for key, bucket in buckets %}
+    <li>
+      {{ bucket['link'] }}
+      <span class="count">({{ bucket['count'] }})</span>
+      <span class="plusminus">
+        {{ bucket['link_plus'] }}
+        {{ bucket['link_minus'] }}
+      </span>
+    </li>
+  {% endfor %}
+</ul>

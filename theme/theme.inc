@@ -109,7 +109,7 @@ function template_preprocess_islandora_solr_facet(&$variables) {
  *
  * @ingroup themeable
  */
-function theme_islandora_solr_facet_wrapper($variables) {
+function islandora_solr_facet_wrapper($variables) {
   $output = '<div class="islandora-solr-facet-wrapper">';
   $output .= '<h3>' . $variables['title'] . '</h3>';
   $output .= $variables['content'];

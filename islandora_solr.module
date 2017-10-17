@@ -66,6 +66,7 @@ function islandora_solr_theme() {
      // Facet wrapper.
     'islandora_solr_facet_wrapper' => [
       'file' => "theme/$file",
+      'function' => 'islandora_solr_facet_wrapper',
       'variables' => ['title' => NULL, 'content' => NULL, 'pid' => NULL],
     ],
      // Range slider.

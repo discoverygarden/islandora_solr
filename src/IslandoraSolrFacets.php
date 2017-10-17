@@ -41,6 +41,8 @@ class IslandoraSolrFacets {
   public $title = NULL;
   public $content = NULL;
 
+  protected $sliderKey = NULL;
+
 
   // @codingStandardsIgnoreEnd
 
@@ -116,21 +118,13 @@ class IslandoraSolrFacets {
     if (empty($this->content)) {
       return;
     }
-    $elements = [
-      'title' => $this->title,
-      'content' => $this->content,
-      'pid' => $this->facet_field,
+    $element = [
+      '#theme' => 'islandora_solr_facet_wrapper',
+      '#title' => $this->title,
+      '#content' => $this->content,
+      '#pid' => $this->facet_field,
     ];
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// return theme('islandora_solr_facet_wrapper', $elements);
-
+    return \Drupal::service('renderer')->render($element);
   }
 
   /**
@@ -449,10 +443,10 @@ class IslandoraSolrFacets {
       // XXX: We are not using l() because of active classes:
       // @see http://drupal.org/node/41595
       // Create link.
-      $link['link'] = '<a' . $attributes['link']['attr'] . '>' . $bucket . '</a>';
-      $link['count'] = $count;
-      $link['link_plus'] = '<a' . $attributes['plus']['attr'] . '>+</a>';
-      $link['link_minus'] = '<a' . $attributes['minus']['attr'] . '>-</a>';
+      $link['link']['#markup'] = '<a' . $attributes['link']['attr'] . '>' . $bucket . '</a>';
+      $link['count']['#markup'] = $count;
+      $link['link_plus']['#markup'] = '<a' . $attributes['plus']['attr'] . '>+</a>';
+      $link['link_minus']['#markup'] = '<a' . $attributes['minus']['attr'] . '>-</a>';
       $buckets[] = $link;
     }
 
@@ -460,75 +454,34 @@ class IslandoraSolrFacets {
     if (count($buckets) > $soft_limit) {
       $buckets_visible = array_slice($buckets, 0, $soft_limit);
       $buckets_hidden = array_slice($buckets, $soft_limit);
-      // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $this->content .= theme('islandora_solr_facet', array(
-//         'buckets' => $buckets_visible,
-//         'hidden' => FALSE,
-//         'pid' => $facet_field,
-//       ));
+    $element = [
+      '#theme' => 'islandora_solr_facet',
+      '#buckets' => $buckets_visible,
+      '#hidden' => FALSE,
+      '#pid' => $facet_field,
+    ];
+    $this->content .= \Drupal::service('renderer')->render($element);
+    $element = [
+      '#theme' => 'islandora_solr_facet',
+      '#buckets' => $buckets_hidden,
+      '#hidden' => FALSE,
+      '#pid' => $facet_field,
+      '#attached' => ['library' => ['islandora_solr/facets_js']],
+    ];
+    $this->content .= \Drupal::service('renderer')->render($element);
 
-      // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $this->content .= theme('islandora_solr_facet', array(
-//         'buckets' => $buckets_hidden,
-//         'hidden' => TRUE,
-//         'pid' => $facet_field,
-//       ));
-
-      $this->content .= $this->showMore();
+    $this->content . '<a href="#" class="soft-limit">' . t('Show more') . '</a>';
     }
     elseif (!empty($buckets)) {
-      // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $this->content .= theme('islandora_solr_facet', array(
-//         'buckets' => $buckets,
-//         'hidden' => FALSE,
-//         'pid' => $facet_field,
-//       ));
-
+      $element = [
+        '#theme' => 'islandora_solr_facet',
+        '#buckets' => $buckets,
+        '#hidden' => FALSE,
+        '#pid' => $facet_field,
+      ];
+      $this->content .= \Drupal::service('renderer')->render($element);
     }
   }
-
-  /**
-   * Adds a 'show more' link.
-   *
-   * @return string
-   *   Returns a rendered 'show more' link.
-   */
-  public function showMore() {
-    // @FIXME
-// The Assets API has totally changed. CSS, JavaScript, and libraries are now
-// attached directly to render arrays using the #attached property.
-//
-//
-// @see https://www.drupal.org/node/2169605
-// @see https://www.drupal.org/node/2408597
-// drupal_add_js(drupal_get_path('module', 'islandora_solr') . '/js/islandora_solr_facets.js');
-
-    $show_more = '<a href="#" class="soft-limit">' . t('Show more') . '</a>';
-    return $show_more;
-  }
-
-  protected $sliderKey = NULL;
 
   /**
    * Prepare facet dates for slider.
@@ -717,7 +670,7 @@ class IslandoraSolrFacets {
       // XXX: Restore the build ID to $_POST, just in case.
       $_POST['form_build_id'] = $old_build_id;
     }
-    $this->content .= \Drupal::service("renderer")->render($range_slider_form);
+    $this->content .= \Drupal::service('renderer')->render($range_slider_form);
   }
 
   /**
@@ -754,7 +707,7 @@ class IslandoraSolrFacets {
     $date_filter_key = self::$date_filter_key;
     $date_filter_form = \Drupal::formBuilder()->getForm('islandora_solr_date_filter_form_' . $elements['form_key'], $elements);
     if (!empty($this->content)) {
-      $this->content .= \Drupal::service("renderer")->render($date_filter_form);
+      $this->content .= \Drupal::service('renderer')->render($date_filter_form);
     }
   }
 

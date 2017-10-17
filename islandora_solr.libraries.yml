@@ -8,3 +8,10 @@ islandora-solr-theme:
   css:
     base:
       css/islandora_solr.theme.css: {}
+facets-js:
+  js:
+    js/islandora_solr_facets.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+    - core/drupal

@@ -3,7 +3,7 @@
  * Javascript file for islandora solr search facets
  */
 
-(function ($) {
+(function ($, Drupal) {
 
   // Adds facet toggle functionality
   Drupal.behaviors.islandoraSolrToggle = {
@@ -267,4 +267,4 @@
     }
   }
 
-})(jQuery);
+})(jQuery, Drupal);
