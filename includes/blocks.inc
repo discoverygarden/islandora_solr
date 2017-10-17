@@ -170,29 +170,13 @@ function islandora_solr_sort() {
       if ($term == $current_sort_term) {
         if (isset($current_sort_order) && $current_sort_order == 'asc') {
           $order = 'desc';
-          // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $indicator = theme('tablesort_indicator', array('style' => 'desc'));
-
+          $element = ['#markup' => '(DESC)'];
+          $indicator = \Drupal::service('renderer')->render($element);
         }
         else {
           $order = 'asc';
-          // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $indicator = theme('tablesort_indicator', array('style' => 'asc'));
-
+          $element = ['#markup' => '(ASC)'];
+          $indicator = \Drupal::service('renderer')->render($element);
         }
       }
       // The term is score or a date, we want descending order by default.
