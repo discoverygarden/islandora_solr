@@ -297,7 +297,7 @@ class IslandoraSolrResults {
         $attr_minus['title'] = t('Remove') . ' ' . $filter;
         $attr_minus['class'] = ['remove-filter'];
         $attr_minus['rel'] = 'nofollow';
-        $attr_minus['href'] = Url::fromRoute('islandora_solr.islandora_solr', ['query' => $query_minus])->toString();
+        $attr_minus['href'] = Url::fromRoute('islandora_solr.islandora_solr', [], ['query' => $query_minus])->toString();
         $attributes['minus']['attr'] = $attr_minus;
 
 
