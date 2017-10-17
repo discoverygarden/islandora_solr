@@ -103,7 +103,6 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
   if ($form_state->getValue(['islandora_solr_' . $field_type, 'terms'])) {
     $fields = $form_state->getValue(['islandora_solr_' . $field_type, 'terms']);
   }
-
   // Render fields.
   $rows = [];
   if ($fields) {
@@ -161,7 +160,7 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
         '#type' => 'button',
         '#value' => t('remove'),
         '#button_type' => "{$field_type}_remove",
-        '#name' => "{$solr_field}_remove",
+        '#name' => "{$solr_field}_{$field_type}_remove",
         '#field_type' => $field_type,
         '#field' => $solr_field,
         '#ajax' => [
