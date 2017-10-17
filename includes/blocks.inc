@@ -60,13 +60,11 @@ function islandora_solr_display() {
     $profiles = \Drupal::moduleHandler()->invokeAll("islandora_solr_primary_display");
     // Get the table settings.
     $primary_display_array = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display_table');
-
     if (!empty($primary_display_array)) {
 
       $weight = $primary_display_array['weight'];
       $enabled = $primary_display_array['enabled'];
       $default = $primary_display_array['default'];
-
       // Sort by weight.
       array_multisort(array_values($weight), SORT_ASC, array_keys($weight), SORT_ASC, $weight);
 

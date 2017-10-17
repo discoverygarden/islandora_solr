@@ -111,7 +111,6 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       foreach ($profiles_sorted as $machine_name => $profile) {
         // Default display logic for re-use.
         $default = $config->get('islandora_solr_primary_display');
-
         $default_enabled = isset($primary_display_array['enabled'][$machine_name]) ? $primary_display_array['enabled'][$machine_name] : FALSE;
         if ($default == $machine_name) {
           $default_enabled = TRUE;
@@ -571,7 +570,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     ];
     foreach ($form_state->getValue('islandora_solr_primary_display_table') as $key => $values) {
       $munged_config['weight'][$key] = $values['weight'];
-      $munged_config['enabled'][$key] = $values['enabled'];
+      $munged_config['enabled'][$key] = ($munged_config['default'] == $key) ?  TRUE : $values['enabled'];
     }
     $this->config('islandora_solr.settings')->set('islandora_solr_primary_display_table', $munged_config);
 
