@@ -503,21 +503,12 @@ function islandora_solr_islandora_basic_collection_backend_callable($collection_
  */
 function islandora_solr_truncate_field_display($display_values, $max_length, $add_ellipsis, $word_safe, $wordsafe_length, $separator, $link_options = NULL) {
   module_load_include('inc', 'islandora_solr', 'includes/field_truncation');
-
   $updated_display_values = $display_values;
   $separator = Xss::filter($separator, islandora_solr_get_filter_tags());
 
   if (count($updated_display_values) > 0) {
     $value_is_truncated = FALSE;
     $mod_path = drupal_get_path('module', 'islandora_solr');
-    // @FIXME
-// The Assets API has totally changed. CSS, JavaScript, and libraries are now
-// attached directly to render arrays using the #attached property.
-//
-//
-// @see https://www.drupal.org/node/2169605
-// @see https://www.drupal.org/node/2408597
-// drupal_add_js("$mod_path/js/truncation-toggle.js");
 
     // Build two arrays for display, one filtered by size (max_values)
     // and one with all the data.

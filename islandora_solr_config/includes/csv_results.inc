@@ -118,14 +118,14 @@ function islandora_solr_config_csv_batch_update_operation($islandora_solr_query,
 /**
  * Copies file from tmp and appends headers on the front for export.
  *
- * @param array $success
+ * @param boolean $success
  *   The success array from the batch.
  * @param array $results
  *   The results array from the batch.
  * @param array $operations
  *   The operations array from the batch.
  */
-function islandora_solr_config_csv_download_csv(array $success, array $results, array $operations) {
+function islandora_solr_config_csv_download_csv($success, array $results, array $operations) {
   $user = \Drupal::currentUser();
   $export_uri = 'public://csv_export_' . time() . '.csv';
   // We register this file into Drupal so it will be deleted.

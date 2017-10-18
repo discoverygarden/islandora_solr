@@ -16,3 +16,9 @@ facets-js:
     - core/jquery
     - core/drupalSettings
     - core/drupal
+toggle:
+  js:
+    js/truncation-toggle.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal

@@ -167,6 +167,7 @@ class IslandoraSolrResults {
    * @see IslandoraSolrResults::displayResults()
    */
   public function printResults($solr_results) {
+    module_load_include('inc', 'islandora_solr', 'includes/db');
     $solr_results = islandora_solr_prepare_solr_results($solr_results);
     $object_results = $solr_results['response']['objects'];
     $object_results = islandora_solr_prepare_solr_doc($object_results);
@@ -175,13 +176,16 @@ class IslandoraSolrResults {
     $elements['solr_total'] = $solr_results['response']['numFound'];
     $elements['solr_start'] = $solr_results['response']['start'];
 
-    // Return themed search results.
-    return [
+    $return = [
       '#theme' => 'islandora_solr',
       '#results' => $object_results,
       '#elements' => $elements,
     ];
-
+    if (islandora_solr_get_truncate_length_fields()) {
+      $return['#attached']['library'][] = 'islandora_solr/toggle';
+    }
+    // Return themed search results.
+    return $return;
   }
 
   /**
