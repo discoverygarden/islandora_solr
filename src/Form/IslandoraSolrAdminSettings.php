@@ -573,7 +573,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       $munged_config['enabled'][$key] = ($munged_config['default'] == $key) ?  TRUE : $values['enabled'];
     }
     $this->config('islandora_solr.settings')->set('islandora_solr_primary_display_table', $munged_config);
-
+    $this->config('islandora_solr.settings')->set('islandora_solr_primary_display', $munged_config['default']);
     // Skip values that are part of the form state object or need combination
     // for special handling.
     $skipped_keys = [

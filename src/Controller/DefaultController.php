@@ -87,7 +87,6 @@ class DefaultController extends ControllerBase {
     if (empty($_islandora_solr_queryclass->islandoraSolrResult)) {
       return t('Error searching Solr index.');
     }
-
     // TODO: Also filter secondary displays against those checked in the
     // configuration options.
     if (isset($params['solr_profile']) && isset($secondary_profiles[$params['solr_profile']])) {
@@ -105,7 +104,6 @@ class DefaultController extends ControllerBase {
       // Include the file for the display profile.
       require_once drupal_get_path('module', $profile['module']) . '/' . $profile['file'];
     }
-
     // Get display class and function from current display.
     $solr_class = $profile['class'];
     $solr_function = $profile['function'];
