@@ -1,0 +1,5 @@
+theme:
+  version: 1.x
+  css:
+    base:
+      islandora_solr_config.theme.css: {}

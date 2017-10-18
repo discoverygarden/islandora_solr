@@ -1,4 +1,4 @@
-<?php
+{#
 /**
  * @file
  * Islandora Solr grid template
@@ -8,14 +8,14 @@
  *
  * @see template_preprocess_islandora_solr_grid()
  */
-?>
+#}
 
-<?php if (empty($results)): ?>
-  <p class="no-results"><?php print t('Sorry, but your search returned no results.'); ?></p>
-<?php else: ?>
+{% if results is empty %}
+  <p class="no-results">{{ 'Sorry, but your search returned no results.'|t }}</p>
+{% else %}
   <div class="islandora-solr-search-results">
     <div class="islandora-solr-grid clearfix">
-    <?php foreach($results as $result): ?>
+    {% for result in results %}
       <dl class="solr-grid-field">
         <dt class="solr-grid-thumb">
           <?php
@@ -48,7 +48,7 @@
           ?>
         </dd>
       </dl>
-    <?php endforeach; ?>
+    {% endfor %}
     </div>
   </div>
-<?php endif; ?>
+{% endif %}

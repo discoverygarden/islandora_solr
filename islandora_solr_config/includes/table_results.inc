@@ -7,6 +7,8 @@
  */
 
 use Drupal\islandora_solr\IslandoraSolrResults;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 
 /**
  * Extension of IslandoraSolrResults to create an alternative display type.
@@ -27,37 +29,24 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
    */
   public function printResults($solr_results) {
     $mod_path = drupal_get_path('module', 'islandora_solr_config');
-    // @FIXME
-// The Assets API has totally changed. CSS, JavaScript, and libraries are now
-// attached directly to render arrays using the #attached property.
-//
-//
-// @see https://www.drupal.org/node/2169605
-// @see https://www.drupal.org/node/2408597
-// drupal_add_css("$mod_path/css/islandora_solr_config.theme.css");
-
-
+    $display_row_number = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_table_profile_display_row_no');
     $solr_results = islandora_solr_prepare_solr_results($solr_results);
     $object_results = $solr_results['response']['objects'];
     $object_results = islandora_solr_prepare_solr_doc($object_results);
 
     $record_start = (int) $solr_results['response']['start'];
     $fields = $this->resultFieldArray;
-    $empty = array();
+    $empty = [];
     foreach ($fields as $field => $label) {
       $empty[$field] = TRUE;
     }
-    $rows = array();
+    $rows = [];
     foreach ($object_results as $key => $object_result) {
-      $row = array();
+      $row = [];
       $doc = $object_result['solr_doc'];
-      // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// if (variable_get('islandora_solr_table_profile_display_row_no', 1) == 1) {
-//         $row['#'] = l(($key + 1), $object_result['object_url'], array('query' => $object_result['object_url_params']));
-//       }
+      if ($display_row_number == 1) {
+         $row['#'] = Link::fromTextAndUrl(($key + 1), Url::fromUri($object_result['object_url'], ['query' => $object_result['object_url_params']]));
+      }
 
       foreach ($fields as $field => $field_label) {
         if (isset($doc[$field]['value'])) {
@@ -71,14 +60,10 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
       }
       $rows[] = $row;
     }
-    $header = array();
-    // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// if (variable_get('islandora_solr_table_profile_display_row_no', 1) == 1) {
-//       $header['#'] = '#';
-//     }
+    $header = [];
+    if ($display_row_number == 1) {
+      $header['#'] = '#';
+    }
 
     $header += $fields;
 
@@ -91,17 +76,14 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
         }
       }
     }
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $output = theme('islandora_solr_table', array('header' => $header, 'rows' => $rows));
-
-    return $output;
+    $element = [
+      '#theme' => 'islandora_solr_table',
+      '#header' => $header,
+      '#rows' => $rows,
+      '#table_class' => \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_table_profile_table_class'),
+      '#attached' => ['library' => ['islandora_solr_config/theme']],
+    ];
+    return \Drupal::service('renderer')->render($element);
   }
 
 }

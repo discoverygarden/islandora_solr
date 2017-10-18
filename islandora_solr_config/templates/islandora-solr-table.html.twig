@@ -1,4 +1,4 @@
-<?php
+{#
 /**
  * @file
  * Islandora solr table template
@@ -10,30 +10,25 @@
  *
  * @see template_preprocess_islandora_solr_grid()
  */
-?>
+#}
 
-<?php if (empty($rows)): ?>
-  <p class="no-results"><?php print t('Sorry, but your search returned no results.'); ?></p>
-<?php else: ?>
-  <table class="<?php // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// print variable_get('islandora_solr_table_profile_table_class', '');
- ?>">
-    <?php foreach($header as $key => $value):?>
+{% if rows is empty %}
+  <p class="no-results">{{ 'Sorry, but your search returned no results.'|t }}</p>
+{% else %}
+  <table class="{{ table_class }}">
+    {% for key, value in header %}
       <th>
-        <?php print $value; ?>
+        {{ value }}
       </th>
-    <?php endforeach; ?>
-    <?php foreach($rows as $key => $row):?>
+    {% endfor %}
+    {% for key, row in rows %}
       <tr>
-      <?php foreach($row as $key => $value):?>
+      {% for key, value in row %}
         <td>
-          <?php print $value; ?>
+          {{ value }}
         </td>
-      <?php endforeach; ?>
+      {% endfor %}
       </tr>
-    <?php endforeach; ?>
+    {% endfor %}
   </table>
-<?php endif; ?>
+{% endif %}
