@@ -60,7 +60,7 @@ class DefaultController extends ControllerBase {
     // If it's set, we take these values.
     if (isset($primary_display_array['enabled'])) {
       foreach ($primary_display_array['enabled'] as $key => $value) {
-        if ($key === $value) {
+        if ($value) {
           $enabled_profiles[] = $key;
         }
       }
