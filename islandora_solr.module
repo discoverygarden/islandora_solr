@@ -138,40 +138,40 @@ function islandora_solr_results_page($islandora_solr_query) {
  * Implements hook_forms().
  */
 function islandora_solr_forms($form_id, $args) {
-  $forms = array();
+  $forms = [];
 
   if (strpos($form_id, 'islandora_solr_admin') === 0) {
     module_load_include('inc', 'islandora_solr', 'includes/admin');
 
     // Handle two form using the same building function, but allowing each to
     // be altered separately.
-    if (in_array($form_id, array(
+    if (in_array($form_id, [
       'islandora_solr_admin_settings_search_fields',
       'islandora_solr_admin_settings_sort_fields',
-    ))) {
-      $forms[$form_id] = array(
+    ])) {
+      $forms[$form_id] = [
         'callback' => 'islandora_solr_admin_settings_search_or_sort_fields',
-      );
+      ];
     }
   }
   // Check if the form_id passed to drupal_get_form() contains the string
   // 'islandora_solr_search_date_filter_form'.
   if (strpos($form_id, 'islandora_solr_date_filter_form') !== FALSE) {
     module_load_include('inc', 'islandora_solr', 'includes/facets');
-    $forms[$form_id] = array(
+    $forms[$form_id] = [
       'callback' => 'islandora_solr_date_filter_form',
-      'callback arguments' => array($args[0]),
-    );
+      'callback arguments' => [$args[0]],
+    ];
   }
 
   // Check if the form_id passed to drupal_get_form() contains the string
   // 'islandora_solr_range_slider_form'.
   if (strpos($form_id, 'islandora_solr_range_slider_form') !== FALSE) {
     module_load_include('inc', 'islandora_solr', 'includes/facets');
-    $forms[$form_id] = array(
+    $forms[$form_id] = [
       'callback' => 'islandora_solr_range_slider_form',
-      'callback arguments' => array($args[0]),
-    );
+      'callback arguments' => [$args[0]],
+    ];
   }
 
   return $forms;

@@ -555,7 +555,7 @@ class IslandoraSolrFacets {
 
     // If values are available.
     if (count($results) <= 1) {
-      return array();
+      return [];
     }
 
     // Calculate gap.
@@ -742,13 +742,13 @@ class IslandoraSolrFacets {
     }
 
     $islandora_solr_query = self::$islandoraSolrQuery;
-    $fq = isset($islandora_solr_query->solrParams['fq']) ? $islandora_solr_query->solrParams['fq'] : array();
+    $fq = isset($islandora_solr_query->solrParams['fq']) ? $islandora_solr_query->solrParams['fq'] : [];
     $facet_dates = self::$facet_dates;
     // Populate with terms that needed a second solr call to update facets.
-    $needs_solr_call = array();
+    $needs_solr_call = [];
     // Loop over all date facets.
     foreach ($facet_dates as $solr_field => $buckets) {
-      $values = array();
+      $values = [];
       // Loop over all filters.
       foreach ($fq as $key => $filter) {
         // Check for enabled range filters.
@@ -923,4 +923,5 @@ class IslandoraSolrFacets {
     $results = $min_max_query->islandoraSolrResult;
     return $results['response']['objects'][0]['solr_doc'][$field];
   }
+
 }
