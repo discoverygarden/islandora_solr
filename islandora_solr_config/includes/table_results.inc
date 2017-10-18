@@ -81,7 +81,7 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
       '#header' => $header,
       '#rows' => $rows,
       '#table_class' => \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_table_profile_table_class'),
-      '#attached' => ['library' => ['islandora_solr_config/theme']],
+      '#attached' => ['library' => ['islandora_solr_config/theme', 'islandora_solr/islandora-solr-theme']],
     ];
     return \Drupal::service('renderer')->render($element);
   }
