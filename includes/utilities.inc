@@ -412,10 +412,7 @@ function islandora_solr_prepare_solr_results($solr_results) {
           $value = array_map($map_to_link, (array) $original_value, (array) $value);
         }
         elseif (in_array($field, $link_to_object)) {
-          // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// $value = l(implode($separator, $value), $object_result['object_url'], $options);
-
+          $value = Link::fromTextAndUrl(implode($separator, $value), Url::fromUri($object_result['object_url'], $options))->toString();
         }
       }
       // Implode.
@@ -543,40 +540,16 @@ function islandora_solr_truncate_field_display($display_values, $max_length, $ad
     $truncated_value = implode($separator, $truncated_list);
     if ($link_options !== NULL) {
       if (isset($link_options['link_to_object']) && $link_options['link_to_object'] == TRUE) {
-        // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// $original_value = l($original_value, $link_options['url'], $link_options['options']);
-
-        // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// $truncated_value = l($truncated_value, $link_options['url'], $link_options['options']);
-
+        $original_value = Link::fromTextAndUrl($original_value, Url::fromUri($link_options['url'], $link_options['options']))->toString();
+        $truncated_value = Link::fromTextAndUrl($truncated_value, Url::fromUri($link_options['url'], $link_options['options']))->toString();
       }
       elseif (isset($link_options['link_to_search']) && $link_options['link_to_search'] == TRUE) {
         $solr_query = format_string('@field:"@value"', [
           '@field' => $link_options['field'],
           '@value' => islandora_solr_lesser_escape($original_value),
           ]);
-        // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// $original_value = l(
-//           $original_value,
-//           "islandora/search/$solr_query",
-//           array(
-//             'html' => TRUE,
-//           )
-//         );
-
-        // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// $truncated_value = l(
-//           $truncated_value,
-//           "islandora/search/$solr_query",
-//           array(
-//             'html' => TRUE,
-//           )
-//         );
-
+        $original_value = Link::createFromRoute($original_value, 'islandora_solr.islandora_solr', ['query' => $solr_query])->toString();
+        $truncated_value = Link::createFromRoute($truncated_value, 'islandora_solr.islandora_solr', ['query' => $solr_query])->toString();
       }
     }
 

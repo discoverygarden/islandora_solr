@@ -277,49 +277,35 @@ function islandora_solr_range_slider_form($form, &$form_state, $elements) {
     'range_from' => format_date(strtotime(trim($from_default['date'])) + 1, 'custom', $date_format, 'UTC'),
     'range_to' => format_date(strtotime(trim($to_default['date'])), 'custom', $date_format, 'UTC'),
   );
-  // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $form['markup'] = array(
-//     '#markup' => theme('islandora_solr_range_slider', $slider_variables),
-//   );
+  $element = $slider_variables;
+  $element['#theme'] = 'islandora_solr_range_slider';
+  $form['markup'] = [
+    '#markup' => \Drupal::service('renderer')->render($element),
+  ];
 
   // Hidden from.
-  $form['range_slider_hidden_from'] = array(
+  $form['range_slider_hidden_from'] = [
     '#type' => 'hidden',
     '#default_value' => $from_default['date'],
-    '#attributes' => array('class' => array('range-slider-hidden-from-' . $form_key)),
-  );
+    '#attributes' => ['class' => ['range-slider-hidden-from-' . $form_key]],
+  ];
   // Hidden to.
-  $form['range_slider_hidden_to'] = array(
+  $form['range_slider_hidden_to'] = [
     '#type' => 'hidden',
     '#default_value' => $to_default['date'],
-    '#attributes' => array('class' => array('range-slider-hidden-to-' . $form_key)),
-  );
-  $form['range_slider_submit'] = array(
+    '#attributes' => ['class' => ['range-slider-hidden-to-' . $form_key]],
+  ];
+  $form['range_slider_submit'] = [
     '#type' => 'submit',
     '#value' => t('Filter'),
     '#name' => 'range_slider_submit_' . $form_key,
     '#form_key' => $form_key,
-  );
+  ];
   $form['#submit'][] = 'islandora_solr_range_slider_form_submit';
 
   // Include flot.
-  // @TODO: use the libraries module for this!
   // @TODO: use the new version of flot. Didn't work out of the box, so needs
   // some extra attention.
-  // @TODO: find a good way to call this for IE8 and lower
-  // @code
-  // <!--[if lte IE 8]>
-  // $mod_path = drupal_get_path('module', 'islandora_solr')
-  // drupal_add_js($mod_path . '/js/flot/excanvas.min.js')
-  // <![endif]-->
-  // @endcode
 
   $mod_path = drupal_get_path('module', 'islandora_solr');
 // @fixme: attached css/js is no more.

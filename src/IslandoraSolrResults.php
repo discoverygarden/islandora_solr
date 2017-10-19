@@ -404,18 +404,13 @@ class IslandoraSolrResults {
         if ($exclude) {
           $attr['class'][] = 'strikethrough';
         }
-        // @FIXME
-// url() expects a route name or an external URI.
-// $attr['href'] = url($path, array('query' => $query));
-
+        $attr['href'] = Url::fromRoute('<current>', ['query' => $query])->toString();
 
         // Set attributes variable for remove link.
         $attr_x = new Attribute();
         $attr_x['title'] = t('Remove') . ' ' . $filter;
         $attr_x['rel'] = 'nofollow';
-        // @FIXME
-// url() expects a route name or an external URI.
-// $attr_x['href'] = url($path, array('query' => $query_x));
+        $attr_x['href'] = Url::fromRoute('<current>', ['query' => $query_x])->toString();
 
 
         // XXX: We are not using l() because of active classes:
@@ -451,18 +446,13 @@ class IslandoraSolrResults {
       $attr = new Attribute();
       $attr['title'] = $query_value;
       $attr['rel'] = 'nofollow';
-      // @FIXME
-// url() expects a route name or an external URI.
-// $attr['href'] = url($path, array('query' => $query));
-
+      $attr['href'] = Url::fromRoute('<current>', ['query' => $query])->toString();
 
       // Set attributes variable for remove link.
       $attr_x = new Attribute();
       $attr_x['title'] = t('Remove') . ' ' . $query_value;
       $attr_x['rel'] = 'nofollow';
-      // @FIXME
-// url() expects a route name or an external URI.
-// $attr_x['href'] = url($path_x, array('query' => $query_x));
+      $attr_x['href'] = Url::fromUri($path_x, ['query' => $query_x])->toString();
 
 
       // Remove solr fields from breadcrumb value.
@@ -494,10 +484,7 @@ class IslandoraSolrResults {
       $breadcrumb[] = '<a' . $attr . '>' . stripslashes(\Drupal\Component\Utility\Html::escape($query_value)) . '</a>'
             . '<span class="islandora-solr-breadcrumb-super"> <a' . $attr_x . '>(' . t('x') . ')</a></span>';
     }
-
-    // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// $breadcrumb[] = l(t('Home'), '<front>', array('attributes' => array('title' => t('Home'))));
+    $breadcrumb[] = Link::createFromRoute(t('Home'), '<front>', ['attributes' => ['title' => t('Home')]])->toString();
 
     if (!empty($breadcrumb)) {
       $breadcrumb = array_reverse($breadcrumb);
@@ -622,22 +609,13 @@ class IslandoraSolrResults {
     $results = "<pre>Results: " . print_r($islandora_solr_results, TRUE) . "</pre>";
     $fieldset = [
       '#title' => t("Islandora Processed Solr Results"),
+      '#type' => 'fieldset',
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
       '#value' => $results,
       '#children' => '',
     ];
-
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// return theme('fieldset', array('element' => $fieldset));
-
+   return \Drupal::service('renderer')->render($fieldset);
   }
 
   /**

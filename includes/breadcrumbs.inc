@@ -5,6 +5,8 @@
  * Breadcrumb functions.
  */
 
+use Drupal\Core\Link;
+
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 use Drupal\islandora_solr\IslandoraSolrResults;
 
@@ -15,12 +17,7 @@ function islandora_solr_islandora_breadcrumbs_backends_callable($object) {
   $breadcrumbs = islandora_solr_get_breadcrumbs_recursive($object->id);
   // Pop off the current object.
   array_pop($breadcrumbs);
-  // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $query_backend = variable_get('islandora_basic_collection_display_backend', 'islandora_basic_collection_legacy_sparql');
-
+  $query_backend = \Drupal::config('islandora_basic_collection.settings')->get('islandora_basic_collection_display_backend');
   if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_add_collection_query') && $query_backend == 'islandora_solr_query_backend') {
     global $_islandora_solr_queryclass;
     if (isset($_islandora_solr_queryclass)) {
@@ -55,12 +52,7 @@ function islandora_solr_get_breadcrumbs_recursive($pid, array &$context = NULL) 
     $context['level'] = 10;
   }
   if (!isset($context['root'])) {
-    // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $root = variable_get('islandora_repository_pid', 'islandora:root');
-
+    $root = \Drupal::config('islandora.settings')->get('islandora_repository_pid');
     $context['root'] = $root;
   }
   if ($pid == $context['root']) {
@@ -74,13 +66,10 @@ function islandora_solr_get_breadcrumbs_recursive($pid, array &$context = NULL) 
       $link = menu_link_load($mlid);
       $title = (isset($link['title']) ? $link['title'] : $title);
     }
-    // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// return array(
-//       l(t('Home'), '<front>'),
-//       l($title, 'islandora'),
-//     );
-
+    return [
+      Link::createFromRoute(t('Home'), '<front>'),
+      Link::createFromRoute($title, 'islandora.view_default_object'),
+    ];
   }
   else {
     $parents = islandora_solr_get_breadcrumb_parent($pid);
@@ -94,12 +83,9 @@ function islandora_solr_get_breadcrumbs_recursive($pid, array &$context = NULL) 
     if (isset($parent)) {
       // We found a parent.
       $context['level']--;
-      // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// return array_merge(islandora_solr_get_breadcrumbs_recursive($parent, $context), array(
-//         l($this_label, "islandora/object/$pid"),
-//       ));
-
+      return array_merge(islandora_solr_get_breadcrumbs_recursive($parent, $context), [
+         Link::createFromRoute($this_label, 'islandora.view_object', ['object' => $pid]),
+      ]);
     }
     else {
       // Add an non-link, as we don't know how to get back to the root, and
@@ -191,12 +177,7 @@ function islandora_solr_get_breadcrumb_parent($pid) {
  */
 function islandora_solr_clean_compound_filters(array $params) {
   if (\Drupal::moduleHandler()->moduleExists('islandora_compound_object') && is_array($params) && isset($params['fq'])) {
-    // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $compound_filters = array(variable_get('islandora_compound_object_solr_fq', '-RELS_EXT_isConstituentOf_uri_mt:[* TO *]'));
-
+    $compound_filters = \Drupal::config('islandora_compound_object.settings')->get('islandora_compound_object_solr_fq');
     $params['fq'] = array_diff($params['fq'], $compound_filters);
   }
   return $params;
