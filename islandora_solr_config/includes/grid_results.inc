@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Class override for grid display
+ * Class override for grid display.
  */
 
 use Drupal\Core\Link;
@@ -31,7 +31,6 @@ class IslandoraSolrResultsGrid extends IslandoraSolrResults {
    *   Rendered Solr results.
    */
   public function printResults(array $solr_results) {
-    $mod_path = drupal_get_path('module', 'islandora_solr_config');
     $object_results = $solr_results['response']['objects'];
 
     $elements = [];
@@ -73,4 +72,5 @@ class IslandoraSolrResultsGrid extends IslandoraSolrResults {
     ];
     return \Drupal::service('renderer')->render($element);
   }
+
 }
