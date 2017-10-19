@@ -28,6 +28,7 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
    *   Rendered Solr results
    */
   public function printResults($solr_results) {
+    module_load_include('inc', 'islandora_solr', 'includes/db');
     $mod_path = drupal_get_path('module', 'islandora_solr_config');
     $display_row_number = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_table_profile_display_row_no');
     $solr_results = islandora_solr_prepare_solr_results($solr_results);
@@ -83,6 +84,9 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
       '#table_class' => \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_table_profile_table_class'),
       '#attached' => ['library' => ['islandora_solr_config/theme', 'islandora_solr/islandora-solr-theme']],
     ];
+    if (islandora_solr_get_truncate_length_fields()) {
+      $element['#attached']['library'][] = 'islandora_solr/toggle';
+    }
     return \Drupal::service('renderer')->render($element);
   }
 
