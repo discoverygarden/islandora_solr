@@ -166,7 +166,7 @@ class IslandoraSolrResults {
    *
    * @see IslandoraSolrResults::displayResults()
    */
-  public function printResults($solr_results) {
+  public function printResults(array $solr_results) {
     module_load_include('inc', 'islandora_solr', 'includes/db');
     $solr_results = islandora_solr_prepare_solr_results($solr_results);
     $object_results = $solr_results['response']['objects'];

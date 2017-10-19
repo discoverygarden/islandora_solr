@@ -30,7 +30,7 @@ class IslandoraSolrResultsGrid extends IslandoraSolrResults {
    * @return string
    *   Rendered Solr results.
    */
-  public function printResults($solr_results) {
+  public function printResults(array $solr_results) {
     $mod_path = drupal_get_path('module', 'islandora_solr_config');
     $object_results = $solr_results['response']['objects'];
 

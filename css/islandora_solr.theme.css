@@ -1,86 +1,68 @@
 /* Theme style sheet for islandora solr */
 
 /* breadcrumbs */
-
-.strikethrough
-{
+.strikethrough {
   text-decoration: line-through !important;
 }
 
-.islandora-solr-breadcrumb-super
-{
+.islandora-solr-breadcrumb-super {
   vertical-align: super;
   font-size: 80%;
 }
 
 /* Default solr results styling (list) */
-
-
-
-.islandora-solr-search-result
-{
+.islandora-solr-search-result {
   display: inline-block;
   width: 100%;
   margin: 0 0 1.5em 0;
 }
 
 /* the base css for lists is set in islandora, just adding details */
-
-.solr-thumb img
-{
+.solr-thumb img {
   border: 1px solid #ccc;
 }
 
-dl.solr-thumb
-{
+dl.solr-thumb {
   float: left;
   width: 15%;
   margin: 0;
 }
 
 .solr-thumb dt,
-.solr-thumb dd
-{
+.solr-thumb dd {
   margin: 0;
 }
 
-dl.solr-fields
-{
+dl.solr-fields {
   float: right;
   width: 83%;
   border-top: 3px solid #ddd;
 }
 
 .solr-fields dt,
-.solr-fields dd
-{
+.solr-fields dd {
   border-top: 1px solid #ddd;
 }
 
 .solr-fields dt.first,
-.solr-fields dd.first
-{
+.solr-fields dd.first {
   border-top: 0;
 }
 
 /* Hightlight */
 
-.islandora-solr-highlight
-{
+.islandora-solr-highlight {
   font-weight: bold;
 }
 
 /* Range filter */
-
 .islandora-solr-range-slider,
-.islandora-solr-date-filter
-{
+.islandora-solr-date-filter {
   text-align: left;
   margin-top: 0.5em;
 }
 
-.islandora-solr-date-filter label
-{
+.islandora-solr-date-filter label {
   display: inline-block;
   float: left;
   margin: 5px 0;
@@ -91,55 +73,47 @@ dl.solr-fields
 }
 
 .islandora-solr-date-filter input.form-submit,
-.islandora-solr-range-slider input.form-submit
-{
+.islandora-solr-range-slider input.form-submit {
   margin-right: 0;
 }
 
 .islandora-solr-date-filter form,
-.islandora-solr-range-slider form
-{
+.islandora-solr-range-slider form {
   width: 100%;
 }
 
-.islandora-solr-date-filter .description
-{
+.islandora-solr-date-filter .description {
   margin: 5px 0;
   text-align: left;
   font-size: 0.85em;
 }
 
-table.ui-datepicker tbody td.ui-datepicker-current-day a
-{
+table.ui-datepicker tbody td.ui-datepicker-current-day a {
   background: yellow;
 }
 
-table.ui-datepicker tbody td.ui-datepicker-today a
-{
+table.ui-datepicker tbody td.ui-datepicker-today a {
   background: #cbe5fc;
 }
 
-.islandora-solr-range-slider .ui-slider
-{
+.islandora-solr-range-slider .ui-slider {
   height: 2px;
   border: 0px;
   background: #ccc;
   margin-bottom: 25px;
 }
 
-.islandora-solr-range-slider .ui-slider-range
-{
+.islandora-solr-range-slider .ui-slider-range {
   background: #edc240;
   height: 1px;
 }
 
 .islandora-solr-range-slider .ui-state-default,
 .islandora-solr-range-slider .ui-widget-content .ui-state-default,
-.islandora-solr-range-slider .ui-slider-handle
-{
+.islandora-solr-range-slider .ui-slider-handle {
   background: url('../images/slider-handle.png') top center no-repeat transparent;
   border: 0px;
-  top: 2px; 
+  top: 2px;
   cursor: pointer;
 }
 
@@ -150,8 +124,7 @@ table.ui-datepicker tbody td.ui-datepicker-today a
 }
 
 .islandora-solr-range-slider .range-slider-fromto,
-.islandora-solr-range-slider .date-range-slider-gap
-{
+.islandora-solr-range-slider .date-range-slider-gap {
   text-align: left;
 }
 
@@ -165,8 +138,7 @@ table.ui-datepicker tbody td.ui-datepicker-today a
 }
 
 .slider-popup-from-wrapper,
-.slider-popup-to-wrapper
-{
+.slider-popup-to-wrapper {
   display: none;
   position: absolute;
   width: 120px;
@@ -177,8 +149,7 @@ table.ui-datepicker tbody td.ui-datepicker-today a
 }
 
 .slider-popup-from,
-.slider-popup-to
-{
+.slider-popup-to {
   padding: 0px 10px 1px 10px;
   font-size: 11px;
   color: #333;
@@ -187,8 +158,7 @@ table.ui-datepicker tbody td.ui-datepicker-today a
   border-radius: 10px 10px 10px 10px;
 }
 
-#range-slider-tooltip
-{
+#range-slider-tooltip {
   display: none;
   position: absolute;
   width: 250px;
@@ -196,8 +166,7 @@ table.ui-datepicker tbody td.ui-datepicker-today a
   z-index: 9999;
 }
 
-#range-slider-tooltip span
-{
+#range-slider-tooltip span {
   padding: 0px 10px 1px 10px;
   font-size: 11px;
   color: #333;

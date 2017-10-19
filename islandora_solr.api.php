@@ -31,8 +31,8 @@
  *   - "configuration": A which can be used to configure the given display.
  */
 function hook_islandora_solr_primary_display() {
-  return array(
-    'machine_name' => array(
+  return [
+    'machine_name' => [
       'name' => t('Human-readable name'),
       'module' => 'module_name',
       'file' => 'FileName.inc',
@@ -40,8 +40,8 @@ function hook_islandora_solr_primary_display() {
       'function' => 'function_name',
       'description' => t('A description of the display profile'),
       'configuration' => 'path/to/configuration/page',
-    ),
-  );
+    ],
+  ];
 }
 
 /**
@@ -64,8 +64,8 @@ function hook_islandora_solr_primary_display() {
  *   - "logo": An opening image tag to use a a logo.
  */
 function hook_islandora_solr_secondary_display() {
-  return array(
-    'machine_name' => array(
+  return [
+    'machine_name' => [
       'name' => t('Human-readable name'),
       'module' => 'module_name',
       'file' => 'FileName.inc',
@@ -73,8 +73,8 @@ function hook_islandora_solr_secondary_display() {
       'function' => 'function_name',
       'description' => t('A description of the display profile'),
       'logo' => '<img src="path/to/icon.png">',
-    ),
-  );
+    ],
+  ];
 }
 
 /**
@@ -212,20 +212,10 @@ function hook_islandora_solr_search_rss_item_alter($item, $doc) {
  */
 function hook_islandora_solr_facet_bucket_classes_alter(&$buckets, &$query_processor) {
   foreach ($buckets as $bucket => &$value) {
-
     // Add the 'use-ajax' bit so Drupal will use AJAX.
     $value['attr']['class'][] = "use-ajax";
 
     // Update the href to point to another modules menu callback.
-    // @FIXME
-// url() expects a route name or an external URI.
-// $value['attr']['href'] = url(
-//       "mymodules/superduper/callback",
-//       array(
-//         'query' => $value['query'],
-//       )
-//     );
-
+    $value['attr']['href'] = 'my url';
   }
-  unset($value);
 }

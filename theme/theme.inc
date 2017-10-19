@@ -11,23 +11,23 @@ use Drupal\Core\Link;
 /**
  * Prepares variables for islandora_solr_wrapper templates.
  *
- * @global string $base_url
- *
  * @param array $variables
  *   An associative array containing:
- *   - results: Rendered primary display
+ *   - results: Rendered primary display.
  *   - secondary_profiles: (optional) Rendered list of secondary display
- *     profiles
- *   - elements: additional elements to populate the results page
- *     - pager: (optional) Rendered pager
+ *     profiles.
+ *   - elements: additional elements to populate the results page.
+ *     - pager: (optional) Rendered pager.
  *     - solr_total: (optional) Total amount of documents found.
- *     - solr_start: (optional) Solr start position
- *     - solr_end: (optional) Solr end position
+ *     - solr_start: (optional) Solr start position.
+ *     - solr_end: (optional) Solr end position.
+ *
+ * @global string $base_url
  *
  * @see islandora_solr_theme()
  * @see IslandoraSolrResults::displayResults()
  */
-function template_preprocess_islandora_solr_wrapper(&$variables) {
+function template_preprocess_islandora_solr_wrapper(array &$variables) {
   global $base_url;
   $variables['base_url'] = $base_url;
 
@@ -91,7 +91,6 @@ function template_preprocess_islandora_solr(&$variables) {
  * Prepares variables for islandora_solr_facet templates.
  */
 function template_preprocess_islandora_solr_facet(&$variables) {
-  $buckets = $variables['buckets'];
   if ($variables['hidden']) {
     $variables['classes_array'][] = 'hidden';
   }
@@ -107,7 +106,7 @@ function template_preprocess_islandora_solr_facet(&$variables) {
  *
  * @ingroup themeable
  */
-function islandora_solr_facet_wrapper($variables) {
+function islandora_solr_facet_wrapper(array $variables) {
   $output = '<div class="islandora-solr-facet-wrapper">';
   $output .= '<h3>' . $variables['title'] . '</h3>';
   $output .= $variables['content'];

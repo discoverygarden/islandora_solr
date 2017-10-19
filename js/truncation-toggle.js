@@ -2,6 +2,7 @@
  * @file
  * Javascript file for toggling truncation.
  */
+
 (function ($, Drupal) {
   "use strict";
 
