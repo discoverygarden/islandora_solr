@@ -29,7 +29,7 @@ class Facets extends BlockBase {
     $results = new IslandoraSolrResults();
     $output = $results->displayFacets($_islandora_solr_queryclass);
     if ($output) {
-      return ['#markup' => $output];
+      return $output;
     }
   }
 

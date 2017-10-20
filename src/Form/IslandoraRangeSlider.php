@@ -79,15 +79,13 @@ class IslandoraRangeSlider extends FormBase {
     // Include flot.
     // @TODO: use the new version of flot. Didn't work out of the box, so needs
     // some extra attention.
-    $mod_path = drupal_get_path('module', 'islandora_solr');
     $form['#attached']['library'][] = 'islandora_solr/slider';
-    $form['#attached']['drupalSettings']['islandora_solr']['slider'][$facet_field] = [
+    $form['#attached']['drupalSettings']['islandora_solr']['islandoraSolrRangeSlider'][$facet_field] = [
       'facet_field' => $facet_field,
       'form_key' => $form_key,
       'data' => $data,
       'slider_color' => $slider_color,
     ];
-
     return $form;
   }
 
@@ -98,7 +96,6 @@ class IslandoraRangeSlider extends FormBase {
     // Set variables.
     global $_islandora_solr_queryclass;
     $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : [];
-    $path = \Drupal\Core\Url::fromRoute("<current>")->toString();
     $form_key = $form_state->getTriggeringElement()['#form_key'];
 
     $term = $form_state->getValue('range_slider_term');
@@ -122,7 +119,7 @@ class IslandoraRangeSlider extends FormBase {
     else {
       $query = array_merge_recursive($params, ['f' => [$filter]]);
     }
-    $form_state->setRedirect($path, ['query' => $query]);
+    $form_state->setRedirect('<current>', [], ['query' => $query]);
   }
 
 }

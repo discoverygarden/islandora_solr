@@ -6,6 +6,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Template\Attribute;
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\islandora_solr\Form\IslandoraDateFilter;
 use Drupal\islandora_solr\Form\IslandoraRangeSlider;
 
 /**
@@ -40,7 +41,7 @@ class IslandoraSolrFacets {
   public $facet_type;
   public $results;
   public $title = NULL;
-  public $content = NULL;
+  public $content = [];
 
   protected $sliderKey = NULL;
 
@@ -117,15 +118,13 @@ class IslandoraSolrFacets {
     }
     $this->processFacets();
     if (empty($this->content)) {
-      return;
+      return [];
     }
-    $element = [
-      '#theme' => 'islandora_solr_facet_wrapper',
-      '#title' => $this->title,
-      '#content' => $this->content,
-      '#pid' => $this->facet_field,
+    return [
+      '#prefix' => '<div class="islandora-solr-facet-wrapper"><h3>' . $this->title . '</h3>',
+      'content' => $this->content,
+      '#suffix' => '</div>',
     ];
-    return \Drupal::service('renderer')->render($element);
   }
 
   /**
@@ -455,32 +454,29 @@ class IslandoraSolrFacets {
     if (count($buckets) > $soft_limit) {
       $buckets_visible = array_slice($buckets, 0, $soft_limit);
       $buckets_hidden = array_slice($buckets, $soft_limit);
-    $element = [
-      '#theme' => 'islandora_solr_facet',
-      '#buckets' => $buckets_visible,
-      '#hidden' => FALSE,
-      '#pid' => $facet_field,
-    ];
-    $this->content .= \Drupal::service('renderer')->render($element);
-    $element = [
-      '#theme' => 'islandora_solr_facet',
-      '#buckets' => $buckets_hidden,
-      '#hidden' => FALSE,
-      '#pid' => $facet_field,
-      '#attached' => ['library' => ['islandora_solr/facets_js']],
-    ];
-    $this->content .= \Drupal::service('renderer')->render($element);
+      $this->content["hidden_$facet_field"] = [
+        '#theme' => 'islandora_solr_facet',
+        '#buckets' => $buckets_visible,
+        '#hidden' => FALSE,
+        '#pid' => $facet_field,
+      ];
+      $this->content["visible_$facet_field"] = [
+        '#theme' => 'islandora_solr_facet',
+        '#buckets' => $buckets_hidden,
+        '#hidden' => FALSE,
+        '#pid' => $facet_field,
+        '#attached' => ['library' => ['islandora_solr/facets_js']],
+      ];
 
-    $this->content . '<a href="#" class="soft-limit">' . t('Show more') . '</a>';
+      $this->content["more_$facet_field"]['#markup'] = '<a href="#" class="soft-limit">' . t('Show more') . '</a>';
     }
     elseif (!empty($buckets)) {
-      $element = [
+      $this->content[$facet_field] = [
         '#theme' => 'islandora_solr_facet',
         '#buckets' => $buckets,
         '#hidden' => FALSE,
         '#pid' => $facet_field,
       ];
-      $this->content .= \Drupal::service('renderer')->render($element);
     }
   }
 
@@ -672,7 +668,7 @@ class IslandoraSolrFacets {
       // XXX: Restore the build ID to $_POST, just in case.
       $_POST['form_build_id'] = $old_build_id;
     }
-    $this->content .= \Drupal::service('renderer')->render($range_slider_form);
+    $this->content["slider_$old_build_id"] = $range_slider_form;
   }
 
   /**
@@ -707,9 +703,10 @@ class IslandoraSolrFacets {
    */
   public function renderFacetDatesFilter($elements) {
     $date_filter_key = self::$date_filter_key;
-    $date_filter_form = \Drupal::formBuilder()->getForm('islandora_solr_date_filter_form_' . $elements['form_key'], $elements);
+    $form_object = new IslandoraDateFilter($elements['form_key']);
+    $date_filter_form = \Drupal::formBuilder()->getForm($form_object, $elements);
     if (!empty($this->content)) {
-      $this->content .= \Drupal::service('renderer')->render($date_filter_form);
+      $this->content["date_filter{$elements['form_key']}"] = $date_filter_form;
     }
   }
 

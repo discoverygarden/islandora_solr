@@ -61,10 +61,11 @@
   // Datepicker
   Drupal.behaviors.islandoraSolrDatepicker = {
     attach: function(context, settings) {
-      if (!settings.islandoraSolrDatepickerRange) {
+      if (!settings.islandora_solr.islandoraSolrDatepickerRange) {
         return;
       }
-      var datepickerRange = settings.islandoraSolrDatepickerRange;
+      var datepickerRange = settings.islandora_solr.islandoraSolrDatepickerRange;
+      console.log(datepickerRange);
       $.each(datepickerRange, function() {
         var formKey = this.formKey;
         var yearRangeVal = this.datepickerRange;
@@ -82,9 +83,8 @@
   // Range slider
   Drupal.behaviors.islandoraSolrRangeSlider = {
     attach: function(context, settings) {
-
       // get year range variable
-      var rangeSliderVals = settings.islandoraSolrRangeSlider;
+      var rangeSliderVals = settings.islandora_solr.islandoraSolrRangeSlider;
       if (rangeSliderVals) {
         // loop over each range slider facet
         $.each(rangeSliderVals, function() {
@@ -262,7 +262,7 @@
               previousPoint = null;
             }
           });
-        }); // end $.each()
+        });
       }
     }
   }

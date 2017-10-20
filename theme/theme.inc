@@ -97,24 +97,6 @@ function template_preprocess_islandora_solr_facet(&$variables) {
 }
 
 /**
- * Returns HTML for an islandora_solr_facet_wrapper.
- *
- * @param array $variables
- *   An associative array containing:
- *   - title: A string to use as the header/title.
- *   - content: A string containing the content being wrapped.
- *
- * @ingroup themeable
- */
-function islandora_solr_facet_wrapper(array $variables) {
-  $output = '<div class="islandora-solr-facet-wrapper">';
-  $output .= '<h3>' . $variables['title'] . '</h3>';
-  $output .= $variables['content'];
-  $output .= '</div>';
-  return $output;
-}
-
-/**
  * Implements hook_preprocess_islandora_solr_search_navigation_block().
  */
 function template_preprocess_islandora_solr_search_navigation_block(&$variables) {

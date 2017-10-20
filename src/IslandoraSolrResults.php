@@ -575,17 +575,12 @@ class IslandoraSolrResults {
    */
   public function displayFacets($islandora_solr_query) {
     IslandoraSolrFacets::init($islandora_solr_query);
-    $output = '';
+    $output = [];
     $facet_order = $this->facetFieldArray;
     foreach ($facet_order as $facet_key => $facet_label) {
       $facet_obj = new IslandoraSolrFacets($facet_key);
-      $output .= $facet_obj->getFacet();
+      $output[$facet_key] = $facet_obj->getFacet();
     }
-
-    // As we add additional facets, we're repeatedly URL-encoding old facet
-    // strings. when we double-encode quotation marks they're incomprehensible
-    // to Solr.
-    $output = str_replace('%2B', '%252B', $output);
     return $output;
   }
 
