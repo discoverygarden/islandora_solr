@@ -21,11 +21,11 @@ class IslandoraSolrResultsGrid extends IslandoraSolrResults {
    * Markup and styling is based on the Islandora collection grid view. Some
    * styling is inherited from it.
    *
-   * @see IslandoraSolrResults::displayResults()
-   *
    * @param array $solr_results
    *   The processed Solr results from
    *   IslandoraSolrQueryProcessor::islandoraSolrResult.
+   *
+   * @see IslandoraSolrResults::displayResults()
    *
    * @return string
    *   Rendered Solr results.

@@ -2,8 +2,7 @@
 
 /**
  * @file
- * Contains methods to search solr and display results.  depends on
- * Apache_Solr_Php client.
+ * Contains methods to search Solr and display results.
  */
 
 use Drupal\Core\Url;
@@ -15,10 +14,10 @@ use Drupal\islandora_solr\IslandoraSolrResults;
 
 /**
  * Extention of IslandoraSolrResults for templating purposes.
+ *
  * This overrides the displayResults function to provide an alternate display
  * type.
  */
-
 class IslandoraSolrResultsRSS extends IslandoraSolrResults {
 
   /**
@@ -28,9 +27,11 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
    *
    * @param object $islandora_solr_query
    *   A solr query object.
+   * @param string $title
+   *   Title for the RSS feed.
    *
    * @return string
-   *   html output for the resultset. Note: we currently create this
+   *   Html output for the resultset. Note: we currently create this
    *   output manually, should refactor to use drupal forms api.
    */
   public function printRSS($islandora_solr_query, $title = "Search Results") {
@@ -94,7 +95,6 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
     exit;
   }
 
-
   /**
    * Function for setting the values of the <item> elements for the RSS display.
    *
@@ -136,7 +136,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
       [
         'key' => 'guid',
         'value' => $doc['PID'],
-        'attributes' => array('isPermaLink' => 'false'),
+        'attributes' => ['isPermaLink' => 'false'],
       ],
       [
         'key' => 'pubDate',
@@ -152,7 +152,8 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
       ],
       [
         'key' => 'source',
-        'value' => $rss_source, 'attributes' => ['url' => $base_url],
+        'value' => $rss_source,
+        'attributes' => ['url' => $base_url],
       ],
     ];
 
@@ -160,7 +161,8 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
       $result['items'][] = [
         'key' => 'enclosure',
         'value' => '', 'attributes' => [
-          'url' => $enclosure_url, 'length' => '',
+          'url' => $enclosure_url,
+          'length' => '',
           'type' => ''
         ],
       ];
@@ -184,10 +186,10 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
 
     // Set the variables to be rendered as elements in the <channel> element.
     $result = [];
-    $result['title'] = t('@site_name aggregator', array('@site_name' => \Drupal::config('system.site')->get('name')));
+    $result['title'] = t('@site_name aggregator', ['@site_name' => \Drupal::config('system.site')->get('name')]);
 
     $result['url'] = $base_url;
-    $result['description'] = t('Aggregated search results of: @query', array('@query' => $query));
+    $result['description'] = t('Aggregated search results of: @query', ['@query' => $query]);
     $result['langcode'] = NULL;
     $result['args'] = [
       [
@@ -238,12 +240,12 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
           }
           if (isset($value['value']) && $value['value'] != '') {
             $output .= '>' . (is_array($value['value']) ? $this->format_xml_elements($value['value']) : (!empty($value['encoded']) ? $value['value'] : SafeMarkup::checkPlain($value['value']))) . '</' . $value['key'] . ">\n";
-        }
-        else {
-          $output .= " />\n";
+          }
+          else {
+            $output .= " />\n";
+          }
         }
       }
-    }
       else {
         $output .= ' <' . $key . '>' . (is_array($value) ? $this->format_xml_elements($value) : SafeMarkup::checkPlain($value)) . "</{<span class=\"php-variable\">$key</span>}>\n";
       }

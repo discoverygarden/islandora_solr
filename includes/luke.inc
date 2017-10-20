@@ -93,10 +93,10 @@ function islandora_solr_get_luke($solr_url = NULL, $field = NULL, $num_terms = 0
     $luke_url = $solr_url . '/admin/luke';
     // Check for scheme specifier.
     $luke_url = islandora_solr_check_http($luke_url);
-    $luke_query = array(
+    $luke_query = [
       'wt' => 'json',
       'numTerms' => $num_terms,
-    );
+    ];
     if ($field) {
       $luke_query['fl'] = $field;
 
@@ -135,7 +135,6 @@ function islandora_solr_get_luke($solr_url = NULL, $field = NULL, $num_terms = 0
  * Returns an array containing all fields in Luke that are sortable.
  *
  * Must be indexed and can't be multivalued.
- * @link http://wiki.apache.org/solr/CommonQueryParameters#sort More info on constraints. @endlink
  *
  * @param string $solr_url
  *   URL which points to Solr.
@@ -167,7 +166,6 @@ function islandora_solr_get_sortable($solr_url = NULL) {
  * Checks a single Solr field if it's sortable.
  *
  * Must be indexed and can't be multivalued.
- * @link http://wiki.apache.org/solr/CommonQueryParameters#sort More info on constraints. @endlink
  *
  * @param string $solr_url
  *   URL which points to Solr.
@@ -207,7 +205,7 @@ function islandora_solr_check_highlighting_allowed($solr_field = NULL) {
   // Can't find proper documentation on which field types included in
   // highlighting breaks Solr and what types don't. For now add them to this
   // array.
-  $types_breaking_solr = array('date');
+  $types_breaking_solr = ['date'];
   $luke_field = islandora_solr_get_luke(NULL, $solr_field);
   if (isset($luke_field['fields'][$solr_field]['schema']) && isset($luke_field['fields'][$solr_field]['type'])) {
     $schema = $luke_field['fields'][$solr_field]['schema'];
