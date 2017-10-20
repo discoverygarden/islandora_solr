@@ -6,6 +6,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Template\Attribute;
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\islandora_solr\Form\IslandoraRangeSlider;
 
 /**
  * Islandora Solr Facets
@@ -665,7 +666,8 @@ class IslandoraSolrFacets {
     if (isset($old_build_id)) {
       $_POST['form_build_id'] = NULL;
     }
-    $range_slider_form = \Drupal::formBuilder()->getForm('islandora_solr_range_slider_form_' . $elements['form_key'], $elements);
+    $form_object = new IslandoraRangeSlider($elements['form_key']);
+    $range_slider_form = \Drupal::formBuilder()->getForm($form_object, $elements);
     if (isset($old_build_id)) {
       // XXX: Restore the build ID to $_POST, just in case.
       $_POST['form_build_id'] = $old_build_id;

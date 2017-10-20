@@ -22,3 +22,12 @@ toggle:
   dependencies:
     - core/jquery
     - core/drupal
+slider:
+  js:
+    js/flot/jquery.flot.min.js: {}
+    js/islandora_solr_facets.js: {}
+  dependencies:
+    - core/jquery.ui.slider
+    - core/drupalSettings
+    - core/jquery
+    - core/drupal
