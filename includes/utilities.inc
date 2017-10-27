@@ -7,6 +7,8 @@
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 use Drupal\Component\Utility\Xss;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 
 /**
  * Initialize a pager for theme('pager') without running an SQL query.
