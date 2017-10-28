@@ -41,3 +41,8 @@ ul#secondary-display-profiles {
 #islandora-solr-advanced-search-form div.form-item-islandora-solr-allow-preserve-filters {
   display: block;
 }
+
+/* Indicate current state when searching. */
+li a.active {
+  color: #000;
+}
