@@ -38,7 +38,7 @@ function islandora_solr_set_field_configuration($field_type, $field_name, $setti
  *   The type of field to query for. If not passed, the query returns all
  *   fields.
  * @params bool $filter
- *   If set to TRUE, it will filter the array agains user roles. If set to
+ *   If set to TRUE, it will filter the array against user roles. If set to
  *   FALSE, it will return all results.
  * @params bool $simplify
  *   Whether to return the fields array as a simple term => label array.
@@ -85,7 +85,7 @@ function islandora_solr_get_fields($field_type = NULL, $filter = TRUE, $simplifi
   // Fields as keys.
   if ($keys == TRUE && $simplified == FALSE) {
     $original = $records;
-    $records = array();
+    $records = [];
     foreach ($original as $field) {
       $records[$field['solr_field']] = $field;
     }
@@ -106,7 +106,6 @@ function islandora_solr_get_fields($field_type = NULL, $filter = TRUE, $simplifi
  */
 function _islandora_solr_filter_fields($records = []) {
   $user = \Drupal::currentUser();
-
   // No checks for user 1.
   if ($user->id() == 1) {
     return $records;
@@ -117,8 +116,8 @@ function _islandora_solr_filter_fields($records = []) {
     if (isset($record['solr_field_settings']) && !empty($record['solr_field_settings']) && $record['solr_field_settings']['permissions']) {
       // Get field permissions.
       $field_roles = $record['solr_field_settings']['permissions'];
-      // Check field permissions agains user roles.
-      $check = array_intersect($field_roles, array_keys($user->getRoles()));
+      // Check field permissions against user roles.
+      $check = array_intersect($field_roles, $user->getRoles());
       if (!empty($check)) {
         $filtered_records[] = $record;
       }
