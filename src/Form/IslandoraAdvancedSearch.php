@@ -41,6 +41,11 @@ class IslandoraAdvancedSearch extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     global $_islandora_solr_queryclass;
+    // @XXX: Need an offset so default value will be respected after ajax.
+    $storage = $form_state->getStorage();
+    $storage['builds'] = isset($storage['builds']) ? $storage['builds'] + 1 : 1;
+    $build = $storage['builds'];
+    $form_state->setStorage($storage);
 
     // 1: Form update using AJAX.
     $triggering_element = $form_state->getTriggeringElement();
@@ -126,19 +131,20 @@ class IslandoraAdvancedSearch extends FormBase {
       '#suffix' => '</div>',
       '#tree' => TRUE,
     ];
-    foreach ($values['terms'] as $i => $value) {
+    foreach ($values['terms'] as $i => $value_wrapper) {
+      $value = isset($value_wrapper[$build - 1]) ? $value_wrapper[$build - 1] : [];
       $term = [
         '#tree' => TRUE,
         '#prefix' => '<div>',
         '#suffix' => '</div>',
       ];
-      $term['field'] = [
+      $term[$build]['field'] = [
         '#title' => $this->t('Field'),
         '#type' => 'select',
         '#default_value' => isset($value['field']) ? $value['field'] : 'dc.title',
         '#options' => islandora_solr_get_fields('search_fields'),
       ];
-      $term['search'] = [
+      $term[$build]['search'] = [
         '#title' => $this->t('Search terms'),
         '#type' => 'textfield',
         '#size' => 20,
@@ -147,12 +153,12 @@ class IslandoraAdvancedSearch extends FormBase {
           ''),
       ];
       // Used for when the user presses enter on the search field.
-      $term['hidden_submit'] = [
+      $term[$build]['hidden_submit'] = [
         '#type' => 'submit',
         '#value' => $this->t('Search'),
         '#attributes' => ['style' => 'visibility:hidden;position:fixed;top:-1000px;right:-1000px;'],
       ];
-      $term['add'] = [
+      $term[$build]['add'] = [
         '#type' => 'button',
         '#value' => '+',
         '#attributes' => ['title' => $this->t('Add field')],
@@ -166,7 +172,7 @@ class IslandoraAdvancedSearch extends FormBase {
         ],
       ];
       if (count($values['terms']) > 1) {
-        $term['remove'] = [
+        $term[$build]['remove'] = [
           '#type' => 'button',
           '#field' => $i,
           '#value' => '-',
@@ -181,7 +187,7 @@ class IslandoraAdvancedSearch extends FormBase {
           ],
         ];
         if ((\Drupal::config('islandora_solr.settings')->get('islandora_solr_search_boolean') == 'user') && ((count($values['terms']) - 1) != $i)) {
-          $term['boolean'] = [
+          $term[$build]['boolean'] = [
             '#type' => 'select',
             '#prefix' => '<div>',
             '#suffix' => '</div>',
@@ -225,6 +231,8 @@ class IslandoraAdvancedSearch extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/utilities');
+    $storage = $form_state->getStorage();
+    $build = $storage['builds'];
 
     // Collect query values.
     $query_array = [];
@@ -234,7 +242,8 @@ class IslandoraAdvancedSearch extends FormBase {
     $lucene_syntax_escape = \Drupal::config('islandora_solr.settings')->get('islandora_solr_advanced_search_block_lucene_syntax_escape');
     $lucene_regex = \Drupal::config('islandora_solr.settings')->get('islandora_solr_advanced_search_block_lucene_regex_default');
 
-    foreach ($form_state->getValue('terms') as $term) {
+    foreach ($form_state->getValue('terms') as $term_wrapper) {
+      $term = $term_wrapper[$build];
       $field = islandora_solr_lesser_escape($term['field']);
       $search = trim($term['search']);
 
