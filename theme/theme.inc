@@ -94,6 +94,8 @@ function template_preprocess_islandora_solr_facet(&$variables) {
   if ($variables['hidden']) {
     $variables['classes_array'][] = 'hidden';
   }
+  $variables['classes_array'][] = 'islandora-solr-facet';
+  $variables['classes'] = implode(' ', $variables['classes_array']);
 }
 
 /**

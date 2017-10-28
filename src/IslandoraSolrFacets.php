@@ -78,21 +78,21 @@ class IslandoraSolrFacets {
     // XXX: isset() checking, as older Solrs (before 3.1) won't return a value.
     self::$facet_ranges = isset($islandora_solr_query->islandoraSolrResult['facet_counts']['facet_ranges']) ?
       $islandora_solr_query->islandoraSolrResult['facet_counts']['facet_ranges'] :
-      array();
+      [];
 
     // Filtered, not simplified and fields as keys.
     self::$facet_fields_settings = islandora_solr_get_fields('facet_fields', TRUE, FALSE, TRUE);
     self::$facet_fields_settings_simple = _islandora_solr_simplify_fields(self::$facet_fields_settings);
     self::$range_facets = islandora_solr_get_range_facets();
     self::$soft_limit = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_soft_limit');
-    self::$exclude_range_values = array(
+    self::$exclude_range_values = [
       'gap',
       'start',
       'end',
       'other',
       'hardend',
       'include',
-    );
+    ];
 
     // Calculate variable date gap.
     // @XXX move elsewhere?
@@ -463,7 +463,7 @@ class IslandoraSolrFacets {
       $this->content["visible_$facet_field"] = [
         '#theme' => 'islandora_solr_facet',
         '#buckets' => $buckets_hidden,
-        '#hidden' => FALSE,
+        '#hidden' => TRUE,
         '#pid' => $facet_field,
         '#attached' => ['library' => ['islandora_solr/facets_js']],
       ];
@@ -522,7 +522,7 @@ class IslandoraSolrFacets {
       }
       // Reverse and strip other side.
       $results = array_reverse($results);
-      $new_end = array();
+      $new_end = [];
       foreach ($results as $bucket => $count) {
         if ($count == 0) {
           unset($results[$bucket]);
