@@ -1,6 +1,6 @@
 <?php
 
- /**
+/**
  * @file
  * Contains \Drupal\islandora_solr\Controller\DefaultController.
  */
@@ -153,7 +153,7 @@ class DefaultController extends ControllerBase {
 
         // Add strong elements to highlight the found string.
         $result[] = [
-          'label' => $term_str . '<strong style="position: absolute; right: 5px;">(' . $value['type'] . ')</strong>',
+          'label' => $term_str . '<strong style="float:right;">(' . $value['type'] . ')</strong>',
           'value' => $term,
         ];
       }
