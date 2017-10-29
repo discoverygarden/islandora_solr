@@ -31,7 +31,7 @@ class IslandoraAdvancedSearch extends FormBase {
    *   The IslandoraSolrQueryProcessor object which includes the current query
    *   settings and the raw Solr results.
    *
-  * @param array $form
+   * @param array $form
    *   An associative array containing form structure.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   An form state.
@@ -79,7 +79,7 @@ class IslandoraAdvancedSearch extends FormBase {
 
       // Break up the solr query to populate the advanced search form.
       $i = 0;
-      foreach ($query_explode as $key => $value) {
+      foreach ($query_explode as $value) {
         $term = [];
 
         // Check for first colon to split the string.

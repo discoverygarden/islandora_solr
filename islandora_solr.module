@@ -7,8 +7,6 @@
 
 use Drupal\Core\Form\FormStateInterface;
 
-use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
-
 define('ISLANDORA_SOLR_SEARCH_PATH', 'islandora/search');
 define('ISLANDORA_SOLR_QUERY_SPLIT_REGEX', '/(?<!\\\\) /');
 define('ISLANDORA_SOLR_QUERY_FIELD_VALUE_SPLIT_REGEX', '/(?<!\\\\):/');

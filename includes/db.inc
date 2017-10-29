@@ -104,7 +104,7 @@ function islandora_solr_get_fields($field_type = NULL, $filter = TRUE, $simplifi
  *
  * @see islandora_solr_get_fields()
  */
-function _islandora_solr_filter_fields($records = []) {
+function _islandora_solr_filter_fields(array $records = []) {
   $user = \Drupal::currentUser();
   // No checks for user 1.
   if ($user->id() == 1) {

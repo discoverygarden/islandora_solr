@@ -5,6 +5,7 @@
  * Breadcrumb functions.
  */
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Link;
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
@@ -59,7 +60,7 @@ function islandora_solr_get_breadcrumbs_recursive($pid, array &$context = NULL) 
     $title = 'Islandora Repository';
     $mlid = db_select('menu_links', 'ml')
       ->condition('ml.link_path', 'islandora')
-      ->fields('ml', array('mlid'))
+      ->fields('ml', ['mlid'])
       ->execute()
       ->fetchField();
     if ($mlid) {
@@ -84,7 +85,7 @@ function islandora_solr_get_breadcrumbs_recursive($pid, array &$context = NULL) 
       // We found a parent.
       $context['level']--;
       return array_merge(islandora_solr_get_breadcrumbs_recursive($parent, $context), [
-         Link::createFromRoute($this_label, 'islandora.view_object', ['object' => $pid]),
+        Link::createFromRoute($this_label, 'islandora.view_object', ['object' => $pid]),
       ]);
     }
     else {
@@ -92,7 +93,7 @@ function islandora_solr_get_breadcrumbs_recursive($pid, array &$context = NULL) 
       // render the last two links and break (on the next pass).
       return array_merge(
         islandora_solr_get_breadcrumbs_recursive($context['root'], $context),
-        array('...')
+        ['...']
       );
     }
   }
@@ -113,11 +114,11 @@ function islandora_solr_get_breadcrumb_parent($pid) {
   $solr_query = "PID:(" . islandora_solr_lesser_escape($pid) . " OR " .
     islandora_solr_lesser_escape("info:fedora/" . $pid) . ")";
   $parent_fields = preg_split("/\\r\\n|\\n|\\r/", \Drupal::config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_parents'), -1, PREG_SPLIT_NO_EMPTY);
-  $solr_params = array(
+  $solr_params = [
     'fl' => implode(",", $parent_fields) . ',fgs_label_s,PID',
     'hl' => 'false',
     'facet' => 'false',
-  );
+  ];
   $solr_build->buildQuery($solr_query, $solr_params);
   $solr_build->solrParams = array_replace_recursive($solr_build->solrParams, $solr_params);
   $solr_build->solrParams = islandora_solr_remove_base_filters($solr_build->solrParams);
@@ -128,11 +129,11 @@ function islandora_solr_get_breadcrumb_parent($pid) {
     $results = (array) $solr_build->islandoraSolrResult['response']['objects'];
   }
   catch (Exception $e) {
-    $results = array();
-    drupal_set_message(\Drupal\Component\Utility\Html::escape(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error', FALSE);
+    $results = [];
+    drupal_set_message(Html::escape(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error', FALSE);
   }
 
-  $find_solr_value = function($o, $field) {
+  $find_solr_value = function ($o, $field) {
     if (isset($o[$field])) {
       return $o[$field];
     }
@@ -156,14 +157,14 @@ function islandora_solr_get_breadcrumb_parent($pid) {
         }
         // Strip prefix if there is one.
         $parent_pid = str_replace("info:fedora/", "", $parent_pid);
-        return array(
+        return [
           'PID' => $parent_pid,
           'label' => $find_solr_value($results[0], 'fgs_label_s'),
-        );
+        ];
       }
     }
   }
-  return array();
+  return [];
 }
 
 /**

@@ -152,7 +152,6 @@ function hook_islandora_solr_query_result(array $result) {
  * @} End of "addtogroup hooks".
  */
 
-
 /**
  * Implements hook_CMODEL_PID_islandora_solr_object_result_alter().
  */

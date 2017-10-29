@@ -7,6 +7,8 @@
 
 use Drupal\Core\Url;
 use Drupal\Core\Template\Attribute;
+use Drupal\Component\Utility\Unicode;
+use Drupal\Component\Utility\Html;
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 
@@ -30,7 +32,7 @@ function _islandora_solr_update_filter_table($form, &$form_state) {
  *
  * @see islandora_solr_advanced_search_form()
  */
-function _islandora_solr_advanced_search_terms($form, &$form_state) {
+function _islandora_solr_advanced_search_terms(array $form, array &$form_state) {
   return $form['terms'];
 }
 
@@ -87,7 +89,7 @@ function islandora_solr_display() {
 
           $attr = new Attribute();
           $class = [];
-          $class[] = 'display-' . \Drupal\Component\Utility\Unicode::strtolower(preg_replace('/[^A-Za-z0-9]/', '-', $key));
+          $class[] = 'display-' . Unicode::strtolower(preg_replace('/[^A-Za-z0-9]/', '-', $key));
           if ($key == $current_display) {
             $class[] = 'active';
           }
@@ -96,10 +98,9 @@ function islandora_solr_display() {
           $attr['title'] = $display_description;
           $attr['href'] = Url::fromRoute('<current>', [], ['query' => $query])->toString();
 
-
-          // XXX: We're not using l() because of
-          // @link http://drupal.org/node/41595 active classes. @endlink
-          $item['#markup'] = '<a' . $attr . '>' . \Drupal\Component\Utility\Html::escape($display_name) . '</a>';
+          // XXX: We're not using l() because of active classes.
+          // @link http://drupal.org/node/41595 @endlink
+          $item['#markup'] = '<a' . $attr . '>' . Html::escape($display_name) . '</a>';
 
           // Add link to list.
           $list_items[] = $item;
@@ -211,8 +212,8 @@ function islandora_solr_sort() {
 
       $hooks = islandora_build_hook_list(ISLANDORA_SOLR_FACET_BUCKET_CLASSES_HOOK_BASE);
       \Drupal::moduleHandler()->alter($hooks, $attributes, $_islandora_solr_queryclass);
-      // XXX: We're not using l() because of
-      // @link http://drupal.org/node/41595 active classes. @endlink
+      // XXX: We're not using l() because of active classes.
+      // @link http://drupal.org/node/41595 @endlink
       $item['#markup'] = '<a' . $attr . '>' . $label . ' ' . $indicator . '</a>';
 
       // Add link to list.
@@ -413,8 +414,8 @@ function islandora_solr_search_results_limit() {
 
         $attr['href'] = Url::fromRoute('<current>', [], ['query' => $query])->toString();
 
-        // XXX: We're not using l() because of
-        // @link http://drupal.org/node/41595 active classes. @endlink
+        // XXX: We're not using l() because of active classes.
+        // @link http://drupal.org/node/41595 @endlink
         $limit_list[]['#markup'] = '<a' . $attr . '>' . $limit . '</a>';
       }
     }

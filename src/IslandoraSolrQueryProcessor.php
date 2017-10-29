@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains methods to build and execute a solr query. Depends on
- * Apache_Solr_Php client.
- */
-
 namespace Drupal\islandora_solr;
 
 use Drupal\Core\Url;
@@ -21,18 +15,28 @@ use Drupal\islandora_solr\SolrPhpClient\Apache\Solr\Apache_Solr_Service;
 class IslandoraSolrQueryProcessor {
 
   public $solrQuery;
-  // Query alternative set if solrQuery is empty.
+  /**
+   * Query alternative set if solrQuery is empty.
+   */
   public $internalSolrQuery;
   public $solrStart;
   public $solrLimit;
   public $solrDefType;
-  // All other Solr parameters.
-  public $solrParams = array();
-  // Solr results tailored for Islandora's use.
+  /**
+   * All other Solr parameters.
+   */
+  public $solrParams = [];
+  /**
+   * Solr results tailored for Islandora's use.
+   */
   public $islandoraSolrResult;
-  // The current display (for modules wanting to alter the query of a display).
+  /**
+   * The current display (for modules wanting to alter the query of a display).
+   */
   public $display;
-  // Parameters from URL.
+  /**
+   * Parameters from URL.
+   */
   public $internalSolrParams;
   public $differentKindsOfNothing = [
     ' ',

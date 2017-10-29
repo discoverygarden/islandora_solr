@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\islandora_solr\Controller\DefaultController.
- */
-
 namespace Drupal\islandora_solr\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
@@ -33,8 +28,9 @@ class DefaultController extends ControllerBase {
    *   settings and the raw Solr results.
    *
    * @param string $query
-   *   The query string.
-   *
+   *   The Solr query string.
+   * @param array $params
+   *   The URL query array.
    * @return string
    *   A rendered Solr display
    */

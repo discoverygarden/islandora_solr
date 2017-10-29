@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains methods to create rendered Solr displays from raw Solr results.
- * Depends on Apache_Solr_Php client.
- */
-
 namespace Drupal\islandora_solr;
 
 use Drupal\Core\Url;

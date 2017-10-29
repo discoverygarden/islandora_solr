@@ -67,7 +67,7 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
  * @param array $context
  *   The context array for the current batch.
  */
-function islandora_solr_config_csv_batch_update_operation($islandora_solr_query, &$context) {
+function islandora_solr_config_csv_batch_update_operation($islandora_solr_query, array &$context) {
   $csv_batch_limit = 100;
   $sandbox = &$context['sandbox'];
 
@@ -118,7 +118,7 @@ function islandora_solr_config_csv_batch_update_operation($islandora_solr_query,
 /**
  * Copies file from tmp and appends headers on the front for export.
  *
- * @param boolean $success
+ * @param bool $success
  *   The success array from the batch.
  * @param array $results
  *   The results array from the batch.

@@ -144,7 +144,7 @@ function islandora_solr_get_luke($solr_url = NULL, $field = NULL, $num_terms = 0
  *   fields are sortable, it returns FALSE.
  */
 function islandora_solr_get_sortable($solr_url = NULL) {
-  $sortable = array();
+  $sortable = [];
   $luke = islandora_solr_get_luke($solr_url);
   // Check if fields are available.
   if (isset($luke['fields']) && !empty($luke['fields'])) {

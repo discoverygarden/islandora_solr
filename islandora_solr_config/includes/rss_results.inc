@@ -29,10 +29,6 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
    *   A solr query object.
    * @param string $title
    *   Title for the RSS feed.
-   *
-   * @return string
-   *   Html output for the resultset. Note: we currently create this
-   *   output manually, should refactor to use drupal forms api.
    */
   public function printRSS($islandora_solr_query, $title = "Search Results") {
     header('Content-Type: application/rss+xml; charset=utf-8');
@@ -160,10 +156,11 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
     if ($is_datastream) {
       $result['items'][] = [
         'key' => 'enclosure',
-        'value' => '', 'attributes' => [
+        'value' => '',
+        'attributes' => [
           'url' => $enclosure_url,
           'length' => '',
-          'type' => ''
+          'type' => '',
         ],
       ];
     }

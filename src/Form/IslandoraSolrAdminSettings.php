@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\islandora_solr\Form\IslandoraSolrAdminSettings.
- */
-
 namespace Drupal\islandora_solr\Form;
 
 use PDO;
@@ -30,7 +25,6 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
   protected function getEditableConfigNames() {
     return ['islandora_solr.settings'];
   }
-
 
   /**
    * {@inheritdoc}
@@ -184,7 +178,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
         '#title' => $this->t('Secondary display profiles'),
         '#options' => $islandora_solr_secondary_display_options,
         '#default_value' => $config->get('islandora_solr_secondary_display'),
-        '#description' => "Enabled secondary output/download types for search results.",
+        '#description' => $this->t('Enabled secondary output/download types for search results.'),
       ];
     }
     $form['islandora_solr_tabs'] = [
@@ -247,7 +241,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#type' => 'textfield',
       '#title' => $this->t('Field value separator'),
       '#description' => $this->t('Characters to separate values in multivalued fields. If left empty it will default to @value.', [
-        '@value' => '", "'
+        '@value' => '", "',
         ]),
       '#default_value' => $config->get('islandora_solr_search_field_value_separator'),
     ];
@@ -269,7 +263,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#open' => TRUE,
       '#title' => $this->t('Sort fields'),
       '#description' => $this->t('Indicates what fields should appear in the <strong>Islandora sort block</strong>. To sort on relevancy, use the \'score\' field.<br /><strong>Note:</strong> not all fields are sortable. For more information, check the <a href="@url">Solr documentation</a>. Displayed settings will update on save.', [
-        '@url' => 'http://wiki.apache.org/solr/CommonQueryParameters#sort'
+        '@url' => 'http://wiki.apache.org/solr/CommonQueryParameters#sort',
         ]),
       '#tree' => TRUE,
       '#prefix' => '<div id="islandora-solr-sort-fields-wrapper">',
@@ -648,7 +642,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     foreach ($current_values as $current_key => $current_value) {
       $found = FALSE;
       foreach ($records as $existing_key => $existing_value) {
-        if ($current_value['solr_field'] == $existing_value['solr_field'] && $current_value['field_type'] == $existing_value['field_type'] ) {
+        if ($current_value['solr_field'] == $existing_value['solr_field'] && $current_value['field_type'] == $existing_value['field_type']) {
           if ($current_value['weight'] != $existing_value['weight']) {
             $update_values[] = $current_value;
           }
@@ -670,7 +664,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     foreach ($records as $existing_key => $existing_value) {
       $found = FALSE;
       foreach ($current_values as $current_key => $current_value) {
-        if ($current_value['solr_field'] == $existing_value['solr_field'] && $current_value['field_type'] == $existing_value['field_type'] ) {
+        if ($current_value['solr_field'] == $existing_value['solr_field'] && $current_value['field_type'] == $existing_value['field_type']) {
           $found = TRUE;
           break;
         }

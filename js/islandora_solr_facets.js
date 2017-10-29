@@ -28,7 +28,7 @@
 
   // Show/hide date filter.
   Drupal.behaviors.islandoraSolrDateFilter = {
-    attach: function(context, settings) {
+    attach: function (context, settings) {
       // Set variables.
       var stringHide = Drupal.t('Hide');
       var stringShow = Drupal.t('Show');
@@ -38,7 +38,7 @@
         // Hide all regions that should be collapsed.
         $('.date-range-collapsed').parent('.date-filter-toggle-text').next('.date-range-filter-wrapper').css({'display': 'none'});
 
-        $('.toggle-date-range-filter').click(function() {
+        $('.toggle-date-range-filter').click(function () {
           // Toggle strings.
           if ($(this).html() == stringHide) {
             $(this).html(stringShow);
@@ -60,13 +60,13 @@
 
   // Datepicker.
   Drupal.behaviors.islandoraSolrDatepicker = {
-    attach: function(context, settings) {
+    attach: function (context, settings) {
       if (!settings.islandora_solr.islandoraSolrDatepickerRange) {
         return;
       }
       var datepickerRange = settings.islandora_solr.islandoraSolrDatepickerRange;
       console.log(datepickerRange);
-      $.each(datepickerRange, function() {
+      $.each(datepickerRange, function () {
         var formKey = this.formKey;
         var yearRangeVal = this.datepickerRange;
         // Set datepicker.
@@ -82,12 +82,12 @@
 
   // Range slider.
   Drupal.behaviors.islandoraSolrRangeSlider = {
-    attach: function(context, settings) {
+    attach: function (context, settings) {
       // Get year range variable.
       var rangeSliderVals = settings.islandora_solr.islandoraSolrRangeSlider;
       if (rangeSliderVals) {
         // Loop over each range slider facet.
-        $.each(rangeSliderVals, function() {
+        $.each(rangeSliderVals, function () {
           // Set variables.
           var sliderData = this.data;
           var form_key = this.form_key;
@@ -110,10 +110,10 @@
             min: sliderMin,
             max: sliderMax,
             step: sliderStep,
-            slide: function(event, ui) {
+            slide: function (event, ui) {
               slider_update(ui.values[0], ui.values[1]);
             },
-            slide: function(event, ui) {
+            slide: function (event, ui) {
               slider_update(ui.values[0], ui.values[1]);
             }
           });
@@ -136,7 +136,7 @@
             $(sliderId).slider('values', 0, fromVal);
             $(sliderId).slider('values', 1, toVal);
 
-            // assign to popup
+            // Assign to popup.
             $(sliderId + ' .slider-popup-from').html(formatFromDate);
             $(sliderId + ' .slider-popup-to').html(formatToDate);
 
@@ -154,17 +154,17 @@
           $(sliderId + ' .ui-slider-range').css({'background': rangeSliderColor});
 
           // Add classes to slider handles.
-          $(sliderId + ' > a:eq(0)').addClass('handle-min').prepend('<div class="slider-popup-from-wrapper slider-popup"><span class="slider-popup-from">' + sliderData[0].bucket + '</span></div>').hover(function() {
+          $(sliderId + ' > a:eq(0)').addClass('handle-min').prepend('<div class="slider-popup-from-wrapper slider-popup"><span class="slider-popup-from">' + sliderData[0].bucket + '</span></div>').hover(function () {
             $('#range-slider-tooltip').remove();
             $(this).find('.slider-popup-from-wrapper').stop(false, true).fadeIn(0);
-          }, function() {
+          }, function () {
             $(this).find('.slider-popup-from-wrapper').stop(false, true).fadeOut('slow');
           });
 
-          $(sliderId + ' > a:eq(1)').addClass('handle-max').prepend('<div class="slider-popup-to-wrapper slider-popup"><span class="slider-popup-to">' + sliderData[sliderData.length-1].bucket + '</span></div>').hover(function() {
+          $(sliderId + ' > a:eq(1)').addClass('handle-max').prepend('<div class="slider-popup-to-wrapper slider-popup"><span class="slider-popup-to">' + sliderData[sliderData.length - 1].bucket + '</span></div>').hover(function () {
             $('#range-slider-tooltip').remove();
             $(this).find('.slider-popup-to-wrapper').stop(false, true).fadeIn(0);
-          }, function() {
+          }, function () {
             $(this).find('.slider-popup-to-wrapper').stop(false, true).fadeOut('slow');
           });
 
@@ -186,28 +186,27 @@
               },
               bars: {
                 show: true,
-                lineWidth: 1, // in pixels
-                barWidth: 0.8, // in units of the x axis
+                lineWidth: 1, // In pixels.
+                barWidth: 0.8, // In units of the x axis.
                 fill: true,
                 fillColor: null,
-                align: "left", // or "center"
+                align: "left", // Or "center".
                 horizontal: false
               }
             },
             grid: {
               show: true,
-              labelMargin: null, // in pixels
-              axisMargin: null, // in pixels
-              borderWidth: null, // in pixels
+              labelMargin: null, // In pixels.
+              axisMargin: null, // In pixels.
+              borderWidth: null, // In pixels.
               markingsLineWidth: null,
-              // interactive stuff
+              // Interactive stuff.
               clickable: true,
               hoverable: true,
-              autoHighlight: false, // highlight in case mouse is near
-              mouseActiveRadius: 0 // how far the mouse can be away to activate an item
+              autoHighlight: false, // Highlight in case mouse is near.
+              mouseActiveRadius: 0 // How far the mouse can be away to activate an item.
             }
           });
-
 
           // Add plotclick event to update the sliders.
           $(canvasId).bind("plotclick", function (event, pos, item) {
@@ -224,7 +223,7 @@
             // Hide or remove all other popups.
             $('#range-slider-tooltip').remove();
             $('.slider-popup').hide();
-            $('<div id="range-slider-tooltip"></div>').css( {
+            $('<div id="range-slider-tooltip"></div>').css({
                 top: y - 50,
                 left: x - 125
             }).html('<span>' + contents + '</span>').appendTo("body").fadeIn(0);
@@ -237,7 +236,7 @@
                 previousPoint = item.dataIndex;
 
                 // Fadeout and remove.
-                $('#range-slider-tooltip').fadeOut('slow', function() {
+                $('#range-slider-tooltip').fadeOut('slow', function () {
                   $(this).remove();
                 });
 
@@ -255,7 +254,7 @@
             }
             else {
               // Fadeout and remove.
-              $('#range-slider-tooltip').fadeOut('slow', function() {
+              $('#range-slider-tooltip').fadeOut('slow', function () {
                 $(this).remove();
               });
               previousPoint = null;

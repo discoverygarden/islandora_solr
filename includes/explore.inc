@@ -13,8 +13,7 @@ use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
  * Generates the links for the Islandora explore block.
  *
  * @return output
- *  A rendered list containing explore links to islandora solr search and
- *  object counts.
+ *   A rendered list containing explore links to search and object counts.
  */
 function islandora_solr_explore_generate_links() {
   $output = '';
@@ -28,17 +27,17 @@ function islandora_solr_explore_generate_links() {
     $qp->solrParams['facet.mincount'] = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_min_limit');
     $qp->solrParams['facet.field'] = [];
     $qp->solrParams['fl'] = 'PID';
-    foreach ($expore_config as $index => $option) {
+    foreach ($expore_config as $option) {
       $qp->solrParams['facet.query'][] = $option['filter'];
     }
     $qp->executeQuery(FALSE);
-    foreach ($expore_config as $index => $option) {
+    foreach ($expore_config as $option) {
       $url = htmlspecialchars(urlencode($option['filter']));
       $links[]['#markup'] = Link::createFromRoute(
         htmlentities($option['label']),
         'islandora_solr.islandora_solr',
         ['query' => $url])
-      ->toString() . '&nbsp;<span>(' . htmlentities($qp->islandoraSolrResult['facet_counts']['facet_queries'][$option['filter']]) . ')</span>';
+        ->toString() . '&nbsp;<span>(' . htmlentities($qp->islandoraSolrResult['facet_counts']['facet_queries'][$option['filter']]) . ')</span>';
     }
   }
 
