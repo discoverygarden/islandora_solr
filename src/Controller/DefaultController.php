@@ -121,8 +121,8 @@ class DefaultController extends ControllerBase {
 
     // Debug dump.
     if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode')) {
-      $message = t('Parameters: <br /><pre>!debug</pre>', [
-        '!debug' => print_r($_islandora_solr_queryclass->solrParams, TRUE)
+      $message = t('Parameters: <br /><pre>@debug</pre>', [
+        '@debug' => print_r($_islandora_solr_queryclass->solrParams, TRUE)
         ]);
       drupal_set_message(\Drupal\Component\Utility\Xss::filter($message, [
         'pre',
