@@ -569,7 +569,11 @@ class IslandoraSolrResults {
    */
   public function displayFacets($islandora_solr_query) {
     IslandoraSolrFacets::init($islandora_solr_query);
-    $output = [];
+    $output = [
+      '#attached' => [
+        'library' => ['islandora_solr/facets-js'],
+      ],
+    ];
     $facet_order = $this->facetFieldArray;
     foreach ($facet_order as $facet_key => $facet_label) {
       $facet_obj = new IslandoraSolrFacets($facet_key);
