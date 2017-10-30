@@ -6,21 +6,31 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 
+use Drupal\islandora_solr\IslandoraSolrResults;
+
 /**
- * Provides a simple search block.
+ * Provides a faceting block.
  *
  * @Block(
- *   id = "islandora_solr_simple_search",
- *   admin_label = @Translation("Islandora simple search"),
+ *   id = "islandora_solr_basic_facets",
+ *   admin_label = @Translation("Islandora facets"),
  * )
  */
-class IslandoraSimpleSearch extends BlockBase {
+class Facets extends BlockBase {
 
   /**
    * {@inheritdoc}
    */
   public function build() {
-    return \Drupal::formBuilder()->getForm('Drupal\islandora_solr\Form\IslandoraSimpleSearch');
+    global $_islandora_solr_queryclass;
+    if (!islandora_solr_results_page($_islandora_solr_queryclass)) {
+      return;
+    }
+    $results = new IslandoraSolrResults();
+    $output = $results->displayFacets($_islandora_solr_queryclass);
+    if ($output) {
+      return $output;
+    }
   }
 
   /**

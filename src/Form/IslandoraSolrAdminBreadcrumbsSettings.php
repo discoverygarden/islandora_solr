@@ -1,15 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\islandora_solr\Form\IslandoraSolrAdminBreadcrumbsSettings.
- */
-
 namespace Drupal\islandora_solr\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 
 /**
@@ -39,11 +33,11 @@ class IslandoraSolrAdminBreadcrumbsSettings extends ConfigFormBase {
       '#type' => 'fieldset',
       '#title' => $this->t('Breadcrumbs'),
     ];
-    $form['islandora_solr_breadcrumbs_admin']['admin'] = array(
+    $form['islandora_solr_breadcrumbs_admin']['admin'] = [
       '#type' => 'link',
       '#title' => $this->t('Enable Islandora Solr for Breadcrumbs'),
       '#url' => Url::fromRoute('islandora.repository_admin'),
-    );
+    ];
     $form['islandora_solr_breadcrumbs_admin']['islandora_solr_breadcrumbs_parent_fields'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Solr Parent Fields'),

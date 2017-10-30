@@ -7,20 +7,24 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 
 /**
- * Provides a simple search block.
+ * Provides a block for choosing the paging size of results.
  *
  * @Block(
- *   id = "islandora_solr_simple_search",
- *   admin_label = @Translation("Islandora simple search"),
+ *   id = "islandora_solr_result_limit",
+ *   admin_label = @Translation("Islandora search result limit"),
  * )
  */
-class IslandoraSimpleSearch extends BlockBase {
+class ResultLimit extends BlockBase {
 
   /**
    * {@inheritdoc}
    */
   public function build() {
-    return \Drupal::formBuilder()->getForm('Drupal\islandora_solr\Form\IslandoraSimpleSearch');
+    module_load_include('inc', 'islandora_solr', 'includes/blocks');
+    $limits = islandora_solr_search_results_limit();
+    if ($limits) {
+      return ['#markup' => $limits];
+    }
   }
 
   /**

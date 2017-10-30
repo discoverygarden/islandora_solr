@@ -5,6 +5,8 @@
  * Class to assist in field truncation, paying special attention to HTML.
  */
 
+use Drupal\Component\Utility\Unicode;
+
 /**
  * Islandora Field Truncation.
  */
@@ -94,7 +96,7 @@ EOXML;
    *   The remaining truncation length.
    */
   protected function truncateText($text, $remaining) {
-    return \Drupal\Component\Utility\Unicode::truncate(
+    return Unicode::truncate(
       $text,
       $remaining,
       $this->wordSafe,
@@ -138,7 +140,7 @@ EOXML;
         case XML_TEXT_NODE:
         case XML_CDATA_SECTION_NODE:
           $current = $child->nodeValue;
-          $current_length = \Drupal\Component\Utility\Unicode::strlen($current);
+          $current_length = Unicode::strlen($current);
 
           $this->writer->text($this->truncateText($current, $remaining));
           $remaining -= $current_length;

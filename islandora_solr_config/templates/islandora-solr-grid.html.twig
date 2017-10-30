@@ -1,0 +1,29 @@
+{#
+/**
+ * @file
+ * Islandora Solr grid template
+ *
+ * Variables available:
+ * - $results: Primary profile results array
+ *
+ * @see template_preprocess_islandora_solr_grid()
+ */
+#}
+{% if results is empty %}
+  <p class="no-results">{{ 'Sorry, but your search returned no results.'|t }}</p>
+{% else %}
+  <div class="islandora-solr-search-results">
+    <div class="islandora-solr-grid clearfix">
+    {% for result in results %}
+      <dl class="solr-grid-field">
+        <dt class="solr-grid-thumb">
+          {{ result.thumbnail_link }}
+        </dt>
+        <dd class="solr-grid-caption">
+          {{ result.label_link }}
+        </dd>
+      </dl>
+    {% endfor %}
+    </div>
+  </div>
+{% endif %}

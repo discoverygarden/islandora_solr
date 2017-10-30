@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains methods to build and execute a solr query. Depends on
- * Apache_Solr_Php client.
- */
-
 namespace Drupal\islandora_solr;
 
 use Drupal\Core\Url;
@@ -21,48 +15,58 @@ use Drupal\islandora_solr\SolrPhpClient\Apache\Solr\Apache_Solr_Service;
 class IslandoraSolrQueryProcessor {
 
   public $solrQuery;
-  // Query alternative set if solrQuery is empty.
+  /**
+   * Query alternative set if solrQuery is empty.
+   */
   public $internalSolrQuery;
   public $solrStart;
   public $solrLimit;
   public $solrDefType;
-  // All other Solr parameters.
-  public $solrParams = array();
-  // Solr results tailored for Islandora's use.
+  /**
+   * All other Solr parameters.
+   */
+  public $solrParams = [];
+  /**
+   * Solr results tailored for Islandora's use.
+   */
   public $islandoraSolrResult;
-  // The current display (for modules wanting to alter the query of a display).
+  /**
+   * The current display (for modules wanting to alter the query of a display).
+   */
   public $display;
-  // Parameters from URL.
+  /**
+   * Parameters from URL.
+   */
   public $internalSolrParams;
-  public $differentKindsOfNothing = array(
+  public $differentKindsOfNothing = [
     ' ',
     '%20',
     '%252F',
     '%2F',
     '%252F-',
     '',
-  );
+  ];
 
   /**
-   * Handle deprectation of old class member gracefully.
+   * Handle deprecation of old class member gracefully.
    */
   public function __get($name) {
-    $map = array(
+    $map = [
       'different_kinds_of_nothing' => 'differentKindsOfNothing',
-    );
+    ];
 
     if (isset($map[$name])) {
       $new_name = $map[$name];
       $trace = debug_backtrace();
 
-      $message = t('Use of variable name "@class->@old_name" on line @line of @file deprecated as of version @version. Refactor to use "@class->@name" before the next release.', array(
+      $message = t('Use of variable name "@class->@old_name" on line @line of @file deprecated as of version @version. Refactor to use "@class->@name" before the next release.', [
         '@old_name' => $name,
         '@name' => $new_name,
         '@class' => __CLASS__,
         '@version' => '7.x-1.2',
         '@line' => $trace[0]['line'],
         '@file' => $trace[0]['file'],
-      ));
+      ]);
 
       trigger_error($message, E_USER_DEPRECATED);
 
@@ -109,7 +113,7 @@ class IslandoraSolrQueryProcessor {
    * @param array $params
    *   All URL parameters from the Solr results page.
    */
-  public function buildQuery($query, $params = array()) {
+  public function buildQuery($query, $params = []) {
     // Set internal parameters gathered from the URL but not 'q' and 'page'.
     $this->internalSolrParams = $params;
     unset($this->internalSolrParams['q']);
@@ -190,12 +194,12 @@ class IslandoraSolrQueryProcessor {
     $facet_fields = implode(",", array_keys($facet_array));
 
     // Set params.
-    $params_array = array(
+    $params_array = [
       'facet' => 'true',
       'facet.mincount' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_min_limit'),
       'facet.limit' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_max_limit'),
       'facet.field' => explode(',', $facet_fields),
-    );
+    ];
 
     $request_handler = \Drupal::config('islandora_solr.settings')->get('islandora_solr_request_handler');
     if ($request_handler) {
@@ -362,26 +366,27 @@ class IslandoraSolrQueryProcessor {
       if (!empty($object_results)) {
         if (isset($this->internalSolrParams['islandora_solr_search_navigation']) && $this->internalSolrParams['islandora_solr_search_navigation']) {
           $id = bin2hex(\Drupal\Component\Utility\Crypt::randomBytes(10));
-          $page_params = \Drupal\Component\Utility\UrlHelper::filterQueryParameters();
+          $page_params = \Drupal::request()->query->all();
           $search_nav_qp = $this;
           $search_nav_qp->islandoraSolrResult = NULL;
-          $_SESSION['islandora_solr_search_nav_params'][$id] = array(
-            'path' => \Drupal\Core\Url::fromRoute("<current>")->toString(),
+          $_SESSION['islandora_solr_search_nav_params'][$id] = [
+            'path' => Url::fromRoute("<current>", [], ['absolute' => TRUE])->toString(),
             'query' => $this->solrQuery,
             'query_internal' => $this->internalSolrQuery,
             'limit' => $this->solrLimit,
             'params' => $this->solrParams,
             'params_internal' => $this->internalSolrParams,
-          );
+          ];
 
-          $url_params = array(
-            'solr_nav' => array(
+          $url_params = [
+            'solr_nav' => [
               'id' => $id,
               'page' => (isset($page_params['page']) ? $page_params['page'] : 0),
-            ));
+            ],
+          ];
         }
         else {
-          $url_params = array();
+          $url_params = [];
         }
 
         foreach ($object_results as $object_index => $object_result) {

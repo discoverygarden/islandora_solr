@@ -7,20 +7,20 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 
 /**
- * Provides a simple search block.
+ * Provides an advanced search block.
  *
  * @Block(
- *   id = "islandora_solr_simple_search",
- *   admin_label = @Translation("Islandora simple search"),
+ *   id = "islandora_solr_advanced",
+ *   admin_label = @Translation("Islandora advanced search"),
  * )
  */
-class IslandoraSimpleSearch extends BlockBase {
+class IslandoraAdvancedSearch extends BlockBase {
 
   /**
    * {@inheritdoc}
    */
   public function build() {
-    return \Drupal::formBuilder()->getForm('Drupal\islandora_solr\Form\IslandoraSimpleSearch');
+    return \Drupal::formBuilder()->getForm('Drupal\islandora_solr\Form\IslandoraAdvancedSearch');
   }
 
   /**

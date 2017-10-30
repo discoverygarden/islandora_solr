@@ -1,0 +1,34 @@
+{#
+/**
+ * @file
+ * Islandora solr table template
+ *
+ * Variables available:
+ * - $header: Header results
+ * - $rows: Row results
+ * - $elements: Optional elements
+ *
+ * @see template_preprocess_islandora_solr_grid()
+ */
+#}
+
+{% if rows is empty %}
+  <p class="no-results">{{ 'Sorry, but your search returned no results.'|t }}</p>
+{% else %}
+  <table class="{{ table_class }}">
+    {% for key, value in header %}
+      <th>
+        {{ value }}
+      </th>
+    {% endfor %}
+    {% for key, row in rows %}
+      <tr>
+      {% for key, value in row %}
+        <td>
+          {{ value }}
+        </td>
+      {% endfor %}
+      </tr>
+    {% endfor %}
+  </table>
+{% endif %}

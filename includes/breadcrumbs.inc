@@ -5,7 +5,11 @@
  * Breadcrumb functions.
  */
 
-use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Link;
+
+use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\islandora_solr\IslandoraSolrResults;
 
 /**
  * Implements callback_islandora_breadcrumbs_backends.
@@ -14,12 +18,7 @@ function islandora_solr_islandora_breadcrumbs_backends_callable($object) {
   $breadcrumbs = islandora_solr_get_breadcrumbs_recursive($object->id);
   // Pop off the current object.
   array_pop($breadcrumbs);
-  // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $query_backend = variable_get('islandora_basic_collection_display_backend', 'islandora_basic_collection_legacy_sparql');
-
+  $query_backend = \Drupal::config('islandora_basic_collection.settings')->get('islandora_basic_collection_display_backend');
   if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_add_collection_query') && $query_backend == 'islandora_solr_query_backend') {
     global $_islandora_solr_queryclass;
     if (isset($_islandora_solr_queryclass)) {
@@ -54,32 +53,24 @@ function islandora_solr_get_breadcrumbs_recursive($pid, array &$context = NULL) 
     $context['level'] = 10;
   }
   if (!isset($context['root'])) {
-    // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $root = variable_get('islandora_repository_pid', 'islandora:root');
-
+    $root = \Drupal::config('islandora.settings')->get('islandora_repository_pid');
     $context['root'] = $root;
   }
   if ($pid == $context['root']) {
     $title = 'Islandora Repository';
     $mlid = db_select('menu_links', 'ml')
       ->condition('ml.link_path', 'islandora')
-      ->fields('ml', array('mlid'))
+      ->fields('ml', ['mlid'])
       ->execute()
       ->fetchField();
     if ($mlid) {
       $link = menu_link_load($mlid);
       $title = (isset($link['title']) ? $link['title'] : $title);
     }
-    // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// return array(
-//       l(t('Home'), '<front>'),
-//       l($title, 'islandora'),
-//     );
-
+    return [
+      Link::createFromRoute(t('Home'), '<front>'),
+      Link::createFromRoute($title, 'islandora.view_default_object'),
+    ];
   }
   else {
     $parents = islandora_solr_get_breadcrumb_parent($pid);
@@ -93,19 +84,16 @@ function islandora_solr_get_breadcrumbs_recursive($pid, array &$context = NULL) 
     if (isset($parent)) {
       // We found a parent.
       $context['level']--;
-      // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// return array_merge(islandora_solr_get_breadcrumbs_recursive($parent, $context), array(
-//         l($this_label, "islandora/object/$pid"),
-//       ));
-
+      return array_merge(islandora_solr_get_breadcrumbs_recursive($parent, $context), [
+        Link::createFromRoute($this_label, 'islandora.view_object', ['object' => $pid]),
+      ]);
     }
     else {
       // Add an non-link, as we don't know how to get back to the root, and
       // render the last two links and break (on the next pass).
       return array_merge(
         islandora_solr_get_breadcrumbs_recursive($context['root'], $context),
-        array('...')
+        ['...']
       );
     }
   }
@@ -126,11 +114,11 @@ function islandora_solr_get_breadcrumb_parent($pid) {
   $solr_query = "PID:(" . islandora_solr_lesser_escape($pid) . " OR " .
     islandora_solr_lesser_escape("info:fedora/" . $pid) . ")";
   $parent_fields = preg_split("/\\r\\n|\\n|\\r/", \Drupal::config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_parents'), -1, PREG_SPLIT_NO_EMPTY);
-  $solr_params = array(
+  $solr_params = [
     'fl' => implode(",", $parent_fields) . ',fgs_label_s,PID',
     'hl' => 'false',
     'facet' => 'false',
-  );
+  ];
   $solr_build->buildQuery($solr_query, $solr_params);
   $solr_build->solrParams = array_replace_recursive($solr_build->solrParams, $solr_params);
   $solr_build->solrParams = islandora_solr_remove_base_filters($solr_build->solrParams);
@@ -141,11 +129,11 @@ function islandora_solr_get_breadcrumb_parent($pid) {
     $results = (array) $solr_build->islandoraSolrResult['response']['objects'];
   }
   catch (Exception $e) {
-    $results = array();
-    drupal_set_message(\Drupal\Component\Utility\Html::escape(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error', FALSE);
+    $results = [];
+    drupal_set_message(Html::escape(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error', FALSE);
   }
 
-  $find_solr_value = function($o, $field) {
+  $find_solr_value = function ($o, $field) {
     if (isset($o[$field])) {
       return $o[$field];
     }
@@ -169,14 +157,14 @@ function islandora_solr_get_breadcrumb_parent($pid) {
         }
         // Strip prefix if there is one.
         $parent_pid = str_replace("info:fedora/", "", $parent_pid);
-        return array(
+        return [
           'PID' => $parent_pid,
           'label' => $find_solr_value($results[0], 'fgs_label_s'),
-        );
+        ];
       }
     }
   }
-  return array();
+  return [];
 }
 
 /**
@@ -190,12 +178,7 @@ function islandora_solr_get_breadcrumb_parent($pid) {
  */
 function islandora_solr_clean_compound_filters(array $params) {
   if (\Drupal::moduleHandler()->moduleExists('islandora_compound_object') && is_array($params) && isset($params['fq'])) {
-    // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $compound_filters = array(variable_get('islandora_compound_object_solr_fq', '-RELS_EXT_isConstituentOf_uri_mt:[* TO *]'));
-
+    $compound_filters = \Drupal::config('islandora_compound_object.settings')->get('islandora_compound_object_solr_fq');
     $params['fq'] = array_diff($params['fq'], $compound_filters);
   }
   return $params;

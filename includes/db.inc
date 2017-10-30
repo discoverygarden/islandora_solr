@@ -2,8 +2,10 @@
 
 /**
  * @file
- * This file contains DB query functions
+ * This file contains DB query functions.
  */
+
+use Drupal\Core\Url;
 
 /**
  * Get the configuration of a Solr field.
@@ -11,8 +13,8 @@
 function islandora_solr_get_field_configuration($field_type, $field_name) {
   $query = \Drupal::database()->select('islandora_solr_fields', 'isf');
   $query->fields('isf', ['solr_field_settings'])
-        ->condition('field_type', $field_type)
-        ->condition('solr_field', $field_name);
+    ->condition('field_type', $field_type)
+    ->condition('solr_field', $field_name);
   $result = $query->execute();
   $records = $result->fetchAll(PDO::FETCH_ASSOC);
   return unserialize(reset($records)['solr_field_settings']);
@@ -25,8 +27,8 @@ function islandora_solr_set_field_configuration($field_type, $field_name, $setti
   $query = \Drupal::database()->update('islandora_solr_fields');
   $query->fields(['solr_field_settings' => serialize($settings)]);
   $query->condition('field_type', $field_type)
-        ->condition('solr_field', $field_name)
-        ->execute();
+    ->condition('solr_field', $field_name)
+    ->execute();
 }
 
 /**
@@ -36,7 +38,7 @@ function islandora_solr_set_field_configuration($field_type, $field_name, $setti
  *   The type of field to query for. If not passed, the query returns all
  *   fields.
  * @params bool $filter
- *   If set to TRUE, it will filter the array agains user roles. If set to
+ *   If set to TRUE, it will filter the array against user roles. If set to
  *   FALSE, it will return all results.
  * @params bool $simplify
  *   Whether to return the fields array as a simple term => label array.
@@ -47,8 +49,6 @@ function islandora_solr_set_field_configuration($field_type, $field_name, $setti
  * @see islandora_solr_get_fields()
  */
 function islandora_solr_get_fields($field_type = NULL, $filter = TRUE, $simplified = TRUE, $keys = FALSE) {
-  global $base_path;
-
   // Fields query.
   $query = db_select('islandora_solr_fields', 'isf');
   $query->fields('isf');
@@ -62,7 +62,7 @@ function islandora_solr_get_fields($field_type = NULL, $filter = TRUE, $simplifi
   }
   catch (Exception $e) {
     if ($e->errorInfo[0] == '42S02') {
-      drupal_set_message(t('Islandora Solr fields table not found. Try running <a href="@update_url">update.php</a>.', array('@update_url' => \Drupal\Core\Url::fromRoute('system.db_update'))), 'error');
+      drupal_set_message(t('Islandora Solr fields table not found. Try running <a href="@update_url">update.php</a>.', ['@update_url' => Url::fromRoute('system.db_update')]), 'error');
     }
     else {
       drupal_set_message($e->getMessage(), 'error');
@@ -85,7 +85,7 @@ function islandora_solr_get_fields($field_type = NULL, $filter = TRUE, $simplifi
   // Fields as keys.
   if ($keys == TRUE && $simplified == FALSE) {
     $original = $records;
-    $records = array();
+    $records = [];
     foreach ($original as $field) {
       $records[$field['solr_field']] = $field;
     }
@@ -104,21 +104,20 @@ function islandora_solr_get_fields($field_type = NULL, $filter = TRUE, $simplifi
  *
  * @see islandora_solr_get_fields()
  */
-function _islandora_solr_filter_fields($records = []) {
+function _islandora_solr_filter_fields(array $records = []) {
   $user = \Drupal::currentUser();
-
   // No checks for user 1.
   if ($user->id() == 1) {
     return $records;
   }
   $filtered_records = [];
-  foreach ($records as $key => $record) {
+  foreach ($records as $record) {
     // If field settings are set, check permissions.
     if (isset($record['solr_field_settings']) && !empty($record['solr_field_settings']) && $record['solr_field_settings']['permissions']) {
       // Get field permissions.
       $field_roles = $record['solr_field_settings']['permissions'];
-      // Check field permissions agains user roles.
-      $check = array_intersect($field_roles, array_keys($user->getRoles()));
+      // Check field permissions against user roles.
+      $check = array_intersect($field_roles, $user->getRoles());
       if (!empty($check)) {
         $filtered_records[] = $record;
       }
@@ -142,10 +141,10 @@ function _islandora_solr_filter_fields($records = []) {
  *
  * @see islandora_solr_get_fields()
  */
-function _islandora_solr_simplify_fields($fields = []) {
+function _islandora_solr_simplify_fields(array $fields = []) {
   // Render as term => label.
   $records = [];
-  foreach ($fields as $key => $value) {
+  foreach ($fields as $value) {
     $term = $value['solr_field'];
     if (isset($value['solr_field_settings']['label']) && !empty($value['solr_field_settings']['label'])) {
       $label = $value['solr_field_settings']['label'];
@@ -164,7 +163,7 @@ function _islandora_solr_simplify_fields($fields = []) {
 function islandora_solr_get_snippet_fields() {
   $records = islandora_solr_get_fields('result_fields', TRUE, FALSE);
   $snippet_fields = [];
-  foreach ($records as $key => $value) {
+  foreach ($records as $value) {
     if (isset($value['solr_field_settings']['snippet']) && $value['solr_field_settings']['snippet'] == 1) {
       $snippet_fields[] = $value['solr_field'];
     }
@@ -178,7 +177,7 @@ function islandora_solr_get_snippet_fields() {
 function islandora_solr_get_link_to_object_fields() {
   $records = islandora_solr_get_fields('result_fields', TRUE, FALSE);
   $link_to_object_fields = [];
-  foreach ($records as $key => $value) {
+  foreach ($records as $value) {
     if (isset($value['solr_field_settings']['link_to_object']) && $value['solr_field_settings']['link_to_object'] == 1) {
       $link_to_object_fields[] = $value['solr_field'];
     }
@@ -221,7 +220,7 @@ function islandora_solr_get_truncate_length_fields() {
 function islandora_solr_get_link_to_search_fields() {
   $records = islandora_solr_get_fields('result_fields', TRUE, FALSE);
   $link_to_search_fields = [];
-  foreach ($records as $key => $value) {
+  foreach ($records as $value) {
     if (isset($value['solr_field_settings']['link_to_search']) && $value['solr_field_settings']['link_to_search'] == 1) {
       $link_to_search_fields[] = $value['solr_field'];
     }
@@ -235,7 +234,7 @@ function islandora_solr_get_link_to_search_fields() {
 function islandora_solr_get_date_format_fields() {
   $records = islandora_solr_get_fields('result_fields', TRUE, FALSE);
   $date_format = [];
-  foreach ($records as $key => $value) {
+  foreach ($records as $value) {
     if (isset($value['solr_field_settings']['date_format']) && !empty($value['solr_field_settings']['date_format'])) {
       $date_format[$value['solr_field']] = $value['solr_field_settings']['date_format'];
     }
@@ -249,7 +248,7 @@ function islandora_solr_get_date_format_fields() {
 function islandora_solr_get_range_facets() {
   $records = islandora_solr_get_fields('facet_fields', TRUE, FALSE);
   $range_facets = [];
-  foreach ($records as $key => $value) {
+  foreach ($records as $value) {
     if (isset($value['solr_field_settings']['range_facet_select']) && $value['solr_field_settings']['range_facet_select'] == 1) {
       $range_facets[] = $value;
     }
@@ -330,11 +329,11 @@ function islandora_solr_set_collection_sort_string($pid, $string) {
   if ($current !== $string) {
     if (!empty($string)) {
       db_merge('islandora_solr_collection_sort_strings')
-        ->key(array('collection_pid' => $pid))
-        ->fields(array(
+        ->key(['collection_pid' => $pid])
+        ->fields([
           'collection_pid' => $pid,
           'sort_string' => $string,
-        ))
+        ])
         ->execute();
       drupal_set_message(t('Sort string for @collection set to "@sort_string".', $message_args));
     }

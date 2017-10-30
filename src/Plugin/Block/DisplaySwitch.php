@@ -7,20 +7,21 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 
 /**
- * Provides a simple search block.
+ * Provides block for switching the display.
  *
  * @Block(
- *   id = "islandora_solr_simple_search",
- *   admin_label = @Translation("Islandora simple search"),
+ *   id = "islandora_solr_display_switch",
+ *   admin_label = @Translation("Islandora displays"),
  * )
  */
-class IslandoraSimpleSearch extends BlockBase {
+class DisplaySwitch extends BlockBase {
 
   /**
    * {@inheritdoc}
    */
   public function build() {
-    return \Drupal::formBuilder()->getForm('Drupal\islandora_solr\Form\IslandoraSimpleSearch');
+    module_load_include('inc', 'islandora_solr', 'includes/blocks');
+    return islandora_solr_display();
   }
 
   /**

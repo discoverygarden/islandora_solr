@@ -2,10 +2,15 @@
 
 namespace Drupal\islandora_solr;
 
-use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\Core\Url;
+use Drupal\Core\Template\Attribute;
+
+use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\islandora_solr\Form\IslandoraDateFilter;
+use Drupal\islandora_solr\Form\IslandoraRangeSlider;
 
 /**
- * Islandora Solr Facets
+ * Islandora Solr Facets.
  */
 class IslandoraSolrFacets {
   public static $islandoraSolrQuery;
@@ -36,7 +41,9 @@ class IslandoraSolrFacets {
   public $facet_type;
   public $results;
   public $title = NULL;
-  public $content = NULL;
+  public $content = [];
+
+  protected $sliderKey = NULL;
 
 
   // @codingStandardsIgnoreEnd
@@ -65,27 +72,27 @@ class IslandoraSolrFacets {
    */
   public static function init($islandora_solr_query) {
     self::$islandoraSolrQuery = $islandora_solr_query;
-    self::$facet_fields = isset($islandora_solr_query->islandoraSolrResult) ? $islandora_solr_query->islandoraSolrResult['facet_counts']['facet_fields'] : array();
-    self::$facet_dates = isset($islandora_solr_query->islandoraSolrResult) ? $islandora_solr_query->islandoraSolrResult['facet_counts']['facet_dates'] : array();
+    self::$facet_fields = isset($islandora_solr_query->islandoraSolrResult) ? $islandora_solr_query->islandoraSolrResult['facet_counts']['facet_fields'] : [];
+    self::$facet_dates = isset($islandora_solr_query->islandoraSolrResult) ? $islandora_solr_query->islandoraSolrResult['facet_counts']['facet_dates'] : [];
     // Not in place yet.
     // XXX: isset() checking, as older Solrs (before 3.1) won't return a value.
     self::$facet_ranges = isset($islandora_solr_query->islandoraSolrResult['facet_counts']['facet_ranges']) ?
       $islandora_solr_query->islandoraSolrResult['facet_counts']['facet_ranges'] :
-      array();
+      [];
 
     // Filtered, not simplified and fields as keys.
     self::$facet_fields_settings = islandora_solr_get_fields('facet_fields', TRUE, FALSE, TRUE);
     self::$facet_fields_settings_simple = _islandora_solr_simplify_fields(self::$facet_fields_settings);
     self::$range_facets = islandora_solr_get_range_facets();
     self::$soft_limit = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_soft_limit');
-    self::$exclude_range_values = array(
+    self::$exclude_range_values = [
       'gap',
       'start',
       'end',
       'other',
       'hardend',
       'include',
-    );
+    ];
 
     // Calculate variable date gap.
     // @XXX move elsewhere?
@@ -107,27 +114,17 @@ class IslandoraSolrFacets {
     $this->findFacetType();
     $this->getFacetResults();
     if (empty($this->results)) {
-      return;
+      return [];
     }
     $this->processFacets();
     if (empty($this->content)) {
-      return;
+      return [];
     }
-    $elements = array(
-      'title' => $this->title,
+    return [
+      '#prefix' => '<div class="islandora-solr-facet-wrapper"><h3>' . $this->title . '</h3>',
       'content' => $this->content,
-      'pid' => $this->facet_field,
-    );
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// return theme('islandora_solr_facet_wrapper', $elements);
-
+      '#suffix' => '</div>',
+    ];
   }
 
   /**
@@ -268,18 +265,18 @@ class IslandoraSolrFacets {
   public function prepareFacetFields() {
     $results = $this->results;
     $facet_field = $this->facet_field;
-    $facet_results = array();
+    $facet_results = [];
     module_load_include('inc', 'islandora_solr', 'includes/utilities');
     // It's possible that there could be a facet that's a date field
     // that's not a range.
     $date_format = isset($this->settings['solr_field_settings']['date_facet_format']) ? $this->settings['solr_field_settings']['date_facet_format'] : FALSE;
     foreach ($results as $bucket => $count) {
-      $facet_results[] = array(
+      $facet_results[] = [
         'count' => $count,
         'filter' => islandora_solr_lesser_escape($facet_field) . ':"' .
         islandora_solr_facet_escape($bucket) . '"',
         'bucket' => $date_format ? format_date(strtotime($bucket), 'custom', $date_format) : $bucket,
-      );
+      ];
     }
     return $facet_results;
   }
@@ -291,14 +288,14 @@ class IslandoraSolrFacets {
     $facet_field = $this->facet_field;
     $results = $this->results;
     $format = $this->getDateFormat();
-    $date_results = array();
+    $date_results = [];
     // Render date facet fields.
     foreach ($results as $bucket => $count) {
       // Don't include gap, end, etc that comes with range results.
       if (in_array($bucket, self::$exclude_range_values)) {
         continue;
       }
-      $item = array();
+      $item = [];
       // Set count or documents.
       $item['count'] = $count;
       // Logic to get the next range key (next date).
@@ -326,34 +323,34 @@ class IslandoraSolrFacets {
    * @param array $results
    *   An array with the prepared facet results.
    */
-  public function renderText($results) {
+  public function renderText(array $results) {
     $facet_field = $this->facet_field;
     $islandora_solr_query = self::$islandoraSolrQuery;
     $soft_limit = self::$soft_limit;
-    $buckets = array();
+    $buckets = [];
     $replace_bucket = (isset($this->settings['solr_field_settings']['pid_object_label']) && $this->settings['solr_field_settings']['pid_object_label'] ? TRUE : FALSE);
     $pid_mapper = function ($result) {
       $pid = str_replace('info:fedora/', '', $result['bucket']);
       return $pid;
     };
-    $labels = array();
+    $labels = [];
     if ($replace_bucket) {
       $valid_pids = array_filter(array_map($pid_mapper, $results), 'islandora_is_valid_pid');
-      $mapping = array();
+      $mapping = [];
       foreach ($valid_pids as $valid_pid) {
         $mapping[$valid_pid] = "\"{$valid_pid}\"";
       }
       if (!empty($mapping)) {
         $qp = new IslandoraSolrQueryProcessor();
-        $qp->buildQuery(format_string('PID:(!pids)', array(
+        $qp->buildQuery(strtr('PID:(!pids)', [
           '!pids' => implode(' OR ', $mapping),
-        )));
+        ]));
         $label_field = \Drupal::config('islandora_solr.settings')->get('islandora_solr_object_label_field');
         $qp->solrParams['facet'] = 'false';
         $qp->solrParams['fl'] = "PID, $label_field";
         $qp->solrLimit = count($mapping);
         $qp->executeQuery(FALSE, TRUE);
-        $labels = array();
+        $labels = [];
         if ($qp->islandoraSolrResult['response']['numFound'] > 0) {
           foreach ($qp->islandoraSolrResult['response']['objects'] as $doc) {
             $labels[$doc['PID']] = $doc['object_label'];
@@ -361,7 +358,7 @@ class IslandoraSolrFacets {
         }
       }
     }
-    foreach ($results as $key => $values) {
+    foreach ($results as $values) {
       $bucket = $values['bucket'];
       $filter = $values['filter'];
       $count = $values['count'];
@@ -392,7 +389,7 @@ class IslandoraSolrFacets {
       }
 
       // Current URL query.
-      $fq = isset($islandora_solr_query->solrParams['fq']) ? $islandora_solr_query->solrParams['fq'] : array();
+      $fq = isset($islandora_solr_query->solrParams['fq']) ? $islandora_solr_query->solrParams['fq'] : [];
       // 1: Check minimum count.
       // 2: Check if the filter isn't active.
       if ($count < self::$minimum_count || array_search($filter, $fq) !== FALSE) {
@@ -400,44 +397,43 @@ class IslandoraSolrFacets {
       }
       // Current path including query, for example islandora/solr/query.
       // $_GET['q'] didn't seem to work here.
-      $path = \Drupal\Core\Url::fromRoute("<current>")->toString();
+      $path = Url::fromRoute('<current>')->toString();
       // Parameters set in URL.
       $params = $islandora_solr_query->internalSolrParams;
       // Set filter key if there are no filters included.
       if (!isset($params['f'])) {
-        $params['f'] = array();
+        $params['f'] = [];
       }
       // Merge recursively to add new filter parameter.
-      $query_plus = array_merge_recursive($params, array('f' => array($filter)));
-      $query_minus = array_merge_recursive($params, array('f' => array('-' . $filter)));
+      $query_plus = array_merge_recursive($params, ['f' => [$filter]]);
+      $query_minus = array_merge_recursive($params, ['f' => ['-' . $filter]]);
 
       // Set basic attributes.
-      $attributes = array(
-        'link' => array(
+      $attributes = [
+        'link' => [
           'path' => $path,
-        ),
-        'plus' => array(
+        ],
+        'plus' => [
           'path' => $path,
-        ),
-        'minus' => array(
+        ],
+        'minus' => [
           'path' => $path,
-        ),
-      );
-      $attributes['link']['attr'] = $attributes['minus']['attr'] = $attributes['plus']['attr'] = array('rel' => 'nofollow');
-
-      // @FIXME
-// url() expects a route name or an external URI.
-// $attributes['link']['attr']['href'] = $attributes['plus']['attr']['href'] = url($path, array('query' => $query_plus));
+        ],
+      ];
+      $attribute_array = ['rel' => 'nofollow'];
+      $attributes['link']['attr'] = new Attribute($attribute_array);
+      $attributes['minus']['attr'] = new Attribute($attribute_array);
+      $attributes['plus']['attr'] = new Attribute($attribute_array);
+      $attributes['plus']['attr']['href'] = Url::fromRoute('<current>', [], ['query' => $query_plus])->toString();
+      $attributes['link']['attr']['href'] = Url::fromRoute('<current>', [], ['query' => $query_plus])->toString();
+      $attributes['minus']['attr']['href'] = Url::fromRoute('<current>', [], ['query' => $query_minus])->toString();
 
       $attributes['link']['query'] = $attributes['plus']['query'] = $query_plus;
-      // @FIXME
-// url() expects a route name or an external URI.
-// $attributes['minus']['attr']['href'] = url($path, array('query' => $query_minus));
 
       $attributes['minus']['query'] = $query_minus;
 
-      $attributes['plus']['attr']['class'] = array('plus');
-      $attributes['minus']['attr']['class'] = array('minus');
+      $attributes['plus']['attr']['class'] = ['plus'];
+      $attributes['minus']['attr']['class'] = ['minus'];
 
       module_load_include('inc', 'islandora', 'includes/utilities');
 
@@ -447,10 +443,10 @@ class IslandoraSolrFacets {
       // XXX: We are not using l() because of active classes:
       // @see http://drupal.org/node/41595
       // Create link.
-      $link['link'] = '<a' . drupal_attributes($attributes['link']['attr']) . '>' . $bucket . '</a>';
-      $link['count'] = $count;
-      $link['link_plus'] = '<a' . drupal_attributes($attributes['plus']['attr']) . '>+</a>';
-      $link['link_minus'] = '<a' . drupal_attributes($attributes['minus']['attr']) . '>-</a>';
+      $link['link']['#markup'] = '<a' . $attributes['link']['attr'] . '>' . $bucket . '</a>';
+      $link['count']['#markup'] = $count;
+      $link['link_plus']['#markup'] = '<a' . $attributes['plus']['attr'] . '>+</a>';
+      $link['link_minus']['#markup'] = '<a' . $attributes['minus']['attr'] . '>-</a>';
       $buckets[] = $link;
     }
 
@@ -458,75 +454,31 @@ class IslandoraSolrFacets {
     if (count($buckets) > $soft_limit) {
       $buckets_visible = array_slice($buckets, 0, $soft_limit);
       $buckets_hidden = array_slice($buckets, $soft_limit);
-      // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $this->content .= theme('islandora_solr_facet', array(
-//         'buckets' => $buckets_visible,
-//         'hidden' => FALSE,
-//         'pid' => $facet_field,
-//       ));
+      $this->content["hidden_$facet_field"] = [
+        '#theme' => 'islandora_solr_facet',
+        '#buckets' => $buckets_visible,
+        '#hidden' => FALSE,
+        '#pid' => $facet_field,
+      ];
+      $this->content["visible_$facet_field"] = [
+        '#theme' => 'islandora_solr_facet',
+        '#buckets' => $buckets_hidden,
+        '#hidden' => TRUE,
+        '#pid' => $facet_field,
+        '#attached' => ['library' => ['islandora_solr/facets_js']],
+      ];
 
-      // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $this->content .= theme('islandora_solr_facet', array(
-//         'buckets' => $buckets_hidden,
-//         'hidden' => TRUE,
-//         'pid' => $facet_field,
-//       ));
-
-      $this->content .= $this->showMore();
+      $this->content["more_$facet_field"]['#markup'] = '<a href="#" class="soft-limit">' . t('Show more') . '</a>';
     }
     elseif (!empty($buckets)) {
-      // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-//
-//
-// @see https://www.drupal.org/node/2195739
-// $this->content .= theme('islandora_solr_facet', array(
-//         'buckets' => $buckets,
-//         'hidden' => FALSE,
-//         'pid' => $facet_field,
-//       ));
-
+      $this->content[$facet_field] = [
+        '#theme' => 'islandora_solr_facet',
+        '#buckets' => $buckets,
+        '#hidden' => FALSE,
+        '#pid' => $facet_field,
+      ];
     }
   }
-
-  /**
-   * Adds a 'show more' link.
-   *
-   * @return string
-   *   Returns a rendered 'show more' link.
-   */
-  public function showMore() {
-    // @FIXME
-// The Assets API has totally changed. CSS, JavaScript, and libraries are now
-// attached directly to render arrays using the #attached property.
-//
-//
-// @see https://www.drupal.org/node/2169605
-// @see https://www.drupal.org/node/2408597
-// drupal_add_js(drupal_get_path('module', 'islandora_solr') . '/js/islandora_solr_facets.js');
-
-    $show_more = '<a href="#" class="soft-limit">' . t('Show more') . '</a>';
-    return $show_more;
-  }
-
-  protected $sliderKey = NULL;
 
   /**
    * Prepare facet dates for slider.
@@ -542,16 +494,11 @@ class IslandoraSolrFacets {
     $facet_field = $this->facet_field;
     $settings = $this->settings;
     $results = $this->results;
-    $format = self::getDateFormat();
     $needed_solr_call = self::$needed_solr_call;
     if (!isset($this->sliderKey)) {
       $this->sliderKey = self::$range_slider_key++;
     }
     $range_slider_key = $this->sliderKey;
-
-    $date_results = array();
-    // Grab gap and end, and strip all non-buckets in results.
-    $results_gap = $results['gap'];
     $results_end = $results['end'];
     foreach (self::$exclude_range_values as $exclude) {
       unset($results[$exclude]);
@@ -570,11 +517,11 @@ class IslandoraSolrFacets {
       }
       // Reverse and strip other side.
       $results = array_reverse($results);
-      $new_end = array();
+      $new_end = [];
       foreach ($results as $bucket => $count) {
         if ($count == 0) {
           unset($results[$bucket]);
-          $new_end = array('bucket' => $bucket, 'count' => $count);
+          $new_end = ['bucket' => $bucket, 'count' => $count];
         }
         else {
           break;
@@ -584,7 +531,7 @@ class IslandoraSolrFacets {
       $results = array_reverse($results);
 
       // Add end date.
-      if (isset($new_end['count']) AND $new_end['count'] == 0) {
+      if (isset($new_end['count']) and $new_end['count'] == 0) {
         $end_bucket = $new_end['bucket'];
         $results[$end_bucket] = NULL;
       }
@@ -600,7 +547,7 @@ class IslandoraSolrFacets {
 
     // If values are available.
     if (count($results) <= 1) {
-      return array();
+      return [];
     }
 
     // Calculate gap.
@@ -656,16 +603,16 @@ class IslandoraSolrFacets {
     }
 
     // Create a nice array with our data.
-    $data = array();
+    $data = [];
     foreach ($results as $bucket => $count) {
       $bucket_formatted = format_date(strtotime(trim($bucket)) + 1, 'custom', $date_format, 'UTC');
 
       $bucket_formatted = str_replace(' ', '&nbsp;', $bucket_formatted);
-      $data[] = array(
+      $data[] = [
         'date' => $bucket,
         'bucket' => $bucket_formatted,
         'count' => $count,
-      );
+      ];
     }
 
     // Add range slider color.
@@ -677,14 +624,14 @@ class IslandoraSolrFacets {
       $slider_color = '#edc240';
     }
 
-    $elements = array(
+    $elements = [
       'data' => $data,
       'facet_field' => $facet_field,
       'slider_color' => $slider_color,
       'gap' => $gap,
       'date_format' => $date_format,
       'form_key' => $range_slider_key,
-    );
+    ];
 
     return $elements;
   }
@@ -710,12 +657,13 @@ class IslandoraSolrFacets {
     if (isset($old_build_id)) {
       $_POST['form_build_id'] = NULL;
     }
-    $range_slider_form = \Drupal::formBuilder()->getForm('islandora_solr_range_slider_form_' . $elements['form_key'], $elements);
+    $form_object = new IslandoraRangeSlider($elements['form_key']);
+    $range_slider_form = \Drupal::formBuilder()->getForm($form_object, $elements);
     if (isset($old_build_id)) {
       // XXX: Restore the build ID to $_POST, just in case.
       $_POST['form_build_id'] = $old_build_id;
     }
-    $this->content .= \Drupal::service("renderer")->render($range_slider_form);
+    $this->content["slider_$old_build_id"] = $range_slider_form;
   }
 
   /**
@@ -732,11 +680,11 @@ class IslandoraSolrFacets {
     else {
       $datepicker_range = '-100:+3';
     }
-    $elements = array(
+    $elements = [
       'facet_field' => $this->facet_field,
       'datepicker_range' => $datepicker_range,
       'form_key' => self::$date_filter_key,
-    );
+    ];
     self::$date_filter_key++;
 
     return $elements;
@@ -749,10 +697,10 @@ class IslandoraSolrFacets {
    * a form, returns it and then renders the form.
    */
   public function renderFacetDatesFilter($elements) {
-    $date_filter_key = self::$date_filter_key;
-    $date_filter_form = \Drupal::formBuilder()->getForm('islandora_solr_date_filter_form_' . $elements['form_key'], $elements);
+    $form_object = new IslandoraDateFilter($elements['form_key']);
+    $date_filter_form = \Drupal::formBuilder()->getForm($form_object, $elements);
     if (!empty($this->content)) {
-      $this->content .= \Drupal::service("renderer")->render($date_filter_form);
+      $this->content["date_filter{$elements['form_key']}"] = $date_filter_form;
     }
   }
 
@@ -779,23 +727,23 @@ class IslandoraSolrFacets {
     // @todo Move this to separate functions.
     // Check settings.
     $facet_fields_settings = self::$facet_fields_settings;
-    $variable_date_gap = array();
-    foreach ($facet_fields_settings as $key => $settings) {
+    $variable_date_gap = [];
+    foreach ($facet_fields_settings as $settings) {
       if (isset($settings['solr_field_settings']['range_facet_variable_gap']) && $settings['solr_field_settings']['range_facet_variable_gap'] == 1) {
         $variable_date_gap[] = $settings['solr_field'];
       }
     }
 
     $islandora_solr_query = self::$islandoraSolrQuery;
-    $fq = isset($islandora_solr_query->solrParams['fq']) ? $islandora_solr_query->solrParams['fq'] : array();
+    $fq = isset($islandora_solr_query->solrParams['fq']) ? $islandora_solr_query->solrParams['fq'] : [];
     $facet_dates = self::$facet_dates;
     // Populate with terms that needed a second solr call to update facets.
-    $needs_solr_call = array();
+    $needs_solr_call = [];
     // Loop over all date facets.
     foreach ($facet_dates as $solr_field => $buckets) {
-      $values = array();
+      $values = [];
       // Loop over all filters.
-      foreach ($fq as $key => $filter) {
+      foreach ($fq as $filter) {
         // Check for enabled range filters.
         if (strpos($filter, $solr_field) === FALSE) {
           continue;
@@ -968,4 +916,5 @@ class IslandoraSolrFacets {
     $results = $min_max_query->islandoraSolrResult;
     return $results['response']['objects'][0]['solr_doc'][$field];
   }
+
 }

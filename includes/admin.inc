@@ -22,7 +22,7 @@ use Drupal\Core\Form\FormStateInterface;
  * @param string $field_type
  *   An identifier for the field table which is being created.
  */
-function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$terms, $field_type) {
+function islandora_solr_admin_settings_fields(FormStateInterface $form_state, array &$terms, $field_type) {
   // Set variables.
   $field_type_class = str_replace('_', '-', $field_type);
   // Ways to populate the fields table:
@@ -51,7 +51,10 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
     foreach ($records as $key => $value) {
       $solr_field = $value['solr_field'];
       $solr_field_settings = $value['solr_field_settings'];
-      $form_state->set(['solr_field_settings', 'islandora_solr_' . $field_type, $solr_field], $solr_field_settings);
+      $form_state->set(
+        ['solr_field_settings', 'islandora_solr_' . $field_type, $solr_field],
+        $solr_field_settings
+      );
     }
   }
 
@@ -87,7 +90,9 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
     elseif ($form_state->getTriggeringElement()['#button_type'] == "{$field_type}_remove") {
       // Triggered field #.
       $field = $form_state->getTriggeringElement()['#field'];
-      $solr_field = $form_state->getValue(['islandora_solr_' . $field_type, 'terms', $field, 'solr_field']);
+      $solr_field = $form_state->getValue(
+        ['islandora_solr_' . $field_type, 'terms', $field, 'solr_field']
+      );
       // Remove field.
       $form_state_terms = $form_state->getValue(['islandora_solr_' . $field_type, 'terms']);
       foreach ($form_state_terms as $key => $value) {
@@ -97,17 +102,18 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
       }
       $form_state->setValue(['islandora_solr_' . $field_type, 'terms'], $form_state_terms);
       // Remove field values.
-      $form_state->set(['solr_field_settings', 'islandora_solr_' . $field_type, $field], NULL);
+      $form_state->set(
+        ['solr_field_settings', 'islandora_solr_' . $field_type, $field],
+        NULL
+      );
     }
   }
   if ($form_state->getValue(['islandora_solr_' . $field_type, 'terms'])) {
     $fields = $form_state->getValue(['islandora_solr_' . $field_type, 'terms']);
   }
-
   // Render fields.
   $rows = [];
   if ($fields) {
-    $count = count($fields);
     $fields = array_values($fields);
     foreach ($fields as $key => $value) {
       $row = [];
@@ -121,8 +127,22 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
         '#value' => $solr_field,
       ];
       $solr_field_settings = NULL;
-      if ($form_state->get(['solr_field_settings', 'islandora_solr_' . $field_type, $solr_field, 'label'])) {
-        $solr_field_settings = $form_state->get(['solr_field_settings', 'islandora_solr_' . $field_type, $solr_field, 'label']);
+      if (
+        $form_state->get(
+          [
+            'solr_field_settings',
+            'islandora_solr_' . $field_type,
+            $solr_field,
+            'label',
+          ]
+        )) {
+        $solr_field_settings = $form_state->get(
+          [
+            'solr_field_settings', 'islandora_solr_' . $field_type,
+            $solr_field,
+            'label',
+          ]
+        );
       }
       $row[] = [
         '#markup' => $solr_field_settings ? t('Label: @label', ['@label' => $solr_field_settings]) : '',
@@ -161,7 +181,7 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
         '#type' => 'button',
         '#value' => t('remove'),
         '#button_type' => "{$field_type}_remove",
-        '#name' => "{$solr_field}_remove",
+        '#name' => "{$solr_field}_{$field_type}_remove",
         '#field_type' => $field_type,
         '#field' => $solr_field,
         '#ajax' => [
@@ -185,7 +205,7 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, &$
     [
       'data' => t('Solr field'),
       'colspan' => 2,
-      'class' => 'islandora-solr-solr-field-header',
+      'class' => ['islandora-solr-solr-field-header'],
     ],
     ['data' => t('Settings')],
     ['data' => t('Operations'), 'colspan' => 2],
@@ -303,7 +323,7 @@ function _islandora_solr_check_dismax($solr_url, $selected_handler) {
  * @return array
  *   The part of the form array that needs asynchronous updating.
  */
-function _islandora_solr_update_fields($form, FormStateInterface $form_state) {
+function _islandora_solr_update_fields(array $form, FormStateInterface $form_state) {
 
   // Check what section the call is from.
   switch ($form_state->getTriggeringElement()['#field_type']) {
@@ -423,7 +443,7 @@ function _islandora_solr_handle_solr_field_settings($solr_field_settings = NULL,
  *   An associative array containing the definition for the permissions
  *   fieldset.
  */
-function islandora_solr_get_admin_permissions_fieldset($permissions, $permissions_default, $permissions_disable, $default_value) {
+function islandora_solr_get_admin_permissions_fieldset($permissions, array $permissions_default, array $permissions_disable, $default_value) {
   if (is_array($permissions)) {
     $default_enable = !empty($permissions) ? TRUE : $default_value;
   }
@@ -444,7 +464,7 @@ function islandora_solr_get_admin_permissions_fieldset($permissions, $permission
     'permissions' => [
       '#type' => 'checkboxes',
       '#title' => t('Permissions'),
-      '#options' => array_map(function($item) {
+      '#options' => array_map(function ($item) {
         return $item->label();
       }, user_roles()),
       '#default_value' => !empty($permissions) ? $permissions : $permissions_default,
@@ -474,10 +494,10 @@ function islandora_solr_get_admin_permissions_fieldset($permissions, $permission
  *   An array representing the Drupal form, passed by reference.
  * @param bool $default_value
  *   Whether the default enabled checkbox is to be TRUE or FALSE.
- * @param callback $callback
+ * @param callable $callback
  *   The callback for the modal ajax.
  */
-function islandora_solr_append_permissions_and_actions($values, &$form, $default_value = TRUE, $callback = NULL) {
+function islandora_solr_append_permissions_and_actions(array $values, array &$form, $default_value = TRUE, callable $callback = NULL) {
   $permissions = isset($values['permissions']) ? $values['permissions'] : [];
   $permissions_disable = _islandora_solr_permissions_disable();
   $permissions_default = _islandora_solr_permissions_default();

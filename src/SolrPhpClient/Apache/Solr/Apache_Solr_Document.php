@@ -1,4 +1,5 @@
 <?php
+
 // @codingStandardsIgnoreStart
 // XXX: This is an included library... Should have minimal changes from
 // upstream.

@@ -43,3 +43,4 @@ islandora_solr_breadcrumbs_parent_fields: "RELS_EXT_isMemberOfCollection_uri_ms\
 islandora_solr_primary_display_table: []
 islandora_solr_secondary_display: []
 islandora_solr_num_of_results_advanced: []
+iislandora_solr_explore_config: []

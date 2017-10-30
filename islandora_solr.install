@@ -7,6 +7,7 @@
 
 use Drupal\Core\Url;
 use Drupal\Core\Link;
+use Drupal\Component\Utility\Xss;
 
 /**
  * Implements hook_requirements().
@@ -29,7 +30,6 @@ function islandora_solr_requirements($phase) {
   return $requirements;
 }
 
-
 /**
  * Implements hook_install().
  */
@@ -41,7 +41,7 @@ function islandora_solr_install() {
       '@link' => Link::fromTextAndUrl($t('configuration page'), Url::fromRoute('islandora_solr.admin_settings'))->toString(),
     ]
   );
-  drupal_set_message(\Drupal\Component\Utility\Xss::filter($message));
+  drupal_set_message(Xss::filter($message));
 }
 
 /**
@@ -50,53 +50,53 @@ function islandora_solr_install() {
 function islandora_solr_schema() {
   $schema['islandora_solr_fields'] = [
     'description' => 'Table that stores Islandora Solr field settings.',
-    'fields' => array(
-      'solr_field' => array(
+    'fields' => [
+      'solr_field' => [
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
         'description' => 'The field name as indexed in Solr',
-      ),
-      'field_type' => array(
+      ],
+      'field_type' => [
         'type' => 'varchar',
         'length' => 64,
         'not null' => TRUE,
         'default' => '',
         'description' => 'The type of the field settings.',
-      ),
-      'weight' => array(
+      ],
+      'weight' => [
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
         'description' => 'Weight of the field within field type.',
-      ),
-      'solr_field_settings' => array(
+      ],
+      'solr_field_settings' => [
         'type' => 'blob',
         'not null' => FALSE,
         'size' => 'big',
         'serialize' => TRUE,
         'description' => 'A serialized array of name value pairs that store additional field settings.',
-      ),
-    ),
-    'primary key' => array(array('solr_field', 191), 'field_type'),
+      ],
+    ],
+    'primary key' => [['solr_field', 191], 'field_type'],
   ];
-  $schema['islandora_solr_collection_sort_strings'] = array(
+  $schema['islandora_solr_collection_sort_strings'] = [
     'description' => 'Table that stores sort strings for collection objects.',
-    'fields' => array(
-      'collection_pid' => array(
+    'fields' => [
+      'collection_pid' => [
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
         'description' => 'The collection PID',
-      ),
-      'sort_string' => array(
+      ],
+      'sort_string' => [
         'type' => 'text',
         'size' => 'medium',
         'not null' => TRUE,
         'description' => 'Sort string for the collection',
-      ),
-    ),
-    'primary key' => array(array('collection_pid', 191)),
-  );
+      ],
+    ],
+    'primary key' => [['collection_pid', 191]],
+  ];
   return $schema;
 }

@@ -1,14 +1,11 @@
 /* Style sheet for grid display */
-
-.islandora-solr-grid
-{
+.islandora-solr-grid {
   margin: 1.5em auto;
   overflow: hidden;
   width: 96%;
 }
 
-dl.solr-grid-field
-{
+dl.solr-grid-field {
   width: 20%;
   min-width: 100px;
   min-height: 180px;
@@ -21,8 +18,7 @@ dl.solr-grid-field
   _height: 180px;
 }
 
-dt.solr-grid-thumb img
-{
+dt.solr-grid-thumb img {
   max-width: 100%;
   *width: 100%;
   -webkit-border-radius: 5px;
@@ -30,22 +26,16 @@ dt.solr-grid-thumb img
   border-radius: 5px;
 }
 
-dd.solr-grid-caption
-{
+dd.solr-grid-caption {
   margin: 0;
   padding: 0;
 }
 
-
-
 /* Style sheet for table display */
-
-table.islandora-solr-results-table tr
-{
+table.islandora-solr-results-table tr {
   border-bottom-style: solid;
   border-bottom-width: 1px;
 }
-table.islandora-solr-results-table tr td
-{
+table.islandora-solr-results-table tr td {
   padding: 0 2px;
 }

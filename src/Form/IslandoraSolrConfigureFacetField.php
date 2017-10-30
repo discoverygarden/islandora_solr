@@ -72,7 +72,7 @@ class IslandoraSolrConfigureFacetField extends FormBase {
         '#type' => 'textfield',
         '#title' => $this->t('Date format'),
         '#default_value' => $values['date_facet_format'],
-        '#description' => $this->t('The format of the date, as it will be displayed in the facet block. Use <a href="@url">PHP date()</a> formatting. Works best when the date format matches the granularity of the source data. Otherwise it is possible that there will be duplicates displayed.', array('@url' => 'http://php.net/manual/function.date.php')),
+        '#description' => $this->t('The format of the date, as it will be displayed in the facet block. Use <a href="@url">PHP date()</a> formatting. Works best when the date format matches the granularity of the source data. Otherwise it is possible that there will be duplicates displayed.', ['@url' => 'http://php.net/manual/function.date.php']),
       ];
 
       $form['options']['range_facet'] = [
@@ -111,19 +111,19 @@ class IslandoraSolrConfigureFacetField extends FormBase {
         '#type' => 'textfield',
         '#title' => $this->t('Start'),
         '#default_value' => $values['range_facet_start'],
-        '#description' => $this->t('The lower bound of the first date range for all date faceting on this field. This should be a single date expression which may use the <a href="@url">DateMathParser</a> syntax.', array('@url' => 'http://lucene.apache.org/solr/api/org/apache/solr/util/DateMathParser.html')),
+        '#description' => $this->t('The lower bound of the first date range for all date faceting on this field. This should be a single date expression which may use the <a href="@url">DateMathParser</a> syntax.', ['@url' => 'http://lucene.apache.org/solr/api/org/apache/solr/util/DateMathParser.html']),
       ];
       $form['options']['range_facet']['wrapper']['range_facet_end'] = [
         '#type' => 'textfield',
         '#title' => $this->t('End'),
         '#default_value' => $values['range_facet_end'],
-        '#description' => $this->t('The minimum upper bound of the last date range for all Date Faceting on this field. This should be a single date expression which may use the <a href="@url">DateMathParser</a> syntax.', array('@url' => 'http://lucene.apache.org/solr/api/org/apache/solr/util/DateMathParser.html')),
+        '#description' => $this->t('The minimum upper bound of the last date range for all Date Faceting on this field. This should be a single date expression which may use the <a href="@url">DateMathParser</a> syntax.', ['@url' => 'http://lucene.apache.org/solr/api/org/apache/solr/util/DateMathParser.html']),
       ];
       $form['options']['range_facet']['wrapper']['range_facet_gap'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Gap'),
         '#default_value' => $values['range_facet_gap'],
-        '#description' => $this->t('The size of each date range, expressed as an interval to be added to the lower bound using the <a href="@url">DateMathParser</a> syntax.', array('@url' => 'http://lucene.apache.org/solr/api/org/apache/solr/util/DateMathParser.html')),
+        '#description' => $this->t('The size of each date range, expressed as an interval to be added to the lower bound using the <a href="@url">DateMathParser</a> syntax.', ['@url' => 'http://lucene.apache.org/solr/api/org/apache/solr/util/DateMathParser.html']),
       ];
       // Range slider.
       $form['options']['range_facet']['wrapper']['range_slider'] = [
@@ -171,7 +171,7 @@ class IslandoraSolrConfigureFacetField extends FormBase {
         '#default_value' => $values['date_filter_datepicker_range'],
         '#size' => 10,
         '#maxsize' => 10,
-        '#description' => $this->t('The range of years displayed in the year drop-down menu. These are either relative to today\'s year ("-nn:+nn"), to the currently selected year ("c-nn:c+nn"), an absolute ("nnnn:nnnn"), or combinations of these formats ("nnnn:-nn"). For more info, check the jQuery UI <a href="@url" target="_blank">datepicker documentation</a>.', array('@url' => 'http://api.jqueryui.com/datepicker/#option-yearRange')),
+        '#description' => $this->t('The range of years displayed in the year drop-down menu. These are either relative to today\'s year ("-nn:+nn"), to the currently selected year ("c-nn:c+nn"), an absolute ("nnnn:nnnn"), or combinations of these formats ("nnnn:-nn"). For more info, check the jQuery UI <a href="@url" target="_blank">datepicker documentation</a>.', ['@url' => 'http://api.jqueryui.com/datepicker/#option-yearRange']),
         '#states' => [
           'visible' => [
             ':input[name="date_filter_datepicker_enabled"]' => ['checked' => TRUE],

@@ -1,10 +1,5 @@
 <?php
 
- /**
- * @file
- * Contains \Drupal\islandora_solr\Controller\DefaultController.
- */
-
 namespace Drupal\islandora_solr\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
@@ -12,7 +7,8 @@ use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-use  Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\islandora_solr\IslandoraSolrResults;
 
 /**
  * Default controller for the islandora_solr module.
@@ -32,22 +28,14 @@ class DefaultController extends ControllerBase {
    *   settings and the raw Solr results.
    *
    * @param string $query
-   *   The query string.
-   *
+   *   The Solr query string.
+   * @param array $params
+   *   The URL query array.
    * @return string
    *   A rendered Solr display
    */
   public function islandora_solr($query = NULL, $params = NULL) {
     global $_islandora_solr_queryclass;
-    // @FIXME
-    // The Assets API has totally changed. CSS, JavaScript, and libraries are now
-    // attached directly to render arrays using the #attached property.
-    //
-    //
-    // @see https://www.drupal.org/node/2169605
-    // @see https://www.drupal.org/node/2408597
-    // drupal_add_css(drupal_get_path('module', 'islandora_solr') . '/css/islandora_solr.theme.css');
-
 
     // Url parameters.
     if ($params === NULL) {
@@ -68,7 +56,7 @@ class DefaultController extends ControllerBase {
     // If it's set, we take these values.
     if (isset($primary_display_array['enabled'])) {
       foreach ($primary_display_array['enabled'] as $key => $value) {
-        if ($key === $value) {
+        if ($value) {
           $enabled_profiles[] = $key;
         }
       }
@@ -95,7 +83,6 @@ class DefaultController extends ControllerBase {
     if (empty($_islandora_solr_queryclass->islandoraSolrResult)) {
       return t('Error searching Solr index.');
     }
-
     // TODO: Also filter secondary displays against those checked in the
     // configuration options.
     if (isset($params['solr_profile']) && isset($secondary_profiles[$params['solr_profile']])) {
@@ -113,39 +100,37 @@ class DefaultController extends ControllerBase {
       // Include the file for the display profile.
       require_once drupal_get_path('module', $profile['module']) . '/' . $profile['file'];
     }
-
     // Get display class and function from current display.
     $solr_class = $profile['class'];
     $solr_function = $profile['function'];
 
     // Check if the display's class exists.
-    $use_default_display = TRUE;
     if (class_exists($solr_class)) {
       $implementation = new $solr_class();
       // Check if the display's method exists.
       if (method_exists($implementation, $solr_function)) {
         // Implement results.
         $output = $implementation->$solr_function($_islandora_solr_queryclass);
-        $use_default_display = FALSE;
+        return $output;
       }
     }
 
     // Class and method could not be found, so use default.
-    if ($use_default_display) {
-      $results_class = new IslandoraSolrResults();
-      $output = $results_class->displayResults($_islandora_solr_queryclass);
-    }
+    $results_class = new IslandoraSolrResults();
+    $output = $results_class->displayResults($_islandora_solr_queryclass);
 
     // Debug dump.
     if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode')) {
-      $message = t('Parameters: <br /><pre>!debug</pre>', [
-        '!debug' => print_r($_islandora_solr_queryclass->solrParams, TRUE)
+      $message = t('Parameters: <br /><pre>@debug</pre>', [
+        '@debug' => print_r($_islandora_solr_queryclass->solrParams, TRUE)
         ]);
       drupal_set_message(\Drupal\Component\Utility\Xss::filter($message, [
         'pre',
         'br',
       ]), 'status');
     }
+    $output['#attached']['library'][] = 'islandora_solr/islandora-solr-theme';
+
     return $output;
   }
 
@@ -164,7 +149,7 @@ class DefaultController extends ControllerBase {
 
         // Add strong elements to highlight the found string.
         $result[] = [
-          'label' => $term_str . '<strong style="position: absolute; right: 5px;">(' . $value['type'] . ')</strong>',
+          'label' => $term_str . '<strong style="float:right;">(' . $value['type'] . ')</strong>',
           'value' => $term,
         ];
       }

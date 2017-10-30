@@ -2,16 +2,22 @@
 
 /**
  * @file
- * Contains methods to search solr and display results.  depends on
- * Apache_Solr_Php client.
+ * Contains methods to search Solr and display results.
  */
+
+use Drupal\Core\Url;
+use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Template\Attribute;
+
+use Drupal\islandora_solr\IslandoraSolrResults;
 
 /**
  * Extention of IslandoraSolrResults for templating purposes.
+ *
  * This overrides the displayResults function to provide an alternate display
  * type.
  */
-
 class IslandoraSolrResultsRSS extends IslandoraSolrResults {
 
   /**
@@ -21,16 +27,11 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
    *
    * @param object $islandora_solr_query
    *   A solr query object.
-   *
-   * @return string
-   *   html output for the resultset. Note: we currently create this
-   *   output manually, should refactor to use drupal forms api.
+   * @param string $title
+   *   Title for the RSS feed.
    */
   public function printRSS($islandora_solr_query, $title = "Search Results") {
-
-    global $base_url;
-
-    drupal_add_http_header('Content-Type', 'application/rss+xml; charset=utf-8');
+    header('Content-Type: application/rss+xml; charset=utf-8');
 
     // Get raw results.
     $solr_result = $islandora_solr_query->islandoraSolrResult;
@@ -54,13 +55,11 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
       }
       // Get the variables for the <item> element.
       $item = $this->rssItem($doc);
-
       // Hook alter to change the rssItem before formatting.
       \Drupal::moduleHandler()->alter('islandora_solr_search_rss_item', $item, $doc);
 
       // Render rss item.
-      $rendered_item = format_rss_item($item['title'], $item['link'], $item['description'], $item['items']);
-
+      $rendered_item = $this->format_rss_item($item['title'], $item['link'], $item['description'], $item['items']);
       // ... allow it to be altered...
       \Drupal::moduleHandler()->alter('islandora_solr_config_rss_item_post_render', $rendered_item, $doc);
 
@@ -73,7 +72,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
 
     // Get the variables for the <channel> element.
     $channel = $this->rssChannel($query);
-    $rss_attributes = array('version' => '2.0');
+    $rss_attributes = ['version' => '2.0'];
     \Drupal::moduleHandler()->alter('islandora_solr_config_rss_root_element_attributes', $rss_attributes, $channel, $items);
 
     // Give the results clean variable names.
@@ -82,16 +81,15 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
     $description = $channel['description'];
     $langcode = $channel['langcode'];
     $args = $channel['args'];
-
+    $rss_attributes = new Attribute($rss_attributes);
     $output = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-    $output .= '<rss' . drupal_attributes($rss_attributes) . ">\n";
-    $output .= format_rss_channel($title, $url, $description, $items, $langcode, $args);
+    $output .= '<rss' . $rss_attributes . ">\n";
+    $output .= $this->format_rss_channel($title, $url, $description, $items, $langcode, $args);
     $output .= "</rss>\n";
 
     print $output;
     exit;
   }
-
 
   /**
    * Function for setting the values of the <item> elements for the RSS display.
@@ -106,66 +104,65 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
     global $base_url;
 
     // Get variables.
-    // @FIXME
-// Could not extract the default value because it is either indeterminate, or
-// not scalar. You'll need to provide a default value in
-// config/install/islandora_solr_config.settings.yml and config/schema/islandora_solr_config.schema.yml.
-$rss_item = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_config_rss_item');
+    $rss_item = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_config_rss_item');
 
     // Object url.
-    // @FIXME
-// url() expects a route name or an external URI.
-// $object_url = url('islandora/object/' . htmlspecialchars($doc['PID'], ENT_QUOTES, 'utf-8'), array('absolute' => TRUE));
-
+    $object_url = Url::fromRoute('islandora.view_object', ['object' => $doc['PID']], ['absolute' => TRUE])->toString();
     // Enclosure file url (thumbnail by default).
     $dsid = ($rss_item['enclosure_dsid'] && isset($rss_item['enclosure_dsid'])) ? $rss_item['enclosure_dsid'] : 'TN';
-    $doc['datastreams'] = isset($doc['datastreams']) ? $doc['datastreams'] : array();
+    $doc['datastreams'] = isset($doc['datastreams']) ? $doc['datastreams'] : [];
     $is_datastream = in_array($dsid, $doc['datastreams']);
 
     if ($is_datastream) {
       $enclosure_url = $object_url . '/datastream/' . $dsid;
     }
 
-    // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $rss_source = variable_get('site_name', "Default site name");
-
+    $rss_source = \Drupal::config('system.site')->get('name');
 
     // Set the variables to be rendered as elements in the <item> element.
-    $result = array();
+    $result = [];
     $result['title'] = ($rss_item['title'] && isset($doc[$rss_item['title']])) ? $doc[$rss_item['title']] : '';
     $result['link'] = $object_url;
     $result['description'] = ($rss_item['description'] && isset($doc[$rss_item['description']])) ? $doc[$rss_item['description']] : '';
-    $result['items'] = array(
-      array(
+    $result['items'] = [
+      [
         'key' => 'author',
-        'value' => ($rss_item['author'] && isset($doc[$rss_item['author']])) ? $doc[$rss_item['author']] : ''),
-      array(
+        'value' => ($rss_item['author'] && isset($doc[$rss_item['author']])) ? $doc[$rss_item['author']] : '',
+      ],
+      [
         'key' => 'guid',
         'value' => $doc['PID'],
-        'attributes' => array('isPermaLink' => 'false')),
-      array(
+        'attributes' => ['isPermaLink' => 'false'],
+      ],
+      [
         'key' => 'pubDate',
-        'value' => ($rss_item['pubDate'] && isset($doc[$rss_item['pubDate']])) ? $doc[$rss_item['pubDate']] : ''),
-      array(
+        'value' => ($rss_item['pubDate'] && isset($doc[$rss_item['pubDate']])) ? $doc[$rss_item['pubDate']] : '',
+      ],
+      [
         'key' => 'category',
-        'value' => ($rss_item['category'] && isset($doc[$rss_item['category']])) ? $doc[$rss_item['category']] : ''),
-      array(
+        'value' => ($rss_item['category'] && isset($doc[$rss_item['category']])) ? $doc[$rss_item['category']] : '',
+      ],
+      [
         'key' => 'comments',
-        'value' => ''),
-      array(
+        'value' => '',
+      ],
+      [
         'key' => 'source',
-        'value' => $rss_source, 'attributes' => array('url' => $base_url)),
-    );
+        'value' => $rss_source,
+        'attributes' => ['url' => $base_url],
+      ],
+    ];
 
     if ($is_datastream) {
-      $result['items'][] = array(
+      $result['items'][] = [
         'key' => 'enclosure',
-        'value' => '', 'attributes' => array(
-          'url' => $enclosure_url, 'length' => '',
-          'type' => ''));
+        'value' => '',
+        'attributes' => [
+          'url' => $enclosure_url,
+          'length' => '',
+          'type' => '',
+        ],
+      ];
     }
 
     return $result;
@@ -182,34 +179,97 @@ $rss_item = \Drupal::config('islandora_solr_config.settings')->get('islandora_so
   public function rssChannel($query) {
     // Set variables.
     global $base_url;
-    // @FIXME
-// Could not extract the default value because it is either indeterminate, or
-// not scalar. You'll need to provide a default value in
-// config/install/islandora_solr_config.settings.yml and config/schema/islandora_solr_config.schema.yml.
-$rss_channel = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_config_rss_channel');
+    $rss_channel = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_config_rss_channel');
 
     // Set the variables to be rendered as elements in the <channel> element.
-    $result = array();
-    // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $result['title'] = t('@site_name aggregator', array('@site_name' => variable_get('site_name', 'Drupal')));
+    $result = [];
+    $result['title'] = t('@site_name aggregator', ['@site_name' => \Drupal::config('system.site')->get('name')]);
 
     $result['url'] = $base_url;
-    $result['description'] = t('Aggregated search results of: @query', array('@query' => $query));
+    $result['description'] = t('Aggregated search results of: @query', ['@query' => $query]);
     $result['langcode'] = NULL;
-    $result['args'] = array(
-      array(
+    $result['args'] = [
+      [
         'key' => 'copyright',
-        'value' => $rss_channel['copyright']),
-      array(
+        'value' => $rss_channel['copyright'],
+      ],
+      [
         'key' => 'managingEditor',
-        'value' => $rss_channel['managingEditor']),
-      array(
+        'value' => $rss_channel['managingEditor'],
+      ],
+      [
         'key' => 'webMaster',
-        'value' => $rss_channel['webMaster']),
-    );
+        'value' => $rss_channel['webMaster'],
+      ],
+    ];
     return $result;
   }
+
+  /**
+   * Format an RSS item.
+   *
+   * @see https://api.drupal.org/api/drupal/includes%21common.inc/function/format_rss_item/7.x
+   */
+  public function format_rss_item($title, $link, $description, $args = []) {
+    $output = "<item>\n";
+    $output .= ' <title>' . SafeMarkup::checkPlain($title) . "</title>\n";
+    $output .= ' <link>' . check_url($link) . "</link>\n";
+    $output .= ' <description>' . SafeMarkup::checkPlain($description) . "</description>\n";
+    $output .= $this->format_xml_elements($args);
+    $output .= "</item>\n";
+    return $output;
+  }
+
+  /**
+   * Print an XML element.
+   *
+   * @see https://api.drupal.org/api/drupal/includes%21common.inc/function/format_xml_elements/7.x
+   */
+  public function format_xml_elements($array) {
+    $output = '';
+    foreach ($array as $key => $value) {
+      if (is_numeric($key)) {
+        if ($value['key']) {
+          $output .= ' <' . $value['key'];
+          if (isset($value['attributes']) && is_array($value['attributes'])) {
+            $attributes = new Attribute($value['attributes']);
+            $output .= "$attributes";
+          }
+          if (isset($value['value']) && $value['value'] != '') {
+            $output .= '>' . (is_array($value['value']) ? $this->format_xml_elements($value['value']) : (!empty($value['encoded']) ? $value['value'] : SafeMarkup::checkPlain($value['value']))) . '</' . $value['key'] . ">\n";
+          }
+          else {
+            $output .= " />\n";
+          }
+        }
+      }
+      else {
+        $output .= ' <' . $key . '>' . (is_array($value) ? $this->format_xml_elements($value) : SafeMarkup::checkPlain($value)) . "</{<span class=\"php-variable\">$key</span>}>\n";
+      }
+    }
+    return $output;
+  }
+
+  /**
+   * Format RSS channel.
+   *
+   * @see https://api.drupal.org/api/drupal/includes%21common.inc/function/format_rss_channel/7.x
+   */
+  public function format_rss_channel($title, $link, $description, $items, $langcode = NULL, $args = []) {
+    $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    $output = "<channel>\n";
+    $output .= ' <title>' . SafeMarkup::checkPlain($title) . "</title>\n";
+    $output .= ' <link>' . check_url($link) . "</link>\n";
+
+    // The RSS 2.0 "spec" doesn't indicate HTML can be used in the description.
+    // We strip all HTML tags, but need to prevent double encoding from properly
+    // escaped source data (such as &amp becoming &amp;amp;).
+    $output .= ' <description>' . SafeMarkup::checkPlain(Html::escape(strip_tags($description))) . "</description>\n";
+    $output .= ' <language>' . SafeMarkup::checkPlain($langcode) . "</language>\n";
+    $output .= $this->format_xml_elements($args);
+    $output .= $items;
+    $output .= "</channel>\n";
+    return $output;
+  }
+
 }

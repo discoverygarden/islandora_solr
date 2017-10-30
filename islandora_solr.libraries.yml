@@ -3,3 +3,33 @@ islandora-solr-admin:
   css:
     base:
       css/islandora_solr.admin.css: {}
+islandora-solr-theme:
+  version: 1.x
+  css:
+    base:
+      css/islandora_solr.theme.css: {}
+      css/islandora_solr.base.css: {}
+  dependencies:
+    - islandora/islandora
+facets-js:
+  js:
+    js/islandora_solr_facets.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+    - core/drupal
+toggle:
+  js:
+    js/truncation-toggle.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+slider:
+  js:
+    js/flot/jquery.flot.min.js: {}
+    js/islandora_solr_facets.js: {}
+  dependencies:
+    - core/jquery.ui.slider
+    - core/drupalSettings
+    - core/jquery
+    - core/drupal

@@ -7,20 +7,24 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 
 /**
- * Provides a simple search block.
+ * Provides a block for navigating back to searches from results.
  *
  * @Block(
- *   id = "islandora_solr_simple_search",
- *   admin_label = @Translation("Islandora simple search"),
+ *   id = "islandora_solr_search_navigation",
+ *   admin_label = @Translation("Islandora search navigation"),
  * )
  */
-class IslandoraSimpleSearch extends BlockBase {
+class SearchNavigation extends BlockBase {
 
   /**
    * {@inheritdoc}
    */
   public function build() {
-    return \Drupal::formBuilder()->getForm('Drupal\islandora_solr\Form\IslandoraSimpleSearch');
+    module_load_include('inc', 'islandora_solr', 'includes/blocks');
+    $nav = islandora_solr_search_navigation();
+    if ($nav) {
+      return ['#markup' => $nav];
+    }
   }
 
   /**

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\islandora_solr\Form\IslandoraSolrAdminIndexSettings.
- */
-
 namespace Drupal\islandora_solr\Form;
 
 use Drupal\Core\Form\FormStateInterface;
@@ -166,7 +161,7 @@ class IslandoraSolrAdminIndexSettings extends ConfigFormBase {
    * @param string $solr_url
    *   URL which points to Solr.
    * @param \Drupal\Core\Form\FormStateInterface  $form_state
-   *   The Drupal Form State
+   *   The Drupal Form State.
    *
    * @return array
    *   An associative array mapping the names of all request handlers found in

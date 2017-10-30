@@ -11,23 +11,23 @@ use Drupal\Core\Link;
 /**
  * Prepares variables for islandora_solr_wrapper templates.
  *
- * @global string $base_url
- *
  * @param array $variables
  *   An associative array containing:
- *   - results: Rendered primary display
+ *   - results: Rendered primary display.
  *   - secondary_profiles: (optional) Rendered list of secondary display
- *     profiles
- *   - elements: additional elements to populate the results page
- *     - pager: (optional) Rendered pager
+ *     profiles.
+ *   - elements: additional elements to populate the results page.
+ *     - pager: (optional) Rendered pager.
  *     - solr_total: (optional) Total amount of documents found.
- *     - solr_start: (optional) Solr start position
- *     - solr_end: (optional) Solr end position
+ *     - solr_start: (optional) Solr start position.
+ *     - solr_end: (optional) Solr end position.
+ *
+ * @global string $base_url
  *
  * @see islandora_solr_theme()
  * @see IslandoraSolrResults::displayResults()
  */
-function template_preprocess_islandora_solr_wrapper(&$variables) {
+function template_preprocess_islandora_solr_wrapper(array &$variables) {
   global $base_url;
   $variables['base_url'] = $base_url;
 
@@ -62,7 +62,6 @@ function template_preprocess_islandora_solr_wrapper(&$variables) {
 function template_preprocess_islandora_solr(&$variables) {
   $results = $variables['results'];
   foreach ($results as $key => $result) {
-
     $options = ['html' => TRUE];
     if (isset($result['object_label'])) {
       $options['attributes']['title'] = $result['object_label'];
@@ -83,8 +82,7 @@ function template_preprocess_islandora_solr(&$variables) {
     }
     $variables['results'][$key]['thumbnail'] = Link::fromTextAndUrl(
       \Drupal::service('renderer')->render($image),
-      Url::fromUri($result['object_url']),
-      $options
+      Url::fromUri($result['object_url'], $options)
     );
   }
 }
@@ -93,48 +91,31 @@ function template_preprocess_islandora_solr(&$variables) {
  * Prepares variables for islandora_solr_facet templates.
  */
 function template_preprocess_islandora_solr_facet(&$variables) {
-  $buckets = $variables['buckets'];
   if ($variables['hidden']) {
     $variables['classes_array'][] = 'hidden';
   }
+  $variables['classes_array'][] = 'islandora-solr-facet';
+  $variables['classes'] = implode(' ', $variables['classes_array']);
 }
 
 /**
- * Returns HTML for an islandora_solr_facet_wrapper.
- *
- * @param array $variables
- *   An associative array containing:
- *   - title: A string to use as the header/title.
- *   - content: A string containing the content being wrapped.
- *
- * @ingroup themeable
+ * Implements hook_preprocess_islandora_solr_search_navigation_block().
  */
-function theme_islandora_solr_facet_wrapper($variables) {
-  $output = '<div class="islandora-solr-facet-wrapper">';
-  $output .= '<h3>' . $variables['title'] . '</h3>';
-  $output .= $variables['content'];
-  $output .= '</div>';
-  return $output;
-}
-
-/**
- * Implements hook_process_islandora_solr_search_navigation_block().
- */
-function template_process_islandora_solr_search_navigation_block(&$variables) {
+function template_preprocess_islandora_solr_search_navigation_block(&$variables) {
   if ($variables['prev_link']) {
-    $variables['prev_link'] = format_string('<a href="@link">@text</a>', array(
+    $variables['prev_link'] = format_string('<a href="@link">@text</a>', [
       '@link' => $variables['prev_link'],
       '@text' => $variables['prev_text'],
-    ));
+    ]);
   }
-  $variables['return_link'] = format_string('<a href="@link">@text</a>', array(
+  $variables['return_link'] = format_string('<a href="@link">@text</a>', [
     '@link' => $variables['return_link'],
     '@text' => $variables['return_text'],
-  ));
+  ]);
   if ($variables['next_link']) {
-    $variables['next_link'] = format_string('<a href="@link">@text</a>', array(
+    $variables['next_link'] = format_string('<a href="@link">@text</a>', [
       '@link' => $variables['next_link'],
       '@text' => $variables['next_text'],
-    ));
+    ]);
   }
 }
