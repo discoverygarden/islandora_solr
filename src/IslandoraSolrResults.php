@@ -602,10 +602,9 @@ class IslandoraSolrResults {
     $results = "<pre>Results: " . print_r($islandora_solr_results, TRUE) . "</pre>";
     $fieldset = [
       '#title' => t("Islandora Processed Solr Results"),
-      '#type' => 'fieldset',
-      '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
-      '#value' => $results,
+      '#type' => 'details',
+      '#open' => TRUE,
+      '#markup' => $results,
       '#children' => '',
     ];
    return \Drupal::service('renderer')->render($fieldset);
