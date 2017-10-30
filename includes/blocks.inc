@@ -9,13 +9,14 @@ use Drupal\Core\Url;
 use Drupal\Core\Template\Attribute;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Form\FormStateInterface;
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 
 /**
  * Ajax Callback to reload the facet form when adding rows to the table.
  */
-function _islandora_solr_update_filter_table($form, &$form_state) {
+function _islandora_solr_update_filter_table($form, FormStateInterface $form_state) {
   return $form['settings']['facet'];
 }
 
@@ -24,7 +25,7 @@ function _islandora_solr_update_filter_table($form, &$form_state) {
  *
  * @param array $form
  *   An associative array containing form structure.
- * @param array $form_state
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
  *   An associative array containing form state.
  *
  * @return array
@@ -32,7 +33,7 @@ function _islandora_solr_update_filter_table($form, &$form_state) {
  *
  * @see islandora_solr_advanced_search_form()
  */
-function _islandora_solr_advanced_search_terms(array $form, array &$form_state) {
+function _islandora_solr_advanced_search_terms(array $form, FormStateInterface $form_state) {
   return $form['terms'];
 }
 
