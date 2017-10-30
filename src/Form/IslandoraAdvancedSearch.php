@@ -41,7 +41,9 @@ class IslandoraAdvancedSearch extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     global $_islandora_solr_queryclass;
-    // @XXX: Need an offset so default value will be respected after ajax.
+    // @XXX: Drupal overwrites the form's default values after each AJAX
+    // request; tracking an offset here so Drupal will uniquely identify
+    // form elements across form builds.
     $storage = $form_state->getStorage();
     $storage['builds'] = isset($storage['builds']) ? $storage['builds'] + 1 : 1;
     $build = $storage['builds'];
