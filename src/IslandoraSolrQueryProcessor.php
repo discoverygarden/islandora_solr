@@ -45,7 +45,6 @@ class IslandoraSolrQueryProcessor {
     '%2F',
     '%252F-',
     '',
-    NULL,
   ];
 
   /**
