@@ -401,10 +401,9 @@ function islandora_solr_prepare_solr_results(array $solr_results) {
           $map_to_link = function ($original_value, $formatted_value) use ($field) {
             $solr_query = format_string('@field:"@value"', [
               '@field' => $field,
-              '@value' => islandora_solr_lesser_escape($original_value),
+              '@value' => islandora_solr_replace_slashes(islandora_solr_lesser_escape($original_value)),
             ]);
             return Link::createFromRoute($formatted_value, 'islandora_solr.islandora_solr', ['query' => $solr_query])->toString();
-
           };
           $value = array_map($map_to_link, (array) $original_value, (array) $value);
         }
