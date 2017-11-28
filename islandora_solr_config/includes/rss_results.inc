@@ -208,7 +208,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
   /**
    * Format an RSS item.
    *
-   * @see https://api.drupal.org/api/drupal/includes%21common.inc/function/formatRssItem/7.x
+   * @see https://api.drupal.org/api/drupal/includes%21common.inc/function/format_rss_item/7.x
    */
   public function formatRssItem($title, $link, $description, $args = []) {
     $output = "<item>\n";
