@@ -4,6 +4,8 @@ namespace Drupal\islandora_solr;
 
 use Drupal\Core\Url;
 use Drupal\islandora_solr\SolrPhpClient\Apache\Solr\Apache_Solr_Service;
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\Crypt;
 
 /**
  * Islandora Solr Query Processor.
@@ -15,29 +17,23 @@ use Drupal\islandora_solr\SolrPhpClient\Apache\Solr\Apache_Solr_Service;
 class IslandoraSolrQueryProcessor {
 
   public $solrQuery;
-  /**
-   * Query alternative set if solrQuery is empty.
-   */
+
   public $internalSolrQuery;
+
   public $solrStart;
+
   public $solrLimit;
+
   public $solrDefType;
-  /**
-   * All other Solr parameters.
-   */
+
   public $solrParams = [];
-  /**
-   * Solr results tailored for Islandora's use.
-   */
+
   public $islandoraSolrResult;
-  /**
-   * The current display (for modules wanting to alter the query of a display).
-   */
+
   public $display;
-  /**
-   * Parameters from URL.
-   */
+
   public $internalSolrParams;
+
   public $differentKindsOfNothing = [
     ' ',
     '%20',
@@ -84,7 +80,7 @@ class IslandoraSolrQueryProcessor {
    * @param bool $alter_results
    *   Whether or not to send out hooks to alter the islandora_solr_results.
    */
-  public function buildAndExecuteQuery($query, $params = NULL, $alter_results = TRUE) {
+  public function buildAndExecuteQuery($query, array $params = NULL, $alter_results = TRUE) {
     // Set empty string.
     if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_request_handler') == 'standard') {
       if (!$query || $query == ' ') {
@@ -106,14 +102,14 @@ class IslandoraSolrQueryProcessor {
    * be used for the query execution. Includes a module_invoke_all to make
    * changes to the query.
    *
-   * @see IslandoraSolrQueryProcessor::buildAndExecuteQuery()
-   *
    * @param string $query
    *   The query string provided in the URL.
    * @param array $params
    *   All URL parameters from the Solr results page.
+   *
+   * @see IslandoraSolrQueryProcessor::buildAndExecuteQuery()
    */
-  public function buildQuery($query, $params = []) {
+  public function buildQuery($query, array $params = []) {
     // Set internal parameters gathered from the URL but not 'q' and 'page'.
     $this->internalSolrParams = $params;
     unset($this->internalSolrParams['q']);
@@ -210,7 +206,7 @@ class IslandoraSolrQueryProcessor {
     $facet_dates = islandora_solr_get_range_facets();
     if (!empty($facet_dates)) {
       // Set range/date variables.
-      $params_date_facets = array();
+      $params_date_facets = [];
       foreach ($facet_dates as $key => $value) {
         $field = $value['solr_field'];
         $start = $value['solr_field_settings']['range_facet_start'];
@@ -248,11 +244,11 @@ class IslandoraSolrQueryProcessor {
     // Determine the default facet sort order.
     $default_sort = (\Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_max_limit') <= 0 ? 'index' : 'count');
 
-    $facet_sort_array = array();
+    $facet_sort_array = [];
     foreach (array_merge($facet_array, $facet_dates) as $key => $value) {
       if (isset($value['solr_field_settings']['sort_by']) && $value['solr_field_settings']['sort_by'] != $default_sort) {
         // If the sort doesn't match default then specify it in the parameters.
-        $facet_sort_array["f.{$key}.facet.sort"] = \Drupal\Component\Utility\Html::escape($value['solr_field_settings']['sort_by']);
+        $facet_sort_array["f.{$key}.facet.sort"] = Html::escape($value['solr_field_settings']['sort_by']);
       }
     }
     $params_array = array_merge($params_array, $facet_sort_array);
@@ -261,13 +257,13 @@ class IslandoraSolrQueryProcessor {
     $highlighting_array = islandora_solr_get_snippet_fields();
     if (!empty($highlighting_array)) {
       $highlights = implode(',', $highlighting_array);
-      $highlighting_params = array(
+      $highlighting_params = [
         'hl' => isset($highlights) ? 'true' : NULL,
         'hl.fl' => isset($highlights) ? $highlights : NULL,
         'hl.fragsize' => 400,
         'hl.simple.pre' => '<span class="islandora-solr-highlight">',
         'hl.simple.post' => '</span>',
-      );
+      ];
       $params_array += $highlighting_params;
     }
 
@@ -297,7 +293,7 @@ class IslandoraSolrQueryProcessor {
     $namespace_list = trim(\Drupal::config('islandora_solr.settings')->get('islandora_solr_namespace_restriction'));
     if ($namespace_list) {
       $namespaces = preg_split('/[,|\s]/', $namespace_list);
-      $namespace_array = array();
+      $namespace_array = [];
       foreach (array_filter($namespaces) as $namespace) {
         $namespace_array[] = "PID:$namespace\:*";
       }
@@ -336,6 +332,8 @@ class IslandoraSolrQueryProcessor {
    *
    * @param bool $alter_results
    *   Whether or not to send out hooks to alter the islandora_solr_results.
+   * @param bool $use_post
+   *   Whether to send via POST or GET HTTP methods.
    */
   public function executeQuery($alter_results = TRUE, $use_post = FALSE) {
     // Init Apache_Solr_Service object.
@@ -350,10 +348,10 @@ class IslandoraSolrQueryProcessor {
       $results = $solr->search($solr_query, $this->solrStart, $this->solrLimit, $this->solrParams, $method);
     }
     catch (Exception $e) {
-      drupal_set_message(\Drupal\Component\Utility\Html::escape(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error');
+      drupal_set_message(Html::escape(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error');
     }
 
-    $object_results = array();
+    $object_results = [];
     if (isset($results)) {
       $solr_results = json_decode($results->getRawResponse(), TRUE);
       // Invoke a hook for third-party modules to be notified of the result.
@@ -365,7 +363,7 @@ class IslandoraSolrQueryProcessor {
       $object_label = \Drupal::config('islandora_solr.settings')->get('islandora_solr_object_label_field');
       if (!empty($object_results)) {
         if (isset($this->internalSolrParams['islandora_solr_search_navigation']) && $this->internalSolrParams['islandora_solr_search_navigation']) {
-          $id = bin2hex(\Drupal\Component\Utility\Crypt::randomBytes(10));
+          $id = bin2hex(Crypt::randomBytes(10));
           $page_params = \Drupal::request()->query->all();
           $search_nav_qp = $this;
           $search_nav_qp->islandoraSolrResult = NULL;
@@ -431,7 +429,7 @@ class IslandoraSolrQueryProcessor {
               foreach ($object_result['content_models'] as $content_model_uri) {
                 // Regex out the info:fedora/ from the content model.
                 $cmodel_name = preg_replace('/info\:fedora\//', '', $content_model_uri, 1);
-                $hook_list = islandora_build_hook_list('islandora_solr_object_result', array($cmodel_name));
+                $hook_list = islandora_build_hook_list('islandora_solr_object_result', [$cmodel_name]);
                 \Drupal::moduleHandler()->alter($hook_list, $object_results[$object_index], $this);
               }
             }
@@ -465,7 +463,7 @@ class IslandoraSolrQueryProcessor {
    * @return array
    *   The object results array with updated solr doc values.
    */
-  public function prepareSolrDoc($object_results) {
+  public function prepareSolrDoc(array $object_results) {
     // Optionally limit results to values given.
     $limit_results = \Drupal::config('islandora_solr.settings')->get('islandora_solr_limit_result_fields');
     // Look for fields with no permission.

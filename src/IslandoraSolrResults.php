@@ -6,9 +6,10 @@ use Drupal\Core\Url;
 use Drupal\Core\Template\Attribute;
 
 use Drupal\islandora_solr\IslandoraSolrFacets;
+use Drupal\Component\Utility\Html;
 
 /**
- * Islandora Solr Results
+ * Islandora Solr Results.
  */
 class IslandoraSolrResults {
 
@@ -32,8 +33,6 @@ class IslandoraSolrResults {
   /**
    * Output the main body of the search results.
    *
-   * @see islandora_solr()
-   *
    * @param IslandoraSolrQueryProcessor $islandora_solr_query
    *   The IslandoraSolrQueryProcessor object which includes the current query
    *   settings and the raw Solr results.
@@ -41,8 +40,10 @@ class IslandoraSolrResults {
    * @return string
    *   Returns themed Solr results page, including wrapper and rendered search
    *   results.
+   *
+   * @see islandora_solr()
    */
-  public function displayResults($islandora_solr_query) {
+  public function displayResults(IslandoraSolrQueryProcessor $islandora_solr_query) {
     $this->islandoraSolrQueryProcessor = $islandora_solr_query;
 
     // Set variables to collect returned data.
@@ -105,7 +106,7 @@ class IslandoraSolrResults {
    *
    * @see IslandoraSolrResults::displayResults()
    */
-  public function addSecondaries($islandora_solr_query) {
+  public function addSecondaries(IslandoraSolrQueryProcessor $islandora_solr_query) {
     $query_list = [];
     // Get secondary display profiles.
     $secondary_display_profiles = \Drupal::moduleHandler()->invokeAll('islandora_solr_secondary_display');
@@ -195,7 +196,7 @@ class IslandoraSolrResults {
    * @return string
    *   Rendered lists of the currently active query and/or filters.
    */
-  public function currentQuery($islandora_solr_query) {
+  public function currentQuery(IslandoraSolrQueryProcessor $islandora_solr_query) {
     module_load_include('inc', 'islandora', 'includes/utilities');
     $output = '';
     $path = Url::fromRoute("<current>")->toString();
@@ -239,7 +240,7 @@ class IslandoraSolrResults {
       // XXX: We are not using l() because of active classes:
       // @see http://drupal.org/node/41595
       // Create link.
-      $query_list[]['#markup'] = '<a' . $attr_minus . '>(-)</a> ' . \Drupal\Component\Utility\Html::escape($query_value);
+      $query_list[]['#markup'] = '<a' . $attr_minus . '>(-)</a> ' . Html::escape($query_value);
 
       // Add wrap and list.
       $output .= '<div class="islandora-solr-query-wrap">';
@@ -298,13 +299,12 @@ class IslandoraSolrResults {
         $attr_minus['href'] = Url::fromRoute('islandora_solr.islandora_solr', [], ['query' => $query_minus])->toString();
         $attributes['minus']['attr'] = $attr_minus;
 
-
         $hooks = islandora_build_hook_list(ISLANDORA_SOLR_FACET_BUCKET_CLASSES_HOOK_BASE);
         \Drupal::moduleHandler()->alter($hooks, $attributes, $islandora_solr_query);
         // XXX: We are not using l() because of active classes:
         // @see http://drupal.org/node/41595
         // Create link.
-        $filter_list[]['#markup'] = '<a' . $attr_minus . '>(-)</a> ' . $symbol . ' ' . \Drupal\Component\Utility\Html::escape($filter_string);
+        $filter_list[]['#markup'] = '<a' . $attr_minus . '>(-)</a> ' . $symbol . ' ' . Html::escape($filter_string);
       }
 
       // Return filter list.
@@ -336,7 +336,7 @@ class IslandoraSolrResults {
    * @return array
    *   An array of breadcrumbs.
    */
-  public function getBreadcrumbs($islandora_solr_query) {
+  public function getBreadcrumbs(IslandoraSolrQueryProcessor $islandora_solr_query) {
     // $_GET['q'] didn't seem to work here.
     $path = Url::fromRoute("<current>")->toString();
     // Get date format.
@@ -392,7 +392,7 @@ class IslandoraSolrResults {
         }
 
         // Set attributes variable.
-        $attr = new Attribute;
+        $attr = new Attribute();
         $attr['title'] = $filter;
         $attr['rel'] = 'nofollow';
         if ($exclude) {
@@ -406,11 +406,10 @@ class IslandoraSolrResults {
         $attr_x['rel'] = 'nofollow';
         $attr_x['href'] = Url::fromRoute('<current>', ['query' => $query_x])->toString();
 
-
         // XXX: We are not using l() because of active classes:
         // @see http://drupal.org/node/41595
         // Create link.
-        $breadcrumb[] = '<a' . $attr . '>' . \Drupal\Component\Utility\Html::escape($filter_string) . '</a>'
+        $breadcrumb[] = '<a' . $attr . '>' . Html::escape($filter_string) . '</a>'
               . '<span class="islandora-solr-breadcrumb-super"> <a' . $attr_x . '>(' . t('x') . ')</a></span>';
 
       }
@@ -448,7 +447,6 @@ class IslandoraSolrResults {
       $attr_x['rel'] = 'nofollow';
       $attr_x['href'] = Url::fromUri($path_x, ['query' => $query_x])->toString();
 
-
       // Remove solr fields from breadcrumb value.
       $query_explode = preg_split(ISLANDORA_SOLR_QUERY_SPLIT_REGEX, $query_value);
       $query_implode = [];
@@ -475,7 +473,7 @@ class IslandoraSolrResults {
       // XXX: We are not using l() because of active classes:
       // @see http://drupal.org/node/41595
       // Create link.
-      $breadcrumb[] = '<a' . $attr . '>' . stripslashes(\Drupal\Component\Utility\Html::escape($query_value)) . '</a>'
+      $breadcrumb[] = '<a' . $attr . '>' . stripslashes(Html::escape($query_value)) . '</a>'
             . '<span class="islandora-solr-breadcrumb-super"> <a' . $attr_x . '>(' . t('x') . ')</a></span>';
     }
     $breadcrumb[] = Link::createFromRoute(t('Home'), '<front>', ['attributes' => ['title' => t('Home')]])->toString();
@@ -494,7 +492,7 @@ class IslandoraSolrResults {
    * @param string $filter
    *   The passed in filter.
    * @param object $islandora_solr_query
-   *   The current Solr Query
+   *   The current Solr Query.
    *
    * @return string
    *   The formatted filter string for breadcrumbs and active query.
@@ -567,7 +565,7 @@ class IslandoraSolrResults {
    * @see islandora_solr_islandora_solr_query_blocks()
    * @see islandora_solr_block_view()
    */
-  public function displayFacets($islandora_solr_query) {
+  public function displayFacets(IslandoraSolrQueryProcessor $islandora_solr_query) {
     IslandoraSolrFacets::init($islandora_solr_query);
     $output = [
       '#attached' => [
@@ -588,16 +586,16 @@ class IslandoraSolrResults {
    * Creates a fieldset containing raw Solr results of the current page for
    * debugging purposes.
    *
-   * @see IslandoraSolrResults::displayResults()
-   *
    * @param array $islandora_solr_results
    *   The processed Solr results from
-   *   IslandoraSolrQueryProcessor::islandoraSolrResult
+   *   IslandoraSolrQueryProcessor::islandoraSolrResult.
    *
    * @return string
    *   Rendered fieldset containing raw Solr results data.
+   *
+   * @see IslandoraSolrResults::displayResults()
    */
-  public function printDebugOutput($islandora_solr_results) {
+  public function printDebugOutput(array $islandora_solr_results) {
     // Debug dump.
     $results = "<pre>Results: " . print_r($islandora_solr_results, TRUE) . "</pre>";
     $fieldset = [
@@ -607,7 +605,7 @@ class IslandoraSolrResults {
       '#markup' => $results,
       '#children' => '',
     ];
-   return \Drupal::service('renderer')->render($fieldset);
+    return \Drupal::service('renderer')->render($fieldset);
   }
 
   /**

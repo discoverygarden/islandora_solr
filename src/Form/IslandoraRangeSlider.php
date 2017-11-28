@@ -29,8 +29,10 @@ class IslandoraRangeSlider extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, array $elements = []) {
-    global $_islandora_solr_queryclass;
-    extract($elements);
+    $gap = elements['gap'];
+    $facet_field = elements['facet_field'];
+    $form_key = elements['form_key'];
+    $slider_color = elements['slider_color'];
     $from_default = current($data);
     $to_default = end($data);
     if (!empty($gap)) {
@@ -50,8 +52,10 @@ class IslandoraRangeSlider extends FormBase {
       '#theme' => 'islandora_solr_range_slider',
       '#form_key' => $form_key,
       '#gap' => $gap,
-      '#range_from' => format_date(strtotime(trim($from_default['date'])) + 1, 'custom', $date_format, 'UTC'),
-      '#range_to' => format_date(strtotime(trim($to_default['date'])), 'custom', $date_format, 'UTC'),
+      // @codingStandardsIgnoreStart
+      '#range_from' => \Drupal::getContainer()->get('date.formatter')->format(strtotime(trim($from_default['date'])) + 1, 'custom', $date_format, 'UTC'),
+      '#range_to' => \Drupal::getContainer()->get('date.formatter')->format(strtotime(trim($to_default['date'])), 'custom', $date_format, 'UTC'),
+      // @codingStandardsIgnoreEnd
     ];
     $form['markup'] = [
       '#markup' => \Drupal::service('renderer')->render($slider_element),

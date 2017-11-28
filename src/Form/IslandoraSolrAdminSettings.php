@@ -242,7 +242,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#title' => $this->t('Field value separator'),
       '#description' => $this->t('Characters to separate values in multivalued fields. If left empty it will default to @value.', [
         '@value' => '", "',
-        ]),
+      ]),
       '#default_value' => $config->get('islandora_solr_search_field_value_separator'),
     ];
     $form['default_display_settings']['islandora_solr_search_truncated_field_value_separator'] = [
@@ -264,7 +264,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#title' => $this->t('Sort fields'),
       '#description' => $this->t('Indicates what fields should appear in the <strong>Islandora sort block</strong>. To sort on relevancy, use the \'score\' field.<br /><strong>Note:</strong> not all fields are sortable. For more information, check the <a href="@url">Solr documentation</a>. Displayed settings will update on save.', [
         '@url' => 'http://wiki.apache.org/solr/CommonQueryParameters#sort',
-        ]),
+      ]),
       '#tree' => TRUE,
       '#prefix' => '<div id="islandora-solr-sort-fields-wrapper">',
       '#suffix' => '</div>',
@@ -387,14 +387,14 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#title' => $this->t('Default regular expression evaluated on search term'),
       '#default_value' => $config->get('islandora_solr_advanced_search_block_lucene_regex_default'),
       '#description' => $this->t("The default regular expression, used to escape characters when found in search terms. Defaults to @regex", [
-        '@regex' => ISLANDORA_SOLR_QUERY_FACET_LUCENE_ESCAPE_REGEX_DEFAULT
-        ]),
+        '@regex' => ISLANDORA_SOLR_QUERY_FACET_LUCENE_ESCAPE_REGEX_DEFAULT,
+      ]),
       '#states' => [
         'visible' => [
           ':input[name="islandora_solr_advanced_search_block_lucene_syntax_escape"]' => [
-            'checked' => TRUE
-          ]
-        ]
+            'checked' => TRUE,
+          ],
+        ],
       ],
     ];
 
@@ -433,8 +433,8 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#description' => $this->t('Indicates which field should define the sort order for the default query.<br />
     For example: <strong>fgs_createdDate_dt desc</strong>.<br /><strong>Note:</strong> only single-valued fields are sortable.
     For more information, check the <a href="@url">Solr documentation</a>.', [
-        '@url' => 'http://wiki.apache.org/solr/CommonQueryParameters#sort'
-        ]),
+      '@url' => 'http://wiki.apache.org/solr/CommonQueryParameters#sort',
+    ]),
       '#default_value' => $config->get('islandora_solr_base_sort'),
     ];
     $form['query_defaults']['islandora_solr_base_filter'] = [
@@ -450,16 +450,16 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       '#title' => $this->t('Query fields'),
       '#default_value' => $config->get('islandora_solr_query_fields'),
       '#description' => $this->t('<a href="@url" target="_blank" title="Solr query fields documentation">Query fields</a> to use for DisMax (simple) searches.', [
-        '@url' => 'http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29'
-        ]),
+        '@url' => 'http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29',
+      ]),
     ];
     $form['query_defaults']['islandora_solr_use_ui_qf'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Prefer defined query fields?'),
       '#default_value' => $config->get('islandora_solr_use_ui_qf'),
       '#description' => $this->t('Use the above "@qf" by default; otherwise, they will only be used as a fallback in the case there are none defined in the selected request handler.', [
-        '@qf' => $this->t('Query fields')
-        ]),
+        '@qf' => $this->t('Query fields'),
+      ]),
     ];
 
     // Required Solr fields.
@@ -564,7 +564,7 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     ];
     foreach ($form_state->getValue('islandora_solr_primary_display_table') as $key => $values) {
       $munged_config['weight'][$key] = $values['weight'];
-      $munged_config['enabled'][$key] = ($munged_config['default'] == $key) ?  TRUE : $values['enabled'];
+      $munged_config['enabled'][$key] = ($munged_config['default'] == $key) ? TRUE : $values['enabled'];
     }
     $this->config('islandora_solr.settings')->set('islandora_solr_primary_display_table', $munged_config);
     $this->config('islandora_solr.settings')->set('islandora_solr_primary_display', $munged_config['default']);
@@ -603,8 +603,14 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
         foreach ($result_fields as $key => $value) {
           $solr_field = $value['solr_field'];
           $solr_field_settings = [];
-          if ($form_state->get(['solr_field_settings', "islandora_solr_{$field_type}", $solr_field])) {
-            $solr_field_settings = $form_state->get(['solr_field_settings', "islandora_solr_{$field_type}", $solr_field]);
+          if ($form_state->get(['solr_field_settings',
+            "islandora_solr_{$field_type}",
+            $solr_field,
+          ])) {
+            $solr_field_settings = $form_state->get(['solr_field_settings',
+              "islandora_solr_{$field_type}",
+              $solr_field,
+            ]);
             // Handle linking to objects to not break existing features while
             // adding new functionality.
             if ($field_type == 'result_fields') {
@@ -639,9 +645,9 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
     // Find things to Add/Update.
     $insert_values = [];
     $update_values = [];
-    foreach ($current_values as $current_key => $current_value) {
+    foreach ($current_values as $current_value) {
       $found = FALSE;
-      foreach ($records as $existing_key => $existing_value) {
+      foreach ($records as $existing_value) {
         if ($current_value['solr_field'] == $existing_value['solr_field'] && $current_value['field_type'] == $existing_value['field_type']) {
           if ($current_value['weight'] != $existing_value['weight']) {
             $update_values[] = $current_value;
@@ -661,9 +667,9 @@ class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
       'facet_fields' => [],
       'search_fields' => [],
     ];
-    foreach ($records as $existing_key => $existing_value) {
+    foreach ($records as $existing_value) {
       $found = FALSE;
-      foreach ($current_values as $current_key => $current_value) {
+      foreach ($current_values as $current_value) {
         if ($current_value['solr_field'] == $existing_value['solr_field'] && $current_value['field_type'] == $existing_value['field_type']) {
           $found = TRUE;
           break;

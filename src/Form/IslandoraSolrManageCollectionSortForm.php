@@ -25,8 +25,8 @@ class IslandoraSolrManageCollectionSortForm extends FormBase {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
     $current_default = islandora_solr_get_collection_sort_string($object->id);
     $form_state->set('collection', $object->id);
-    $collection_sort = \Drupal::config('islandora_solr.settings')->get('islandora_solr_collection_sort');
-    $base_sort = \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_sort');
+    $collection_sort = $this->config('islandora_solr.settings')->get('islandora_solr_collection_sort');
+    $base_sort = $this->config('islandora_solr.settings')->get('islandora_solr_base_sort');
     return [
       '#action' => Url::fromRoute(
         '<current>',

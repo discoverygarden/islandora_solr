@@ -71,7 +71,9 @@ class IslandoraDateFilter extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, array $elements = []) {
     global $_islandora_solr_queryclass;
-    extract($elements);
+    $facet_field = elements['facet_field'];
+    $form_key = elements['form_key'];
+    $datepicker_range = elements['datepicker_range'];
 
     $form = [
       '#tree' => TRUE,
@@ -112,13 +114,17 @@ class IslandoraDateFilter extends FormBase {
           // Only set default times if from date is lower than to date.
           if ($from_unix < $to_unix) {
             if ($from_unix !== FALSE) {
-              $from_default = (strpos($filter_array[0], '*') !== FALSE) ? '*' : format_date($from_unix, 'custom', $format, 'UTC');
+              // @codingStandardsIgnoreStart
+              $from_default = (strpos($filter_array[0], '*') !== FALSE) ? '*' : \Drupal::getContainer()->get('date.formatter')->format($from_unix, 'custom', $format, 'UTC');
+              // @codingStandardsIgnoreEnd
             }
             else {
               $from_default = NULL;
             }
             if ($to_unix !== FALSE) {
-              $to_default = (strpos($filter_array[1], '*') !== FALSE) ? '*' : format_date($to_unix, 'custom', $format, 'UTC');
+              // @codingStandardsIgnoreStart
+              $to_default = (strpos($filter_array[1], '*') !== FALSE) ? '*' : \Drupal::getContainer()->get('date.formatter')->format($to_unix, 'custom', $format, 'UTC');
+              // @codingStandardsIgnoreEnd
             }
             else {
               $to_default = NULL;

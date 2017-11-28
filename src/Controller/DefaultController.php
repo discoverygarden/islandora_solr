@@ -3,17 +3,44 @@
 namespace Drupal\islandora_solr\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Config\ConfigFactoryInterface;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 use Drupal\islandora_solr\IslandoraSolrResults;
 
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\Xss;
+
 /**
  * Default controller for the islandora_solr module.
  */
-class DefaultController extends ControllerBase {
+class DefaultController extends ControllerBase implements ConfigFactoryInterface {
+
+  protected $moduleHandler;
+
+  protected $config;
+
+  /**
+   * Constructor for dependency injection.
+   */
+  public function __construct(ModuleHandlerInterface $moduleHandler, ConfigFactoryInterface $config) {
+    $this->moduleHandler = $moduleHandler;
+    $this->config = $config;
+  }
+
+  /**
+   * Dependency Injection.
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('module_handler'),
+      $container->get('config.factory')
+    );
+  }
 
   /**
    * Page callback: Islandora Solr.
@@ -23,18 +50,19 @@ class DefaultController extends ControllerBase {
    * Finds the right display and calls the IslandoraSolrRestuls class to build the
    * display, which it returns to the page.
    *
-   * @global IslandoraSolrQueryProcessor $_islandora_solr_queryclass
-   *   The IslandoraSolrQueryProcessor object which includes the current query
-   *   settings and the raw Solr results.
-   *
    * @param string $query
    *   The Solr query string.
    * @param array $params
    *   The URL query array.
+   *
+   * @global IslandoraSolrQueryProcessor $_islandora_solr_queryclass
+   *   The IslandoraSolrQueryProcessor object which includes the current query
+   *   settings and the raw Solr results.
+   *
    * @return string
    *   A rendered Solr display
    */
-  public function islandora_solr($query = NULL, $params = NULL) {
+  public function islandoraSolr($query = NULL, array $params = NULL) {
     global $_islandora_solr_queryclass;
 
     // Url parameters.
@@ -42,8 +70,8 @@ class DefaultController extends ControllerBase {
       $params = $_GET;
     }
     // Get profiles.
-    $primary_profiles = \Drupal::moduleHandler()->invokeAll('islandora_solr_primary_display');
-    $secondary_profiles = \Drupal::moduleHandler()->invokeAll('islandora_solr_secondary_display');
+    $primary_profiles = $this->moduleHandler->invokeAll('islandora_solr_primary_display');
+    $secondary_profiles = $this->moduleHandler->invokeAll('islandora_solr_secondary_display');
 
     // Get the preferred display profile.
     // Order:
@@ -52,7 +80,7 @@ class DefaultController extends ControllerBase {
     // - Third choice is the base IslandoraSolrResults.
     $enabled_profiles = [];
     // Get enabled displays.
-    $primary_display_array = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display_table');
+    $primary_display_array = $this->config->get('islandora_solr.settings')->get('islandora_solr_primary_display_table');
     // If it's set, we take these values.
     if (isset($primary_display_array['enabled'])) {
       foreach ($primary_display_array['enabled'] as $key => $value) {
@@ -68,11 +96,11 @@ class DefaultController extends ControllerBase {
       $islandora_solr_primary_display = $params['display'];
     }
     else {
-      $islandora_solr_primary_display = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display');
+      $islandora_solr_primary_display = $this->config->get('islandora_solr.settings')->get('islandora_solr_primary_display');
       // Unset invalid parameter.
       unset($params['display']);
     }
-    $params['islandora_solr_search_navigation'] = \Drupal::config('islandora_solr.settings')->get('islandora_solr_search_navigation');
+    $params['islandora_solr_search_navigation'] = $this->config->get('islandora_solr.settings')->get('islandora_solr_search_navigation');
 
     // !!! Set the global variable. !!!
     $_islandora_solr_queryclass = new IslandoraSolrQueryProcessor();
@@ -81,7 +109,7 @@ class DefaultController extends ControllerBase {
     $_islandora_solr_queryclass->buildAndExecuteQuery($query, $params);
 
     if (empty($_islandora_solr_queryclass->islandoraSolrResult)) {
-      return t('Error searching Solr index.');
+      return $this->t('Error searching Solr index.');
     }
     // TODO: Also filter secondary displays against those checked in the
     // configuration options.
@@ -92,7 +120,7 @@ class DefaultController extends ControllerBase {
       $profile = $primary_profiles[$islandora_solr_primary_display];
     }
     else {
-      drupal_set_message(\Drupal\Component\Utility\Html::escape(t('There is an error in the Solr search configuration: the display profile is not found.')), 'error');
+      drupal_set_message(Html::escape($this->t('There is an error in the Solr search configuration: the display profile is not found.')), 'error');
       $profile = $primary_profiles['default'];
     }
 
@@ -120,11 +148,11 @@ class DefaultController extends ControllerBase {
     $output = $results_class->displayResults($_islandora_solr_queryclass);
 
     // Debug dump.
-    if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode')) {
-      $message = t('Parameters: <br /><pre>@debug</pre>', [
-        '@debug' => print_r($_islandora_solr_queryclass->solrParams, TRUE)
-        ]);
-      drupal_set_message(\Drupal\Component\Utility\Xss::filter($message, [
+    if ($this->config->get('islandora_solr.settings')->get('islandora_solr_debug_mode')) {
+      $message = $this->t('Parameters: <br /><pre>@debug</pre>', [
+        '@debug' => print_r($_islandora_solr_queryclass->solrParams, TRUE),
+      ]);
+      drupal_set_message(Xss::filter($message, [
         'pre',
         'br',
       ]), 'status');
@@ -137,7 +165,7 @@ class DefaultController extends ControllerBase {
   /**
    * Admin autocomplete callback which returns solr fields from Luke.
    */
-  public function _islandora_solr_autocomplete_luke(Request $request) {
+  public function islandoraSolrAutocompleteLuke(Request $request) {
     module_load_include('inc', 'islandora_solr', 'includes/luke');
     $string = $request->query->get('q');
     $luke = islandora_solr_get_luke();

@@ -27,7 +27,7 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
    *   The IslandoraSolrQueryProcessor object which includes the current query
    *   settings and the raw Solr results.
    */
-  public function printCSV($islandora_solr_query) {
+  public function printCsv($islandora_solr_query) {
     // We want to unset the display profile of CSV, but keep everything else.
     $params = \Drupal::request()->query->all();
     unset($params['solr_profile']);
