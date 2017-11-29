@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class Explore extends BlockBase implements ContainerFactoryPluginInterface {
 
 
-  protected $config;
+  protected $configFactory;
 
   /**
    * {@inheritdoc}
@@ -39,9 +39,9 @@ class Explore extends BlockBase implements ContainerFactoryPluginInterface {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $configFactory) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->config = $config;
+    $this->configFactory = $configFactory;
   }
 
   /**
@@ -74,7 +74,7 @@ class Explore extends BlockBase implements ContainerFactoryPluginInterface {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/blocks');
     $form = parent::blockForm($form, $form_state);
     // Get the variables for the form display facets.
-    $explore_config = ($form_state->get('islandora_solr_facet_filters') ? $form_state->get('islandora_solr_facet_filters') : $this->config->get('islandora_solr.settings')->get('islandora_solr_explore_config'));
+    $explore_config = ($form_state->get('islandora_solr_facet_filters') ? $form_state->get('islandora_solr_facet_filters') : $this->configFactory->get('islandora_solr.settings')->get('islandora_solr_explore_config'));
     $triggering_element = $form_state->getTriggeringElement();
     // Check if remove was clicked and removed the label and filter from the
     // values and the table.
@@ -307,7 +307,7 @@ class Explore extends BlockBase implements ContainerFactoryPluginInterface {
    * {@inheritdoc}
    */
   public function blockValidate($form, FormStateInterface $form_state) {
-    $explore_config = ($form_state->get('islandora_solr_facet_filters') ? $form_state->get('islandora_solr_facet_filters') : $this->config->get('islandora_solr.settings')->get('islandora_solr_explore_config'));
+    $explore_config = ($form_state->get('islandora_solr_facet_filters') ? $form_state->get('islandora_solr_facet_filters') : $this->configFactory->get('islandora_solr.settings')->get('islandora_solr_explore_config'));
     $facet_label = $form_state->getCompleteFormState()->getValue(['settings',
       'facet',
       'fieldset',
@@ -390,7 +390,7 @@ class Explore extends BlockBase implements ContainerFactoryPluginInterface {
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
     if ($form_state->get('islandora_solr_facet_filters')) {
-      $config = $this->config->getEditable('islandora_solr.settings');
+      $config = $this->configFactory->getEditable('islandora_solr.settings');
       $config->set('islandora_solr_explore_config', $form_state->get('islandora_solr_facet_filters'));
       $config->save();
     }
