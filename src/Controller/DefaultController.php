@@ -18,29 +18,7 @@ use Drupal\Component\Utility\Xss;
 /**
  * Default controller for the islandora_solr module.
  */
-class DefaultController extends ControllerBase implements ConfigFactoryInterface {
-
-  protected $moduleHandler;
-
-  protected $configFactory;
-
-  /**
-   * Constructor for dependency injection.
-   */
-  public function __construct(ModuleHandlerInterface $moduleHandler, ConfigFactoryInterface $configFactory) {
-    $this->moduleHandler = $moduleHandler;
-    $this->configFactory = $configFactory;
-  }
-
-  /**
-   * Dependency Injection.
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('module_handler'),
-      $container->get('config.factory')
-    );
-  }
+class DefaultController extends ControllerBase {
 
   /**
    * Page callback: Islandora Solr.
@@ -70,8 +48,8 @@ class DefaultController extends ControllerBase implements ConfigFactoryInterface
       $params = $_GET;
     }
     // Get profiles.
-    $primary_profiles = $this->moduleHandler->invokeAll('islandora_solr_primary_display');
-    $secondary_profiles = $this->moduleHandler->invokeAll('islandora_solr_secondary_display');
+    $primary_profiles = $this->moduleHandler()->invokeAll('islandora_solr_primary_display');
+    $secondary_profiles = $this->moduleHandler()->invokeAll('islandora_solr_secondary_display');
 
     // Get the preferred display profile.
     // Order:
@@ -80,7 +58,7 @@ class DefaultController extends ControllerBase implements ConfigFactoryInterface
     // - Third choice is the base IslandoraSolrResults.
     $enabled_profiles = [];
     // Get enabled displays.
-    $primary_display_array = $this->configFactory->get('islandora_solr.settings')->get('islandora_solr_primary_display_table');
+    $primary_display_array = $this->config('islandora_solr.settings')->get('islandora_solr_primary_display_table');
     // If it's set, we take these values.
     if (isset($primary_display_array['enabled'])) {
       foreach ($primary_display_array['enabled'] as $key => $value) {
@@ -96,11 +74,11 @@ class DefaultController extends ControllerBase implements ConfigFactoryInterface
       $islandora_solr_primary_display = $params['display'];
     }
     else {
-      $islandora_solr_primary_display = $this->configFactory->get('islandora_solr.settings')->get('islandora_solr_primary_display');
+      $islandora_solr_primary_display = $this->config('islandora_solr.settings')->get('islandora_solr_primary_display');
       // Unset invalid parameter.
       unset($params['display']);
     }
-    $params['islandora_solr_search_navigation'] = $this->configFactory->get('islandora_solr.settings')->get('islandora_solr_search_navigation');
+    $params['islandora_solr_search_navigation'] = $this->config('islandora_solr.settings')->get('islandora_solr_search_navigation');
 
     // !!! Set the global variable. !!!
     $_islandora_solr_queryclass = new IslandoraSolrQueryProcessor();
@@ -148,7 +126,7 @@ class DefaultController extends ControllerBase implements ConfigFactoryInterface
     $output = $results_class->displayResults($_islandora_solr_queryclass);
 
     // Debug dump.
-    if ($this->configFactory->get('islandora_solr.settings')->get('islandora_solr_debug_mode')) {
+    if ($this->config('islandora_solr.settings')->get('islandora_solr_debug_mode')) {
       $message = $this->t('Parameters: <br /><pre>@debug</pre>', [
         '@debug' => print_r($_islandora_solr_queryclass->solrParams, TRUE),
       ]);

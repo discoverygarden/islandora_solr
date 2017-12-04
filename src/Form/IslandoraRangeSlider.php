@@ -29,10 +29,10 @@ class IslandoraRangeSlider extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, array $elements = []) {
-    $gap = elements['gap'];
-    $facet_field = elements['facet_field'];
-    $form_key = elements['form_key'];
-    $slider_color = elements['slider_color'];
+    $gap = $elements['gap'];
+    $facet_field = $elements['facet_field'];
+    $form_key = $elements['form_key'];
+    $slider_color = $elements['slider_color'];
     $from_default = current($data);
     $to_default = end($data);
     if (!empty($gap)) {

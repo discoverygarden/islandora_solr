@@ -71,9 +71,9 @@ class IslandoraDateFilter extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, array $elements = []) {
     global $_islandora_solr_queryclass;
-    $facet_field = elements['facet_field'];
-    $form_key = elements['form_key'];
-    $datepicker_range = elements['datepicker_range'];
+    $facet_field = $elements['facet_field'];
+    $form_key = $elements['form_key'];
+    $datepicker_range = $elements['datepicker_range'];
 
     $form = [
       '#tree' => TRUE,
