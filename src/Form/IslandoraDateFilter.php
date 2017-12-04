@@ -114,6 +114,7 @@ class IslandoraDateFilter extends FormBase {
           // Only set default times if from date is lower than to date.
           if ($from_unix < $to_unix) {
             if ($from_unix !== FALSE) {
+              // XXX: Need to implement DI here, requires refactoring of instantiation calls using new.
               // @codingStandardsIgnoreStart
               $from_default = (strpos($filter_array[0], '*') !== FALSE) ? '*' : \Drupal::getContainer()->get('date.formatter')->format($from_unix, 'custom', $format, 'UTC');
               // @codingStandardsIgnoreEnd
@@ -122,6 +123,7 @@ class IslandoraDateFilter extends FormBase {
               $from_default = NULL;
             }
             if ($to_unix !== FALSE) {
+              // XXX: Need to implement DI here, requires refactoring of instantiation calls using new.
               // @codingStandardsIgnoreStart
               $to_default = (strpos($filter_array[1], '*') !== FALSE) ? '*' : \Drupal::getContainer()->get('date.formatter')->format($to_unix, 'custom', $format, 'UTC');
               // @codingStandardsIgnoreEnd
