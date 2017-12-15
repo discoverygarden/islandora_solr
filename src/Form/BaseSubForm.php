@@ -57,7 +57,7 @@ abstract class BaseSubForm extends FormBase implements BaseFormIdInterface {
   /**
    * {@inheritdoc}
    */
-  public function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container) {
     return new static(
       $container->get('date.formatter'),
       $container->get('renderer')
