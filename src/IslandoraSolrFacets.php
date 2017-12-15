@@ -659,7 +659,7 @@ class IslandoraSolrFacets {
 
     $form_object = \Drupal::service('class_resolver')->getInstanceFromDefinition(IslandoraRangeSlider::class);
     $form_object->setType($elements['form_key']);
-    $range_slider_form = \Drupal::formBuilder()->getForm($form_object, $elements['form_key'], $elements);
+    $range_slider_form = \Drupal::formBuilder()->getForm($form_object, $elements);
 
     if (isset($old_build_id)) {
       // XXX: Restore the build ID to $_POST, just in case.

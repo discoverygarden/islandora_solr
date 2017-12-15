@@ -19,6 +19,7 @@ class IslandoraRangeSlider extends BaseSubForm {
     $form_key = $elements['form_key'];
     $slider_color = $elements['slider_color'];
     $date_format = $elements['date_format'];
+    $data = $elements['data'];
 
     $from_default = current($data);
     $to_default = end($data);
