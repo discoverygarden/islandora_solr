@@ -656,8 +656,11 @@ class IslandoraSolrFacets {
     if (isset($old_build_id)) {
       $_POST['form_build_id'] = NULL;
     }
-    $form_object = new IslandoraRangeSlider($elements['form_key']);
-    $range_slider_form = \Drupal::formBuilder()->getForm($form_object, $elements);
+
+    $form_object = \Drupal::service('class_resolver')->getInstanceFromDefinition(IslandoraRangeSlider::class);
+    $form_object->setType($elements['form_key']);
+    $range_slider_form = \Drupal::formBuilder()->getForm($form_object, $elements['form_key'], $elements);
+
     if (isset($old_build_id)) {
       // XXX: Restore the build ID to $_POST, just in case.
       $_POST['form_build_id'] = $old_build_id;
@@ -696,7 +699,8 @@ class IslandoraSolrFacets {
    * a form, returns it and then renders the form.
    */
   public function renderFacetDatesFilter($elements) {
-    $form_object = new IslandoraDateFilter($elements['form_key']);
+    $form_object = \Drupal::service('class_resolver')->getInstanceFromDefinition(IslandoraDateFilter::class);
+    $form_object->setType($elements['form_key']);
     $date_filter_form = \Drupal::formBuilder()->getForm($form_object, $elements);
     if (!empty($this->content)) {
       $this->content["date_filter{$elements['form_key']}"] = $date_filter_form;

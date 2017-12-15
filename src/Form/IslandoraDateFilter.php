@@ -2,28 +2,13 @@
 
 namespace Drupal\islandora_solr\Form;
 
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
  * The date filter form.
  */
-class IslandoraDateFilter extends FormBase {
-  protected $type;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function __construct($type) {
-    $this->type = $type;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormId() {
-    return "islandora_solr_date_filter_form_{$this->type}";
-  }
+class IslandoraDateFilter extends BaseSubForm {
+  const BASE_ID = 'islandora_solr_date_filter_form';
 
   /**
    * {@inheritdoc}
@@ -93,7 +78,7 @@ class IslandoraDateFilter extends FormBase {
     $filter_count = 0;
     if (isset($params['f'])) {
       $format = 'Y/m/d';
-      foreach ($params['f'] as $key => $filter) {
+      foreach ($params['f'] as $filter) {
         if (strpos($filter, $facet_field) === 0) {
           $filter_count++;
           // Split the filter into field and value.
@@ -114,19 +99,13 @@ class IslandoraDateFilter extends FormBase {
           // Only set default times if from date is lower than to date.
           if ($from_unix < $to_unix) {
             if ($from_unix !== FALSE) {
-              // XXX: Need to implement DI here, requires refactoring of instantiation calls using new.
-              // @codingStandardsIgnoreStart
-              $from_default = (strpos($filter_array[0], '*') !== FALSE) ? '*' : \Drupal::getContainer()->get('date.formatter')->format($from_unix, 'custom', $format, 'UTC');
-              // @codingStandardsIgnoreEnd
+              $from_default = (strpos($filter_array[0], '*') !== FALSE) ? '*' : $this->dateFormatter->format($from_unix, 'custom', $format, 'UTC');
             }
             else {
               $from_default = NULL;
             }
             if ($to_unix !== FALSE) {
-              // XXX: Need to implement DI here, requires refactoring of instantiation calls using new.
-              // @codingStandardsIgnoreStart
-              $to_default = (strpos($filter_array[1], '*') !== FALSE) ? '*' : \Drupal::getContainer()->get('date.formatter')->format($to_unix, 'custom', $format, 'UTC');
-              // @codingStandardsIgnoreEnd
+              $to_default = (strpos($filter_array[1], '*') !== FALSE) ? '*' : $this->dateFormatter->format($to_unix, 'custom', $format, 'UTC');
             }
             else {
               $to_default = NULL;
@@ -203,7 +182,6 @@ class IslandoraDateFilter extends FormBase {
 
     $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : [];
     $facet_field = $form_state->getValue('date_filter_facet_field');
-    $form_key = $form_state->getTriggeringElement()['#form_key'];
 
     // Date.
     $from = explode('/', $form_state->getValue(['date_filter', 'date_filter_from']));

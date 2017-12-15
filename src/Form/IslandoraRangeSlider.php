@@ -2,28 +2,13 @@
 
 namespace Drupal\islandora_solr\Form;
 
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
  * The range slider form.
  */
-class IslandoraRangeSlider extends FormBase {
-  protected $type;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function __construct($type) {
-    $this->type = $type;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormId() {
-    return "islandora_solr_range_slider_form_{$this->type}";
-  }
+class IslandoraRangeSlider extends BaseSubForm {
+  const BASE_ID = 'islandora_solr_range_slider_form';
 
   /**
    * {@inheritdoc}
@@ -33,6 +18,8 @@ class IslandoraRangeSlider extends FormBase {
     $facet_field = $elements['facet_field'];
     $form_key = $elements['form_key'];
     $slider_color = $elements['slider_color'];
+    $date_format = $elements['date_format'];
+
     $from_default = current($data);
     $to_default = end($data);
     if (!empty($gap)) {
@@ -52,13 +39,11 @@ class IslandoraRangeSlider extends FormBase {
       '#theme' => 'islandora_solr_range_slider',
       '#form_key' => $form_key,
       '#gap' => $gap,
-      // @codingStandardsIgnoreStart
-      '#range_from' => \Drupal::getContainer()->get('date.formatter')->format(strtotime(trim($from_default['date'])) + 1, 'custom', $date_format, 'UTC'),
-      '#range_to' => \Drupal::getContainer()->get('date.formatter')->format(strtotime(trim($to_default['date'])), 'custom', $date_format, 'UTC'),
-      // @codingStandardsIgnoreEnd
+      '#range_from' => $this->dateFormatter->format(strtotime(trim($from_default['date'])) + 1, 'custom', $date_format, 'UTC'),
+      '#range_to' => $this->dateFormatter->format(strtotime(trim($to_default['date'])), 'custom', $date_format, 'UTC'),
     ];
     $form['markup'] = [
-      '#markup' => \Drupal::service('renderer')->render($slider_element),
+      '#markup' => $this->renderer->render($slider_element),
     ];
 
     // Hidden from.
@@ -100,7 +85,6 @@ class IslandoraRangeSlider extends FormBase {
     // Set variables.
     global $_islandora_solr_queryclass;
     $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : [];
-    $form_key = $form_state->getTriggeringElement()['#form_key'];
 
     $term = $form_state->getValue('range_slider_term');
 

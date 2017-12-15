@@ -3,11 +3,9 @@
 namespace Drupal\islandora_solr\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Config\ConfigFactoryInterface;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
@@ -20,10 +18,10 @@ class DefaultController extends ControllerBase {
   /**
    * Page callback: Islandora Solr.
    *
-   * Gathers url parameters, and calls the query builder, which prepares the query
-   * based on the admin settings and url values.
-   * Finds the right display and calls the IslandoraSolrRestuls class to build the
-   * display, which it returns to the page.
+   * Gathers url parameters, and calls the query builder, which prepares the
+   * query based on the admin settings and url values.
+   * Finds the right display and calls the IslandoraSolrResults class to build
+   * the display, which it returns to the page.
    *
    * @param string $query
    *   The Solr query string.
