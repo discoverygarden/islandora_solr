@@ -5,7 +5,6 @@ namespace Drupal\islandora_solr;
 use Drupal\Core\Url;
 use Drupal\Core\Template\Attribute;
 
-use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 use Drupal\islandora_solr\Form\IslandoraDateFilter;
 use Drupal\islandora_solr\Form\IslandoraRangeSlider;
 
