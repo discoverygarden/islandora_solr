@@ -7,7 +7,6 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

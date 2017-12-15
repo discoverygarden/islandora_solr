@@ -318,11 +318,6 @@ class Explore extends BlockBase implements ContainerFactoryPluginInterface {
       'fieldset',
       'filter',
     ]);
-    $facet_weight = $form_state->getCompleteFormState()->getValue(['settings',
-      'facet',
-      'fieldset',
-      'facet_weight',
-    ]);
     $duplicate = FALSE;
 
     if (empty($facet_filter)) {

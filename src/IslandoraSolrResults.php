@@ -5,7 +5,6 @@ namespace Drupal\islandora_solr;
 use Drupal\Core\Url;
 use Drupal\Core\Template\Attribute;
 
-use Drupal\islandora_solr\IslandoraSolrFacets;
 use Drupal\Component\Utility\Html;
 
 /**
@@ -200,7 +199,6 @@ class IslandoraSolrResults {
     module_load_include('inc', 'islandora', 'includes/utilities');
     $output = '';
     $path = Url::fromRoute("<current>")->toString();
-    $format = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_date_format');
 
     // Get user provided filter parameters.
     $fq = isset($islandora_solr_query->internalSolrParams['f']) ? $islandora_solr_query->internalSolrParams['f'] : [];
@@ -261,7 +259,7 @@ class IslandoraSolrResults {
     // Get filter values.
     if (!empty($fq)) {
       // Set list variables.
-      foreach ($fq as $key => $filter) {
+      foreach ($fq as $filter) {
         // Check for exclude filter.
         if ($filter[0] == '-') {
           // Not equal sign.
@@ -339,8 +337,6 @@ class IslandoraSolrResults {
   public function getBreadcrumbs(IslandoraSolrQueryProcessor $islandora_solr_query) {
     // $_GET['q'] didn't seem to work here.
     $path = Url::fromRoute("<current>")->toString();
-    // Get date format.
-    $format = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_date_format');
 
     $breadcrumb = [];
     // Get user provided filter parameters.
@@ -361,7 +357,7 @@ class IslandoraSolrResults {
     // Loop to create filter breadcrumbs if available.
     if (!empty($fq)) {
       $f['f'] = [];
-      foreach ($fq as $key => $filter) {
+      foreach ($fq as $filter) {
         // Check for exclude filter.
         $exclude = FALSE;
         if ($filter[0] == '-') {
