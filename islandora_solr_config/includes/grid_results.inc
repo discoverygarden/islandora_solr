@@ -12,8 +12,15 @@ use Drupal\islandora_solr\IslandoraSolrResults;
 
 /**
  * Extension of IslandoraSolrResults to create an alternative display type.
+ *
+ * @codingStandardsIgnoreStart
+ * XXX: Poorly implemented sniff indicates class should begin with
+ * "IslandoraSolrConfig.info" instead of just "IslandoraSolrConfig"... ideally,
+ * this should move somewhere under the Drupal\islandora_solr_config namespace
+ * at somepoint...
  */
-class IslandoraSolrResultsGrid extends IslandoraSolrResults {
+class IslandoraSolrConfigResultsGrid extends IslandoraSolrResults {
+// @codingStandardsIgnoreEnd
 
   /**
    * Renders the Solr results as a responsive grid view.

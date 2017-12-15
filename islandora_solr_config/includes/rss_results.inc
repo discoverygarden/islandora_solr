@@ -17,8 +17,15 @@ use Drupal\islandora_solr\IslandoraSolrResults;
  *
  * This overrides the displayResults function to provide an alternate display
  * type.
+ *
+ * @codingStandardsIgnoreStart
+ * XXX: Poorly implemented sniff indicates class should begin with
+ * "IslandoraSolrConfig.info" instead of just "IslandoraSolrConfig"... ideally,
+ * this should move somewhere under the Drupal\islandora_solr_config namespace
+ * at somepoint...
  */
-class IslandoraSolrResultsRSS extends IslandoraSolrResults {
+class IslandoraSolrConfigResultsRSS extends IslandoraSolrResults {
+// @codingStandardsIgnoreEnd
 
   /**
    * Outputs results basically in the normal way.
