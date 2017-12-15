@@ -7,6 +7,8 @@ use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\islandora_solr\IslandoraSolrResults;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 
