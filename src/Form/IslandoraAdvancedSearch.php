@@ -4,10 +4,6 @@ namespace Drupal\islandora_solr\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
-
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * The advanced search form.
