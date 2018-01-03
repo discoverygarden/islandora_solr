@@ -2,14 +2,10 @@
 
 namespace Drupal\islandora_solr\Plugin\Block;
 
-use Drupal\Core\Block\BlockBase;
+use Drupal\islandora\Plugin\Block\AbstractConfiguredBlockBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
-
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a block for exploring objects through facets.
@@ -19,30 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Islandora explore"),
  * )
  */
-class Explore extends BlockBase implements ContainerFactoryPluginInterface {
-
-
-  protected $configFactory;
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('config.factory')
-    );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $configFactory) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->configFactory = $configFactory;
-  }
+class Explore extends AbstractConfiguredBlockBase {
 
   /**
    * {@inheritdoc}

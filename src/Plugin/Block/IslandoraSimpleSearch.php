@@ -2,13 +2,9 @@
 
 namespace Drupal\islandora_solr\Plugin\Block;
 
-use Drupal\Core\Block\BlockBase;
+use Drupal\islandora\Plugin\Block\AbstractFormBlockBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Form\FormBuilderInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a simple search block.
@@ -18,29 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Islandora simple search"),
  * )
  */
-class IslandoraSimpleSearch extends BlockBase implements ContainerFactoryPluginInterface {
-
-  protected $formBuilder;
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('form_builder')
-    );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, FormBuilderInterface $formBuilder) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->formBuilder = $formBuilder;
-  }
+class IslandoraSimpleSearch extends AbstractFormBlockBase {
 
   /**
    * {@inheritdoc}
