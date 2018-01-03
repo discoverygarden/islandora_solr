@@ -5,12 +5,12 @@ namespace Drupal\islandora_solr\Form;
 use PDO;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\islandora\Form\IslandoraModuleHandlerAdminForm;
+use Drupal\islandora\Form\ModuleHandlerAdminForm;
 
 /**
  * Administration setting form.
  */
-class IslandoraSolrAdminSettings extends IslandoraModuleHandlerAdminForm {
+class IslandoraSolrAdminSettings extends ModuleHandlerAdminForm {
 
   /**
    * {@inheritdoc}
