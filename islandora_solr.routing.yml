@@ -3,7 +3,7 @@ islandora_solr.islandora_solr:
   defaults:
     query: ''
     _title: 'Search results'
-    _controller: '\Drupal\islandora_solr\Controller\DefaultController::islandora_solr'
+    _controller: '\Drupal\islandora_solr\Controller\DefaultController::islandoraSolr'
   requirements:
     _permission: 'search islandora solr'
 islandora_solr.admin_index_settings:
@@ -59,6 +59,6 @@ islandora_solr.autocomplete_luke:
   path: /islandora_solr/autocomplete_luke
   defaults:
     _title: 'Islandora Solr Luke autocomplete'
-    _controller: '\Drupal\islandora_solr\Controller\DefaultController::_islandora_solr_autocomplete_luke'
+    _controller: '\Drupal\islandora_solr\Controller\DefaultController::islandoraSolrAutocompleteLuke'
   requirements:
     _permission: 'administer islandora solr'

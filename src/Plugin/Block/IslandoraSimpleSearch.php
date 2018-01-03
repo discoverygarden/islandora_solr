@@ -2,7 +2,7 @@
 
 namespace Drupal\islandora_solr\Plugin\Block;
 
-use Drupal\Core\Block\BlockBase;
+use Drupal\islandora\Plugin\Block\AbstractFormBlockBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 
@@ -14,13 +14,13 @@ use Drupal\Core\Session\AccountInterface;
  *   admin_label = @Translation("Islandora simple search"),
  * )
  */
-class IslandoraSimpleSearch extends BlockBase {
+class IslandoraSimpleSearch extends AbstractFormBlockBase {
 
   /**
    * {@inheritdoc}
    */
   public function build() {
-    return \Drupal::formBuilder()->getForm('Drupal\islandora_solr\Form\IslandoraSimpleSearch');
+    return $this->formBuilder->getForm('Drupal\islandora_solr\Form\IslandoraSimpleSearch');
   }
 
   /**

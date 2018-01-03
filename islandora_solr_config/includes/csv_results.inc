@@ -14,8 +14,15 @@ use Drupal\islandora_solr\IslandoraSolrResults;
 
 /**
  * Extention of IslandoraSolrResults to create an alternative display type.
+ *
+ * @codingStandardsIgnoreStart
+ * XXX: Poorly implemented sniff indicates class should begin with
+ * "IslandoraSolrConfig.info" instead of just "IslandoraSolrConfig"... ideally,
+ * this should move somewhere under the Drupal\islandora_solr_config namespace
+ * at somepoint...
  */
-class IslandoraSolrResultsCSV extends IslandoraSolrResults {
+class IslandoraSolrConfigResultsCSV extends IslandoraSolrResults {
+// @codingStandardsIgnoreEnd
 
   /**
    * Renders the Solr results as a comma separated values file (.csv).
@@ -27,7 +34,7 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
    *   The IslandoraSolrQueryProcessor object which includes the current query
    *   settings and the raw Solr results.
    */
-  public function printCSV($islandora_solr_query) {
+  public function printCsv($islandora_solr_query) {
     // We want to unset the display profile of CSV, but keep everything else.
     $params = \Drupal::request()->query->all();
     unset($params['solr_profile']);

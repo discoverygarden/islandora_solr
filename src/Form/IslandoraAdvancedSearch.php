@@ -188,7 +188,7 @@ class IslandoraAdvancedSearch extends FormBase {
             'progress' => ['type' => 'none'],
           ],
         ];
-        if ((\Drupal::config('islandora_solr.settings')->get('islandora_solr_search_boolean') == 'user') && ((count($values['terms']) - 1) != $i)) {
+        if (($this->config('islandora_solr.settings')->get('islandora_solr_search_boolean') == 'user') && ((count($values['terms']) - 1) != $i)) {
           $term[$build]['boolean'] = [
             '#type' => 'select',
             '#prefix' => '<div>',
@@ -214,7 +214,7 @@ class IslandoraAdvancedSearch extends FormBase {
       '#suffix' => '</div>',
     ];
     // Filter preservation toggle.
-    if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_allow_preserve_filters')) {
+    if ($this->config('islandora_solr.settings')->get('islandora_solr_allow_preserve_filters')) {
       $form['controls']['islandora_solr_allow_preserve_filters'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Preserve Filters'),
@@ -241,15 +241,15 @@ class IslandoraAdvancedSearch extends FormBase {
 
     // Get Lucene syntax escaping configuration, prior to the following
     // foreach loop.
-    $lucene_syntax_escape = \Drupal::config('islandora_solr.settings')->get('islandora_solr_advanced_search_block_lucene_syntax_escape');
-    $lucene_regex = \Drupal::config('islandora_solr.settings')->get('islandora_solr_advanced_search_block_lucene_regex_default');
+    $lucene_syntax_escape = $this->config('islandora_solr.settings')->get('islandora_solr_advanced_search_block_lucene_syntax_escape');
+    $lucene_regex = $this->config('islandora_solr.settings')->get('islandora_solr_advanced_search_block_lucene_regex_default');
 
     foreach ($form_state->getValue('terms') as $term_wrapper) {
       $term = $term_wrapper[$build];
       $field = islandora_solr_lesser_escape($term['field']);
       $search = trim($term['search']);
 
-      $boolean = (isset($term['boolean'])) ? $term['boolean'] : \Drupal::config('islandora_solr.settings')->get('islandora_solr_search_boolean');
+      $boolean = (isset($term['boolean'])) ? $term['boolean'] : $this->config('islandora_solr.settings')->get('islandora_solr_search_boolean');
 
       // Add query.
       if (!empty($search)) {
@@ -277,8 +277,8 @@ class IslandoraAdvancedSearch extends FormBase {
 
     // Check if query is empty.
     if (empty($query)) {
-      if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_base_advanced')) {
-        $query = \Drupal::config('islandora_solr.settings')->get('islandora_solr_base_query');
+      if ($this->config('islandora_solr.settings')->get('islandora_solr_base_advanced')) {
+        $query = $this->config('islandora_solr.settings')->get('islandora_solr_base_query');
       }
       else {
         $query = '*:*';

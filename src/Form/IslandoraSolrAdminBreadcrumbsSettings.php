@@ -43,13 +43,13 @@ class IslandoraSolrAdminBreadcrumbsSettings extends ConfigFormBase {
       '#title' => $this->t('Solr Parent Fields'),
       '#description' => $this->t('A list of Solr fields containing the PIDs of parent objects,
     one per line. Will search top to bottom and stop on the first hit.'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_parent_fields'),
+      '#default_value' => $this->config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_parent_fields'),
     ];
     $form['islandora_solr_breadcrumbs_admin']['islandora_solr_breadcrumbs_add_collection_query'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Append query breadcrumbs to collection breadcrumbs'),
       '#description' => $this->t('Appends any additional available breadcrumbs, such as facet breadcrumbs, to the standard collection hierarchy breadcrumbs, if using the Solr collection query backend.'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_add_collection_query'),
+      '#default_value' => $this->config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_add_collection_query'),
     ];
     return parent::buildForm($form, $form_state);
   }

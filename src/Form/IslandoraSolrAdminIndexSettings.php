@@ -33,10 +33,10 @@ class IslandoraSolrAdminIndexSettings extends ConfigFormBase {
     // Add admin form CSS.
     $form['#attached']['library'][] = 'islandora_solr/islandora-solr-admin';
 
-    $solr_url = $form_state->getValue(['islandora_solr_url']) ? $form_state->getValue(['islandora_solr_url']) : \Drupal::config('islandora_solr.settings')->get('islandora_solr_url');
+    $solr_url = $form_state->getValue(['islandora_solr_url']) ? $form_state->getValue(['islandora_solr_url']) : $this->config('islandora_solr.settings')->get('islandora_solr_url');
     // Solr connect triggering handler is dismax or not set on page load.
     // Get request handler.
-    $handler = $form_state->getValue(['islandora_solr_request_handler']) ? $form_state->getValue(['islandora_solr_request_handler']) : \Drupal::config('islandora_solr.settings')->get('islandora_solr_request_handler');
+    $handler = $form_state->getValue(['islandora_solr_request_handler']) ? $form_state->getValue(['islandora_solr_request_handler']) : $this->config('islandora_solr.settings')->get('islandora_solr_request_handler');
 
     if (strpos($solr_url, 'https://') !== FALSE && strpos($solr_url, 'https://') == 0) {
       $confirmation_message = $this->t('Islandora does not support SSL connections to Solr.');
@@ -126,7 +126,7 @@ class IslandoraSolrAdminIndexSettings extends ConfigFormBase {
       '#title' => $this->t('Force update of Solr index after an object is deleted'),
       '#weight' => 5,
       '#description' => $this->t('If checked, deleting objects will also force their removal from the Solr index. <br/><strong>Note:</strong> When active, UI consistency will be increased on any pages using Solr queries for display. This setting is not appropriate for every installation (e.g., on sites with a large volume of Solr commits that hit execution limits, or where the Solr index is not directly writable from Drupal).'),
-      '#default_value' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_force_update_index_after_object_purge'),
+      '#default_value' => $this->config('islandora_solr.settings')->get('islandora_solr_force_update_index_after_object_purge'),
     ];
     return parent::buildForm($form, $form_state);
   }
@@ -160,14 +160,14 @@ class IslandoraSolrAdminIndexSettings extends ConfigFormBase {
    *
    * @param string $solr_url
    *   URL which points to Solr.
-   * @param \Drupal\Core\Form\FormStateInterface  $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The Drupal Form State.
    *
    * @return array
    *   An associative array mapping the names of all request handlers found in
    *   the solrconfig.xml of the Solr instance to themselves.
    */
-  public function getHandlers($solr_url, $form_state) {
+  public function getHandlers($solr_url, FormStateInterface $form_state) {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/utilities');
     $xml = islandora_solr_get_solrconfig_xml($solr_url);
     $handlers = [

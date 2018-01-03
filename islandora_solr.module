@@ -7,16 +7,14 @@
 
 use Drupal\Core\Form\FormStateInterface;
 
-define('ISLANDORA_SOLR_SEARCH_PATH', 'islandora/search');
-define('ISLANDORA_SOLR_QUERY_SPLIT_REGEX', '/(?<!\\\\) /');
-define('ISLANDORA_SOLR_QUERY_FIELD_VALUE_SPLIT_REGEX', '/(?<!\\\\):/');
-
+// @codingStandardsIgnoreStart
+const ISLANDORA_SOLR_SEARCH_PATH = 'islandora/search';
+const ISLANDORA_SOLR_QUERY_SPLIT_REGEX = '/(?<!\\\\) /';
+const ISLANDORA_SOLR_QUERY_FIELD_VALUE_SPLIT_REGEX = '/(?<!\\\\):/';
 const ISLANDORA_SOLR_QUERY_FACET_LUCENE_ESCAPE_REGEX_DEFAULT = '/(\+|-|&&|\|\||!|\(|\)|\{|\}|\[|\]|\^| |~|\*|\?|\:|"|\\\\|\\/)/';
-
 const ISLANDORA_SOLR_FACET_BUCKET_CLASSES_HOOK_BASE = 'islandora_solr_facet_bucket_classes';
-
 const ISLANDORA_SOLR_BREADCRUMB_BACKEND = 'islandora_solr_breadcrumb_backend';
-
+// @codingStandardsIgnoreEnd
 // Includes functions for common db queries.
 require_once dirname(__FILE__) . '/includes/db.inc';
 // Includes functions for common tasks.

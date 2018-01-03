@@ -22,8 +22,8 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     // Get variables.
-    $rss_item = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_config_rss_item');
-    $rss_channel = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_config_rss_channel');
+    $rss_item = $this->config('islandora_solr_config.settings')->get('islandora_solr_config_rss_item');
+    $rss_channel = $this->config('islandora_solr_config.settings')->get('islandora_solr_config_rss_channel');
 
     $form['#tree'] = TRUE;
 

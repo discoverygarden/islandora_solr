@@ -29,13 +29,13 @@ class IslandoraSolrConfigAdminTableProfileSettings extends FormBase {
       'islandora_solr_table_profile_display_row_no' => [
         '#type' => 'checkbox',
         '#title' => $this->t('Display Row Numbers?'),
-        '#default_value' => \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_table_profile_display_row_no'),
+        '#default_value' => $this->config('islandora_solr_config.settings')->get('islandora_solr_table_profile_display_row_no'),
         '#description' => $this->t('Should row numbers be rendered as a column in the results table?'),
       ],
       'islandora_solr_table_profile_table_class' => [
         '#type' => 'textfield',
         '#title' => $this->t('Table Class'),
-        '#default_value' => \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_table_profile_table_class'),
+        '#default_value' => $this->config('islandora_solr_config.settings')->get('islandora_solr_table_profile_table_class'),
         '#description' => $this->t('A class string to set for the table element, if any.'),
       ],
     ];

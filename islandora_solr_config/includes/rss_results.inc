@@ -17,8 +17,15 @@ use Drupal\islandora_solr\IslandoraSolrResults;
  *
  * This overrides the displayResults function to provide an alternate display
  * type.
+ *
+ * @codingStandardsIgnoreStart
+ * XXX: Poorly implemented sniff indicates class should begin with
+ * "IslandoraSolrConfig.info" instead of just "IslandoraSolrConfig"... ideally,
+ * this should move somewhere under the Drupal\islandora_solr_config namespace
+ * at somepoint...
  */
-class IslandoraSolrResultsRSS extends IslandoraSolrResults {
+class IslandoraSolrConfigResultsRSS extends IslandoraSolrResults {
+// @codingStandardsIgnoreEnd
 
   /**
    * Outputs results basically in the normal way.
@@ -30,7 +37,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
    * @param string $title
    *   Title for the RSS feed.
    */
-  public function printRSS($islandora_solr_query, $title = "Search Results") {
+  public function printRss($islandora_solr_query, $title = "Search Results") {
     header('Content-Type: application/rss+xml; charset=utf-8');
 
     // Get raw results.
@@ -59,7 +66,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
       \Drupal::moduleHandler()->alter('islandora_solr_search_rss_item', $item, $doc);
 
       // Render rss item.
-      $rendered_item = $this->format_rss_item($item['title'], $item['link'], $item['description'], $item['items']);
+      $rendered_item = $this->formatRssItem($item['title'], $item['link'], $item['description'], $item['items']);
       // ... allow it to be altered...
       \Drupal::moduleHandler()->alter('islandora_solr_config_rss_item_post_render', $rendered_item, $doc);
 
@@ -84,7 +91,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
     $rss_attributes = new Attribute($rss_attributes);
     $output = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
     $output .= '<rss' . $rss_attributes . ">\n";
-    $output .= $this->format_rss_channel($title, $url, $description, $items, $langcode, $args);
+    $output .= $this->formatRssChannel($title, $url, $description, $items, $langcode, $args);
     $output .= "</rss>\n";
 
     print $output;
@@ -210,12 +217,12 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
    *
    * @see https://api.drupal.org/api/drupal/includes%21common.inc/function/format_rss_item/7.x
    */
-  public function format_rss_item($title, $link, $description, $args = []) {
+  public function formatRssItem($title, $link, $description, $args = []) {
     $output = "<item>\n";
     $output .= ' <title>' . SafeMarkup::checkPlain($title) . "</title>\n";
     $output .= ' <link>' . check_url($link) . "</link>\n";
     $output .= ' <description>' . SafeMarkup::checkPlain($description) . "</description>\n";
-    $output .= $this->format_xml_elements($args);
+    $output .= $this->formatXmlElements($args);
     $output .= "</item>\n";
     return $output;
   }
@@ -225,7 +232,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
    *
    * @see https://api.drupal.org/api/drupal/includes%21common.inc/function/format_xml_elements/7.x
    */
-  public function format_xml_elements($array) {
+  public function formatXmlElements($array) {
     $output = '';
     foreach ($array as $key => $value) {
       if (is_numeric($key)) {
@@ -236,7 +243,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
             $output .= "$attributes";
           }
           if (isset($value['value']) && $value['value'] != '') {
-            $output .= '>' . (is_array($value['value']) ? $this->format_xml_elements($value['value']) : (!empty($value['encoded']) ? $value['value'] : SafeMarkup::checkPlain($value['value']))) . '</' . $value['key'] . ">\n";
+            $output .= '>' . (is_array($value['value']) ? $this->formatXmlElements($value['value']) : (!empty($value['encoded']) ? $value['value'] : SafeMarkup::checkPlain($value['value']))) . '</' . $value['key'] . ">\n";
           }
           else {
             $output .= " />\n";
@@ -244,7 +251,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
         }
       }
       else {
-        $output .= ' <' . $key . '>' . (is_array($value) ? $this->format_xml_elements($value) : SafeMarkup::checkPlain($value)) . "</{<span class=\"php-variable\">$key</span>}>\n";
+        $output .= ' <' . $key . '>' . (is_array($value) ? $this->formatXmlElements($value) : SafeMarkup::checkPlain($value)) . "</{<span class=\"php-variable\">$key</span>}>\n";
       }
     }
     return $output;
@@ -255,7 +262,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
    *
    * @see https://api.drupal.org/api/drupal/includes%21common.inc/function/format_rss_channel/7.x
    */
-  public function format_rss_channel($title, $link, $description, $items, $langcode = NULL, $args = []) {
+  public function formatRssChannel($title, $link, $description, $items, $langcode = NULL, $args = []) {
     $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
     $output = "<channel>\n";
     $output .= ' <title>' . SafeMarkup::checkPlain($title) . "</title>\n";
@@ -266,7 +273,7 @@ class IslandoraSolrResultsRSS extends IslandoraSolrResults {
     // escaped source data (such as &amp becoming &amp;amp;).
     $output .= ' <description>' . SafeMarkup::checkPlain(Html::escape(strip_tags($description))) . "</description>\n";
     $output .= ' <language>' . SafeMarkup::checkPlain($langcode) . "</language>\n";
-    $output .= $this->format_xml_elements($args);
+    $output .= $this->formatXmlElements($args);
     $output .= $items;
     $output .= "</channel>\n";
     return $output;

@@ -9,12 +9,49 @@ use Drupal\Component\Utility\Unicode;
 
 /**
  * Islandora Field Truncation.
+ *
+ * @codingStandardsIgnoreStart
+ * XXX: Poorly implemented sniff indicates class should begin with
+ * "IslandoraSolr.info" instead of just "IslandoraSolr"... ideally, this should
+ * move somewhere under the Drupal\islandora\Tuque namespace at somepoint...
  */
 class IslandoraSolrFieldTruncation {
+// @codingStandardsIgnoreEnd
+
+  /**
+   * XMLWriter instance being used.
+   *
+   * @var XMLWriter
+   */
   protected $writer;
+
+  /**
+   * String in which to accumulate the output.
+   *
+   * @var string
+   */
   protected $output = '';
+
+  /**
+   * Flag to indicate if we should try to trucate on a word boundary.
+   *
+   * @var bool
+   */
   protected $wordSafe;
+
+  /**
+   * Flag to indicate if we should add an ellipsis when we truncate.
+   *
+   * @var bool
+   */
+
   protected $addEllipsis;
+
+  /**
+   * The minimum acceptable length for truncation. Used dependent on $wordSafe.
+   *
+   * @var int
+   */
   protected $wordsafeLength;
 
   const GENERAL_DOM = <<<EOXML

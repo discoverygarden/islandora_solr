@@ -11,8 +11,15 @@ use Drupal\Core\Url;
 
 /**
  * Extension of IslandoraSolrResults to create an alternative display type.
+ *
+ * @codingStandardsIgnoreStart
+ * XXX: Poorly implemented sniff indicates class should begin with
+ * "IslandoraSolrConfig.info" instead of just "IslandoraSolrConfig"... ideally,
+ * this should move somewhere under the Drupal\islandora_solr_config namespace
+ * at somepoint...
  */
-class IslandoraSolrResultsTable extends IslandoraSolrResults {
+class IslandoraSolrConfigResultsTable extends IslandoraSolrResults {
+// @codingStandardsIgnoreEnd
 
   /**
    * Renders the Solr results as a table.

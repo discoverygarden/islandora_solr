@@ -2,7 +2,7 @@
 
 namespace Drupal\islandora_solr\Plugin\Block;
 
-use Drupal\Core\Block\BlockBase;
+use Drupal\islandora\Plugin\Block\AbstractConfiguredBlockBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -15,7 +15,7 @@ use Drupal\Core\Form\FormStateInterface;
  *   admin_label = @Translation("Islandora explore"),
  * )
  */
-class Explore extends BlockBase {
+class Explore extends AbstractConfiguredBlockBase {
 
   /**
    * {@inheritdoc}
@@ -47,12 +47,15 @@ class Explore extends BlockBase {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/blocks');
     $form = parent::blockForm($form, $form_state);
     // Get the variables for the form display facets.
-    $explore_config = ($form_state->get('islandora_solr_facet_filters') ? $form_state->get('islandora_solr_facet_filters') : \Drupal::config('islandora_solr.settings')->get('islandora_solr_explore_config'));
+    $explore_config = ($form_state->get('islandora_solr_facet_filters') ? $form_state->get('islandora_solr_facet_filters') : $this->configFactory->get('islandora_solr.settings')->get('islandora_solr_explore_config'));
     $triggering_element = $form_state->getTriggeringElement();
     // Check if remove was clicked and removed the label and filter from the
     // values and the table.
     if ($triggering_element && $triggering_element['#id'] == 'facet-filter-remove') {
-      foreach ($form_state->getCompleteFormState()->getValue(['settings', 'facet', 'table']) as $key => $row) {
+      foreach ($form_state->getCompleteFormState()->getValue(['settings',
+        'facet',
+        'table',
+      ]) as $key => $row) {
         if (!empty($row)) {
           // Get selected row index.
           $row_index = str_replace("facet-row-", "", $key);
@@ -64,7 +67,7 @@ class Explore extends BlockBase {
     }
 
     // Check if weights are being updated.
-    if ($triggering_element && $triggering_element['#id'] == 'facet-filter-weight' && !empty($expore_config)) {
+    if ($triggering_element && $triggering_element['#id'] == 'facet-filter-weight' && !empty($explore_config)) {
       // Note: select_weight is only in the $form_state['input'] and doesn't
       // exist in $form_state['values'].
       $selected_weights = $form_state->get(['input', 'select_weight']);
@@ -81,9 +84,21 @@ class Explore extends BlockBase {
       $duplicate_label = FALSE;
       $duplicate_filter = FALSE;
       $duplicate = FALSE;
-      $facet_label = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'label']);
-      $facet_filter = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'filter']);
-      $facet_weight = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'facet_weight']);
+      $facet_label = $form_state->getCompleteFormState()->getValue(['settings',
+        'facet',
+        'fieldset',
+        'label',
+      ]);
+      $facet_filter = $form_state->getCompleteFormState()->getValue(['settings',
+        'facet',
+        'fieldset',
+        'filter',
+      ]);
+      $facet_weight = $form_state->getCompleteFormState()->getValue(['settings',
+        'facet',
+        'fieldset',
+        'facet_weight',
+      ]);
 
       if (!empty($facet_label) && !empty($explore_config)) {
         foreach ($explore_config as $row) {
@@ -162,7 +177,7 @@ class Explore extends BlockBase {
           'facet_weight' => [
             'data' => [
               '#type' => 'select',
-              '#title' => t('Weight'),
+              '#title' => $this->t('Weight'),
               '#options' => array_combine(range(-50, 50), range(-50, 50)),
               '#value' => (isset($row['weight']) ? $row['weight'] : 0),
               '#title_display' => 'invisible',
@@ -179,19 +194,19 @@ class Explore extends BlockBase {
       '#type' => 'fieldset',
       '#prefix' => '<div id="islandora-solr-facet-filter-wrapper">',
       '#suffix' => '</div>',
-      '#title' => t('Setup Display Facets'),
+      '#title' => $this->t('Setup Display Facets'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
     ];
     $form['facet']['table'] = [
       '#type' => 'tableselect',
       '#header' => [
-        'display_label' => t('Display Label'),
-        'facet_filter' => t('Facet Query Filter'),
-        'facet_weight' => t('Weight'),
+        'display_label' => $this->t('Display Label'),
+        'facet_filter' => $this->t('Facet Query Filter'),
+        'facet_weight' => $this->t('Weight'),
       ],
       '#options' => $rows,
-      '#empty' => t('No display facets'),
+      '#empty' => $this->t('No display facets'),
       '#attributes' => ['class' => ['main-facet-table']],
     ];
     $form['facet']['actions'] = [
@@ -200,7 +215,7 @@ class Explore extends BlockBase {
     ];
     $form['facet']['actions']['remove'] = [
       '#type' => 'button',
-      '#value' => t('Remove selected'),
+      '#value' => $this->t('Remove selected'),
       '#id' => 'facet-filter-remove',
       '#weight' => 0,
       '#ajax' => [
@@ -210,7 +225,7 @@ class Explore extends BlockBase {
     ];
     $form['facet']['actions']['update_weight'] = [
       '#type' => 'button',
-      '#value' => t('Update weights'),
+      '#value' => $this->t('Update weights'),
       '#weight' => 1,
       '#id' => 'facet-filter-weight',
       '#ajax' => [
@@ -220,37 +235,37 @@ class Explore extends BlockBase {
     ];
     $form['facet']['fieldset'] = [
       '#type' => 'fieldset',
-      '#title' => t('Add New Display Facet Details'),
+      '#title' => $this->t('Add New Display Facet Details'),
       '#collapsible' => FALSE,
       '#collapsed' => FALSE,
       '#weight' => 13,
     ];
     $form['facet']['fieldset']['label'] = [
       '#type' => 'textfield',
-      '#title' => t('Display Label'),
+      '#title' => $this->t('Display Label'),
       '#size' => 60,
-      '#description' => t('The text displayed for the generated link.'),
+      '#description' => $this->t('The text displayed for the generated link.'),
       '#attributes' => ['class' => ['new-facet-label']],
     ];
     $form['facet']['fieldset']['filter'] = [
       '#type' => 'textarea',
-      '#title' => t('Facet Query Filter'),
+      '#title' => $this->t('Facet Query Filter'),
       '#size' => 60,
-      '#description' => t('Write a custom facet query, for information on available tags see your Solr admin.'),
+      '#description' => $this->t('Write a custom facet query, for information on available tags see your Solr admin.'),
       '#attributes' => ['class' => ['new-facet-filter']],
     ];
 
     $form['facet']['fieldset']['facet_weight'] = [
       '#type' => 'select',
-      '#title' => t('Facet weight'),
-      '#description' => t('Display weight'),
+      '#title' => $this->t('Facet weight'),
+      '#description' => $this->t('Display weight'),
       '#options' => array_combine(range(-50, 50), range(-50, 50)),
       '#default_value' => 0,
       '#attributes' => ['class' => ['new-facet-weight']],
     ];
     $form['facet']['fieldset']['add'] = [
       '#type' => 'button',
-      '#value' => t('Add'),
+      '#value' => $this->t('Add'),
       '#attributes' => ['class' => ['islandora-solr-add-more-submit']],
       '#id' => 'facet-filter-add-more',
       '#ajax' => [
@@ -265,17 +280,25 @@ class Explore extends BlockBase {
    * {@inheritdoc}
    */
   public function blockValidate($form, FormStateInterface $form_state) {
-    $facet_label = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'label']);
-    $facet_filter = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'filter']);
-    $facet_weight = $form_state->getCompleteFormState()->getValue(['settings', 'facet', 'fieldset', 'facet_weight']);
+    $explore_config = ($form_state->get('islandora_solr_facet_filters') ? $form_state->get('islandora_solr_facet_filters') : $this->configFactory->get('islandora_solr.settings')->get('islandora_solr_explore_config'));
+    $facet_label = $form_state->getCompleteFormState()->getValue(['settings',
+      'facet',
+      'fieldset',
+      'label',
+    ]);
+    $facet_filter = $form_state->getCompleteFormState()->getValue(['settings',
+      'facet',
+      'fieldset',
+      'filter',
+    ]);
     $duplicate = FALSE;
 
     if (empty($facet_filter)) {
-      $form_state->setErrorByName('filter', t('Facet Filter is required to add a display facet.'));
+      $form_state->setErrorByName('filter', $this->t('Facet Filter is required to add a display facet.'));
     }
 
     if (empty($facet_label)) {
-      $form_state->setErrorByName('label', t('Display Label is required to add a display facet.'));
+      $form_state->setErrorByName('label', $this->t('Display Label is required to add a display facet.'));
     }
     if (!empty($facet_label) && !empty($explore_config)) {
       foreach ($explore_config as $row) {
@@ -291,11 +314,11 @@ class Explore extends BlockBase {
         }
       }
       if ($duplicate_label) {
-        $form_state->setErrorByName('label', t('Display Label must be unique.'));
+        $form_state->setErrorByName('label', $this->t('Display Label must be unique.'));
         $duplicate = TRUE;
       }
       elseif ($duplicate_filter) {
-        $form_state->setErrorByName('filter', t('Facet Filter must be unique.'));
+        $form_state->setErrorByName('filter', $this->t('Facet Filter must be unique.'));
         $duplicate = TRUE;
       }
     }
@@ -324,7 +347,7 @@ class Explore extends BlockBase {
         // Restore the original messages.
         $_SESSION['messages'] = $old_msg;
         if (!$facet_is_valid) {
-          $form_state->setErrorByName('filter', t('Invalid Facet Query Filter.'));
+          $form_state->setErrorByName('filter', $this->t('Invalid Facet Query Filter.'));
         }
       }
     }
@@ -335,7 +358,7 @@ class Explore extends BlockBase {
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
     if ($form_state->get('islandora_solr_facet_filters')) {
-      $config = \Drupal::configFactory()->getEditable('islandora_solr.settings');
+      $config = $this->configFactory->getEditable('islandora_solr.settings');
       $config->set('islandora_solr_explore_config', $form_state->get('islandora_solr_facet_filters'));
       $config->save();
     }
