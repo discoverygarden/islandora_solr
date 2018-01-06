@@ -11,7 +11,7 @@ use Drupal\Core\Ajax\ReplaceCommand;
 /**
  * Form to configure a Solr facet field.
  */
-class IslandoraSolrConfigureFacetField extends FormBase {
+class ConfigureFacetField extends FormBase {
 
   /**
    * {@inheritdoc}

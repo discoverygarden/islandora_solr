@@ -10,7 +10,7 @@ use Drupal\islandora\Form\ModuleHandlerAdminForm;
 /**
  * Administration setting form.
  */
-class IslandoraSolrAdminSettings extends ModuleHandlerAdminForm {
+class AdminSettings extends ModuleHandlerAdminForm {
 
   /**
    * {@inheritdoc}

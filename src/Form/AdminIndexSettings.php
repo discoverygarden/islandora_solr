@@ -10,7 +10,7 @@ use Drupal\Core\Url;
 /**
  * Islandora Solr index admin form.
  */
-class IslandoraSolrAdminIndexSettings extends ConfigFormBase {
+class AdminIndexSettings extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
