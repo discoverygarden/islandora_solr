@@ -9,7 +9,7 @@ use Drupal\Core\Url;
 /**
  * Display admin form for breadcrumb field choice.
  */
-class IslandoraSolrAdminBreadcrumbsSettings extends ConfigFormBase {
+class AdminBreadcrumbsSettings extends ConfigFormBase {
 
   /**
    * {@inheritdoc}

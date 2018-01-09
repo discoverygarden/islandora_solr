@@ -11,7 +11,7 @@ use Drupal\Core\Ajax\ReplaceCommand;
 /**
  * Form to configure a Solr result field.
  */
-class IslandoraSolrConfigureResultField extends FormBase {
+class ConfigureResultField extends FormBase {
 
   /**
    * {@inheritdoc}

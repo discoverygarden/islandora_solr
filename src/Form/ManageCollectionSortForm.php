@@ -9,7 +9,7 @@ use Drupal\Core\Url;
 /**
  * Form to set collection sort string.
  */
-class IslandoraSolrManageCollectionSortForm extends FormBase {
+class ManageCollectionSortForm extends FormBase {
 
   /**
    * {@inheritdoc}

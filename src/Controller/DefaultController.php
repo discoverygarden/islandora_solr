@@ -140,7 +140,7 @@ class DefaultController extends ControllerBase {
   /**
    * Admin autocomplete callback which returns solr fields from Luke.
    */
-  public function islandoraSolrAutocompleteLuke(Request $request) {
+  public function autocompleteLuke(Request $request) {
     module_load_include('inc', 'islandora_solr', 'includes/luke');
     $string = $request->query->get('q');
     $luke = islandora_solr_get_luke();

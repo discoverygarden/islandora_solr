@@ -16,7 +16,7 @@ use Drupal\islandora_solr\IslandoraSolrResults;
  *   admin_label = @Translation("Islandora query"),
  * )
  */
-class IslandoraSolrQuery extends BlockBase {
+class Query extends BlockBase {
 
   /**
    * {@inheritdoc}

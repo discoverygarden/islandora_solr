@@ -11,7 +11,7 @@ use Drupal\Core\Ajax\ReplaceCommand;
 /**
  * Form to configure a Solr sort or search field.
  */
-class IslandoraSolrConfigureSortOrSearchField extends FormBase {
+class ConfigureSortOrSearchField extends FormBase {
 
   /**
    * {@inheritdoc}

@@ -196,7 +196,7 @@ function islandora_solr_islandora_basic_collection_build_manage_object(array $fo
       '#access' => TRUE,
       '#type' => 'fieldset',
       '#title' => t('Set Solr Sort String'),
-      'form' => \Drupal::formBuilder()->getForm('Drupal\islandora_solr\Form\IslandoraSolrManageCollectionSortForm', $object),
+      'form' => \Drupal::formBuilder()->getForm('Drupal\islandora_solr\Form\ManageCollectionSortForm', $object),
     ];
     return $form;
   }
