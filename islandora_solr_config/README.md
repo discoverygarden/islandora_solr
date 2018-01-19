@@ -16,9 +16,8 @@ This module requires the following modules/libraries:
 
 ## Installation
 
-Install as usual, see
-[this](https://drupal.org/documentation/install/modules-themes/modules-7) for
-further information.
+Install as
+[usual](https://www.drupal.org/docs/8/extending-drupal-8/installing-drupal-8-modules).
 
 ## Configuration
 
