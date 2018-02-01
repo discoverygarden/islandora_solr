@@ -57,19 +57,9 @@ function islandora_solr_get_breadcrumbs_recursive($pid, array &$context = NULL) 
     $context['root'] = $root;
   }
   if ($pid == $context['root']) {
-    $title = 'Islandora Repository';
-    $mlid = db_select('menu_links', 'ml')
-      ->condition('ml.link_path', 'islandora')
-      ->fields('ml', ['mlid'])
-      ->execute()
-      ->fetchField();
-    if ($mlid) {
-      $link = menu_link_load($mlid);
-      $title = (isset($link['title']) ? $link['title'] : $title);
-    }
     return [
       Link::createFromRoute(t('Home'), '<front>'),
-      Link::createFromRoute($title, 'islandora.view_default_object'),
+      Link::createFromRoute(t('Islandora Repository'), 'islandora.view_default_object'),
     ];
   }
   else {
