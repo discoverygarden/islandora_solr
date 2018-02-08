@@ -45,12 +45,6 @@ class AdminBreadcrumbsSettings extends ConfigFormBase {
     one per line. Will search top to bottom and stop on the first hit.'),
       '#default_value' => $this->config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_parent_fields'),
     ];
-    $form['islandora_solr_breadcrumbs_admin']['islandora_solr_breadcrumbs_add_collection_query'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Append query breadcrumbs to collection breadcrumbs'),
-      '#description' => $this->t('Appends any additional available breadcrumbs, such as facet breadcrumbs, to the standard collection hierarchy breadcrumbs, if using the Solr collection query backend.'),
-      '#default_value' => $this->config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_add_collection_query'),
-    ];
     return parent::buildForm($form, $form_state);
   }
 
@@ -60,7 +54,6 @@ class AdminBreadcrumbsSettings extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->config('islandora_solr.settings')
       ->set('islandora_solr_breadcrumbs_parent_fields', $form_state->getValue('islandora_solr_breadcrumbs_parent_fields'))
-      ->set('islandora_solr_breadcrumbs_add_collection_query', $form_state->getValue('islandora_solr_breadcrumbs_add_collection_query'))
       ->save();
     parent::submitForm($form, $form_state);
   }

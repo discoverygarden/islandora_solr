@@ -16,10 +16,6 @@ islandora_solr.settings:
       type: string
     islandora_solr_facet_date_format:
       type: string
-    islandora_solr_breadcrumbs_add_collection_query:
-      type: boolean
-    islandora_solr_breadcrumbs_parents:
-      type: string
     islandora_solr_search_truncated_field_value_separator:
       type: string
     islandora_solr_search_field_value_separator:
