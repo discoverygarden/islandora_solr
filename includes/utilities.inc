@@ -305,6 +305,7 @@ function islandora_solr_prepare_solr_doc(array $object_results) {
  */
 function islandora_solr_prepare_solr_results(array $solr_results) {
   module_load_include('inc', 'islandora_solr', 'includes/field_truncation');
+  module_load_include('inc', 'islandora_solr', 'includes/db');
 
   $object_results = $solr_results['response']['objects'];
   $highlighting = isset($solr_results['highlighting']) ? $solr_results['highlighting'] : [];
