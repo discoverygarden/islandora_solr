@@ -9,7 +9,6 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Link;
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
-use Drupal\islandora_solr\IslandoraSolrResults;
 
 /**
  * Implements callback_islandora_breadcrumbs_backends.
@@ -18,17 +17,6 @@ function islandora_solr_islandora_breadcrumbs_backends_callable($object) {
   $breadcrumbs = islandora_solr_get_breadcrumbs_recursive($object->id);
   // Pop off the current object.
   array_pop($breadcrumbs);
-  $query_backend = \Drupal::config('islandora_basic_collection.settings')->get('islandora_basic_collection_display_backend');
-  if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_add_collection_query') && $query_backend == 'islandora_solr_query_backend') {
-    global $_islandora_solr_queryclass;
-    if (isset($_islandora_solr_queryclass)) {
-      $results = new IslandoraSolrResults();
-      $qp_breadcrumbs = $results->getBreadcrumbs($_islandora_solr_queryclass);
-      // Slice out the first two breadcrumbs, as they are 'Home' and the
-      // breadcrumb query predicate.
-      return array_merge($breadcrumbs, array_slice($qp_breadcrumbs, 2));
-    }
-  }
   return $breadcrumbs;
 }
 
@@ -106,7 +94,7 @@ function islandora_solr_get_breadcrumb_parent($pid) {
   $solr_build = new IslandoraSolrQueryProcessor();
   $solr_query = "PID:(" . islandora_solr_lesser_escape($pid) . " OR " .
     islandora_solr_lesser_escape("info:fedora/" . $pid) . ")";
-  $parent_fields = preg_split("/\\r\\n|\\n|\\r/", \Drupal::config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_parents'), -1, PREG_SPLIT_NO_EMPTY);
+  $parent_fields = preg_split("/\\r\\n|\\n|\\r/", \Drupal::config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_parent_fields'), -1, PREG_SPLIT_NO_EMPTY);
   $solr_params = [
     'fl' => implode(",", $parent_fields) . ',fgs_label_s,PID',
     'hl' => 'false',
