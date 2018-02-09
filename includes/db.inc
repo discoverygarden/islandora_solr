@@ -178,7 +178,7 @@ function islandora_solr_get_link_to_object_fields() {
   $records = islandora_solr_get_fields('result_fields', TRUE, FALSE);
   $link_to_object_fields = [];
   foreach ($records as $value) {
-    if (isset($value['solr_field_settings']['link_to_object']) && $value['solr_field_settings']['link_to_object'] == 1) {
+    if (isset($value['solr_field_settings']['link_rendering']) && $value['solr_field_settings']['link_rendering'] == 'object') {
       $link_to_object_fields[] = $value['solr_field'];
     }
   }
@@ -221,7 +221,7 @@ function islandora_solr_get_link_to_search_fields() {
   $records = islandora_solr_get_fields('result_fields', TRUE, FALSE);
   $link_to_search_fields = [];
   foreach ($records as $value) {
-    if (isset($value['solr_field_settings']['link_to_search']) && $value['solr_field_settings']['link_to_search'] == 1) {
+    if (isset($value['solr_field_settings']['link_rendering']) && $value['solr_field_settings']['link_rendering'] == 'search') {
       $link_to_search_fields[] = $value['solr_field'];
     }
   }

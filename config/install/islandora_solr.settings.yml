@@ -5,8 +5,6 @@ islandora_solr_facet_date_start: NOW/YEAR-20YEARS
 islandora_solr_facet_date_end: NOW
 islandora_solr_facet_date_gap: +1YEAR
 islandora_solr_facet_date_format: 'Y'
-islandora_solr_breadcrumbs_add_collection_query: false
-islandora_solr_breadcrumbs_parents: "RELS_EXT_isMemberOfCollection_uri_ms\r\nRELS_EXT_isMemberOf_uri_ms"
 islandora_solr_search_truncated_field_value_separator: '<br />'
 islandora_solr_search_field_value_separator: ', '
 islandora_solr_member_of_field: RELS_EXT_isMemberOf_uri_ms
