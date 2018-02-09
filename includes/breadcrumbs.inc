@@ -92,8 +92,9 @@ function islandora_solr_get_breadcrumbs_recursive($pid, array &$context = NULL) 
 function islandora_solr_get_breadcrumb_parent($pid) {
   module_load_include('inc', 'islandora_solr', 'includes/query_processor');
   $solr_build = new IslandoraSolrQueryProcessor();
-  $solr_query = "PID:(" . islandora_solr_lesser_escape($pid) . " OR " .
-    islandora_solr_lesser_escape("info:fedora/" . $pid) . ")";
+  $solr_query = strtr('PID:"%"', [
+    '%' => $pid,
+  ]);
   $parent_fields = preg_split("/\\r\\n|\\n|\\r/", \Drupal::config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_parent_fields'), -1, PREG_SPLIT_NO_EMPTY);
   $solr_params = [
     'fl' => implode(",", $parent_fields) . ',fgs_label_s,PID',
