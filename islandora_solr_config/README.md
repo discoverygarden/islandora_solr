@@ -9,8 +9,8 @@ display profiles and functionality for the Islandora Solr Search Module.
 
 This module requires the following modules/libraries:
 
-* [Islandora](https://github.com/islandora/islandora)
-* [Islandora Solr](https://github.com/islandora/islandora_solr_search)
+* [Islandora](https://github.com/discoverygarden/islandora)
+* [Islandora Solr](https://github.com/discoverygarden/islandora_solr)
 * [Tuque](https://github.com/islandora/tuque)
 * [Apache Solr](https://lucene.apache.org/solr/) - 4.2 or higher.
 

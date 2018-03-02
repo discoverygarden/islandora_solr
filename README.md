@@ -9,7 +9,7 @@ and display Solr data in different ways.
 
 This module requires the following modules/libraries:
 
-* [Islandora](https://github.com/islandora/islandora)
+* [Islandora](https://github.com/discoverygarden/islandora)
 * [Tuque](https://github.com/islandora/tuque)
 * [Apache Solr](https://lucene.apache.org/solr/) - 4.2 or higher.
 
