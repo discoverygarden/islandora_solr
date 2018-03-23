@@ -361,6 +361,7 @@ function _islandora_solr_handle_solr_field_settings($solr_field_settings = NULL,
           'wordsafe' => isset($solr_field_settings['wordsafe']) ? $solr_field_settings['wordsafe'] : FALSE,
           'wordsafe_length' => isset($solr_field_settings['wordsafe_length']) ? $solr_field_settings['wordsafe_length'] : 1,
           'permissions' => empty($solr_field_settings['enable_permissions']) ? FALSE : $solr_field_settings['permissions'],
+          'replace_pid_with_label' => empty($solr_field_settings['replace_pid_with_label']) ? FALSE : $solr_field_settings['replace_pid_with_label'],
         ];
         break;
 

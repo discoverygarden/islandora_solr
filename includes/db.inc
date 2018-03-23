@@ -186,6 +186,20 @@ function islandora_solr_get_link_to_object_fields() {
 }
 
 /**
+ * Return display fields with 'PID to label replacement' enabled.
+ */
+function islandora_solr_get_pid_to_label_replacement_fields() {
+  $records = islandora_solr_get_fields('result_fields', TRUE, FALSE);
+  $pid_to_label_fields = array();
+  foreach ($records as $key => $value) {
+    if (isset($value['solr_field_settings']['replace_pid_with_label']) && $value['solr_field_settings']['replace_pid_with_label'] == 1) {
+      $pid_to_label_fields[] = $value['solr_field'];
+    }
+  }
+  return $pid_to_label_fields;
+}
+
+/**
  * Return display fields that have a length limit set.
  *
  * Returns an associative array with field names as key and truncation
