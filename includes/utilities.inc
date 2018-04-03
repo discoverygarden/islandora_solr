@@ -6,6 +6,7 @@
  */
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Link;
@@ -433,11 +434,19 @@ function islandora_solr_islandora_basic_collection_backend_callable($collection_
   $qp = new IslandoraSolrQueryProcessor();
   $_islandora_solr_queryclass = $qp;
 
-  $qp->buildQuery(strtr('!member_field:("info:fedora/!pid" OR "!pid") OR !collection_member_field:("info:fedora/!pid" OR "!pid")', [
-    '!member_field' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_field'),
-    '!pid' => $collection_object->id,
-    '!collection_member_field' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_collection_field'),
-  ]), \Drupal::request()->query->all());
+  $qp->buildQuery("*:*", \Drupal::request()->query->all());
+  $pid = $collection_object->id;
+  $member_of = \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_field');
+  $member_of_collection = \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_collection_field');
+  $filters = new FormattableMarkup('%member_of_collection:("%iripid" OR "%pid") OR (%member_of:"%iripid" OR "%pid")',
+    [
+      '%member_of_collection' => $member_of_collection,
+      '%iripid' => "info:fedora/$pid",
+      '%pid' => $pid,
+      '%member_of' => $member_of,
+    ]
+  );
+  $qp->solrParams['fq'][] = $filters;
 
   if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_collection_result_limit_block_override')) {
     if (isset($qp->internalSolrParams['limit'])) {
