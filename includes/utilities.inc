@@ -437,7 +437,7 @@ function islandora_solr_islandora_basic_collection_backend_callable($collection_
   $pid = $collection_object->id;
   $member_of = \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_field');
   $member_of_collection = \Drupal::config('islandora_solr.settings')->get('islandora_solr_member_of_collection_field');
-  $filters = strtr('!member_of_collection:("!iripid" OR "!pid") OR (!member_of:"!iripid" OR "!pid")',
+  $filters = strtr('!member_of_collection:("!iripid" OR "!pid") OR !member_of:("!iripid" OR "!pid")',
     [
       '!member_of_collection' => $member_of_collection,
       '!iripid' => "info:fedora/$pid",
