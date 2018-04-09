@@ -75,7 +75,7 @@ function islandora_solr_get_breadcrumbs_recursive($pid, array &$context = NULL) 
       // render the last two links and break (on the next pass).
       return array_merge(
         islandora_solr_get_breadcrumbs_recursive($context['root'], $context),
-        [Link::fromTextAndUrl('...', Url::fromUserInput('/'))]
+        [Link::fromTextAndUrl('...', Url::fromUri('internal:/'))]
       );
     }
   }
