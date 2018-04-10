@@ -367,7 +367,7 @@ function islandora_solr_prepare_solr_results(array $solr_results) {
           $pid = str_replace('info:fedora/', '', $uri);
           if (islandora_is_valid_pid($pid)) {
             $query_processor->buildQuery("PID:\"$pid\"");
-            $query_processor->solrParams['fl'] = 'PID, ' . variable_get('islandora_solr_object_label_field', 'fgs_label_s');
+            $query_processor->solrParams['fl'] = 'PID, ' . \Drupal::config('islandora_solr.settings')->get('islandora_solr_object_label_field');
             $query_processor->executeQuery(FALSE);
 
             $label = NULL;
