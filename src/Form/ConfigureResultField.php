@@ -77,6 +77,13 @@ class ConfigureResultField extends FormBase {
       $form['options']['snippet']['#disabled'] = TRUE;
     }
 
+    $form['options']['replace_pid_with_label'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Replace PID with Object Label'),
+      '#default_value' => isset($values['replace_pid_with_label']) ? $values['replace_pid_with_label'] : FALSE,
+      '#description' => $this->t("Replace a PID (islandora:foo) or a URI (info:fedora/islandora:foo) with that object's label. Will only work with non-tokenized Solr fields (full literal strings)."),
+    ];
+
     if (islandora_solr_is_date_field($solr_field)) {
       $form['options']['date_format'] = [
         '#type' => 'textfield',
