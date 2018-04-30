@@ -133,8 +133,7 @@ class IslandoraAdvancedSearch extends FormBase {
       '#suffix' => '</div>',
       '#tree' => TRUE,
     ];
-    foreach ($values['terms'] as $i => $value_wrapper) {
-      $value = isset($value_wrapper[$build - 1]) ? $value_wrapper[$build - 1] : [];
+    foreach ($values['terms'] as $i => $value) {
       $term = [
         '#tree' => TRUE,
         '#prefix' => '<div>',
