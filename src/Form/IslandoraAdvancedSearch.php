@@ -142,6 +142,7 @@ class IslandoraAdvancedSearch extends FormBase {
       $term[$build]['field'] = [
         '#title' => $this->t('Field'),
         '#type' => 'select',
+        '#title_display' => 'invisible',
         '#default_value' => isset($value['field']) ? $value['field'] : NULL,
         '#options' => islandora_solr_get_fields('search_fields'),
       ];
@@ -192,6 +193,8 @@ class IslandoraAdvancedSearch extends FormBase {
             '#type' => 'select',
             '#prefix' => '<div>',
             '#suffix' => '</div>',
+            '#title' => t('Operator'),
+            '#title_display' => 'invisible',
             '#default_value' => isset($value['boolean']) ? $value['boolean'] : 'AND',
             '#options' => [
               'AND' => 'AND',
