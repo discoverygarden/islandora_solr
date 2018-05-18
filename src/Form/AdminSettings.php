@@ -676,13 +676,13 @@ class AdminSettings extends ModuleHandlerAdminForm {
         }
       }
       if (!$found) {
-        $remove_values[$existing_value['field_type']] = $existing_value['solr_field'];
+        $remove_values[$existing_value['field_type']][] = $existing_value['solr_field'];
       }
     }
     // Remove values.
     foreach ($remove_values as $field_type => $values) {
       if (!$values) {
-        break;
+        continue;
       }
       \Drupal::database()->delete('islandora_solr_fields')
         ->condition('field_type', $field_type)
