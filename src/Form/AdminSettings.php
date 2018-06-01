@@ -428,7 +428,7 @@ class AdminSettings extends ModuleHandlerAdminForm {
     ];
     $form['query_defaults']['islandora_solr_base_sort'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Sort field for default query'),
+      '#title' => $this->t('Sort field(s) for search results'),
       '#size' => 30,
       '#description' => $this->t('Indicates which field should define the sort order for the default query.<br />
     For example: <strong>fgs_createdDate_dt desc</strong>.<br /><strong>Note:</strong> only single-valued fields are sortable.
