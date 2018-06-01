@@ -430,11 +430,14 @@ class AdminSettings extends ModuleHandlerAdminForm {
       '#type' => 'textfield',
       '#title' => $this->t('Sort field(s) for search results'),
       '#size' => 30,
-      '#description' => $this->t('Indicates which field should define the sort order for the default query.<br />
-    For example: <strong>fgs_createdDate_dt desc</strong>.<br /><strong>Note:</strong> only single-valued fields are sortable.
-    For more information, check the <a href="@url">Solr documentation</a>.', [
-      '@url' => 'http://wiki.apache.org/solr/CommonQueryParameters#sort',
-    ]),
+      '#description' => $this->t('Indicates which field(s) should define the sort order for the search results.<br />
+        For example: <strong>score desc, fgs_createdDate_dt desc</strong> will sort first by score, then by ingest date.<br />
+        <strong>Note:</strong> only single-valued fields are sortable. Sorting by fields other than "score" will affect relevance.
+        <br />For more information, see "sort" as discussed in the "Common query parameters" section of the 
+        <a href="!url">Solr documentation</a>.', [
+          '!url' => 'http://archive.apache.org/dist/lucene/solr/ref-guide/',
+        ]
+      ),
       '#default_value' => $config->get('islandora_solr_base_sort'),
     ];
     $form['query_defaults']['islandora_solr_base_filter'] = [
