@@ -192,6 +192,8 @@ class IslandoraAdvancedSearch extends FormBase {
             '#type' => 'select',
             '#prefix' => '<div>',
             '#suffix' => '</div>',
+            '#title' => t('Operator'),
+            '#title_display' => 'invisible',
             '#default_value' => isset($value['boolean']) ? $value['boolean'] : 'AND',
             '#options' => [
               'AND' => 'AND',
