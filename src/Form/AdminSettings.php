@@ -434,8 +434,8 @@ class AdminSettings extends ModuleHandlerAdminForm {
         For example: <strong>score desc, fgs_createdDate_dt desc</strong> will sort first by score, then by ingest date.<br />
         <strong>Note:</strong> only single-valued fields are sortable. Sorting by fields other than "score" will affect relevance.
         <br />For more information, see "sort" as discussed in the "Common query parameters" section of the 
-        <a href="!url">Solr documentation</a>.', [
-          '!url' => 'http://archive.apache.org/dist/lucene/solr/ref-guide/',
+        <a href="@url">Solr documentation</a>.', [
+          '@url' => 'http://archive.apache.org/dist/lucene/solr/ref-guide/',
         ]
       ),
       '#default_value' => $config->get('islandora_solr_base_sort'),
