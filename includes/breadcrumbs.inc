@@ -161,7 +161,7 @@ function islandora_solr_get_breadcrumb_parent($pid) {
  */
 function islandora_solr_clean_compound_filters(array $params) {
   if (\Drupal::moduleHandler()->moduleExists('islandora_compound_object') && is_array($params) && isset($params['fq'])) {
-    $compound_filters = \Drupal::config('islandora_compound_object.settings')->get('islandora_compound_object_solr_fq');
+    $compound_filters = [\Drupal::config('islandora_compound_object.settings')->get('islandora_compound_object_solr_fq')];
     $params['fq'] = array_diff($params['fq'], $compound_filters);
   }
   return $params;
