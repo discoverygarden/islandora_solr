@@ -63,7 +63,7 @@ function islandora_solr_get_breadcrumbs_recursive($pid, array &$context = NULL) 
     if (empty($this_label)) {
       $this_label = t('-');
     }
-    if (isset($parent)) {
+    if (isset($parent) && $context['level'] > 0) {
       // We found a parent.
       $context['level']--;
       return array_merge(islandora_solr_get_breadcrumbs_recursive($parent, $context), [
