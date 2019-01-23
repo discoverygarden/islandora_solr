@@ -280,6 +280,9 @@ class Explore extends AbstractConfiguredBlockBase {
    * {@inheritdoc}
    */
   public function blockValidate($form, FormStateInterface $form_state) {
+    if ($form_state->getTriggeringElement()['#id'] != 'facet-filter-add-more') {
+      return;
+    }
     $explore_config = ($form_state->get('islandora_solr_facet_filters') ? $form_state->get('islandora_solr_facet_filters') : $this->configFactory->get('islandora_solr.settings')->get('islandora_solr_explore_config'));
     $facet_label = $form_state->getCompleteFormState()->getValue(['settings',
       'facet',
