@@ -32,11 +32,11 @@ function islandora_solr_explore_generate_links() {
     }
     $qp->executeQuery(FALSE);
     foreach ($expore_config as $option) {
-      $url = htmlspecialchars(urlencode($option['filter']));
       $links[]['#markup'] = Link::createFromRoute(
         htmlentities($option['label']),
         'islandora_solr.islandora_solr',
-        ['query' => $url])
+        [],
+        ['query' => ['f' => $option['filter']]])
         ->toString() . '&nbsp;<span>(' . htmlentities($qp->islandoraSolrResult['facet_counts']['facet_queries'][$option['filter']]) . ')</span>';
     }
   }
