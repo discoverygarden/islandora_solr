@@ -308,6 +308,7 @@ class AdminSettings extends ModuleHandlerAdminForm {
       '#size' => 5,
       '#description' => $this->t('The minimum number of results required to display a facet'),
       '#default_value' => $config->get('islandora_solr_facet_min_limit'),
+      '#required' => TRUE,
     ];
     $form['facet_settings']['islandora_solr_facet_soft_limit'] = [
       '#type' => 'textfield',
@@ -315,13 +316,15 @@ class AdminSettings extends ModuleHandlerAdminForm {
       '#size' => 5,
       '#description' => $this->t('The number of results which should be displayed initially. If there are more, then the "Show more" button will allow the rest up to the value below to be displayed. Use 0 to disable.'),
       '#default_value' => $config->get('islandora_solr_facet_soft_limit'),
+      '#required' => TRUE,
     ];
     $form['facet_settings']['islandora_solr_facet_max_limit'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Maximum limit'),
       '#size' => 5,
-      '#description' => $this->t('The maximum number of terms that should be returned to the user. For example, if there are 100 possible subjects in a faceted result you may wish to only return the top 10.'),
+      '#description' => $this->t('The maximum number of terms that should be returned to the user. For example, if there are 100 possible subjects in a faceted result you may wish to only return the top 10. Use -1 to show all facets.'),
       '#default_value' => $config->get('islandora_solr_facet_max_limit'),
+      '#required' => TRUE,
     ];
 
     // Advanced search block.
@@ -433,7 +436,7 @@ class AdminSettings extends ModuleHandlerAdminForm {
       '#description' => $this->t('Indicates which field(s) should define the sort order for the search results.<br />
         For example: <strong>score desc, fgs_createdDate_dt desc</strong> will sort first by score, then by ingest date.<br />
         <strong>Note:</strong> only single-valued fields are sortable. Sorting by fields other than "score" will affect relevance.
-        <br />For more information, see "sort" as discussed in the "Common query parameters" section of the 
+        <br />For more information, see "sort" as discussed in the "Common query parameters" section of the
         <a href="@url">Solr documentation</a>.', [
           '@url' => 'http://archive.apache.org/dist/lucene/solr/ref-guide/',
         ]
