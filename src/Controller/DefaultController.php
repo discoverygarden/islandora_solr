@@ -125,12 +125,9 @@ class DefaultController extends ControllerBase {
     // Debug dump.
     if ($this->config('islandora_solr.settings')->get('islandora_solr_debug_mode') && $this->currentUser()->hasPermission('view islandora solr debug')) {
       $message = $this->t('Parameters: <br /><pre>@debug</pre>', [
-        '@debug' => print_r($_islandora_solr_queryclass->solrParams, TRUE),
+        '@debug' => Xss::filter(print_r($_islandora_solr_queryclass->solrParams, TRUE)),
       ]);
-      drupal_set_message(Xss::filter($message, [
-        'pre',
-        'br',
-      ]), 'status');
+      drupal_set_message($message, 'status');
     }
     $output['#attached']['library'][] = 'islandora_solr/islandora-solr-theme';
 
