@@ -4,3 +4,6 @@
 'administer islandora solr':
   title: 'Administer Solr'
   description: 'Administer settings for the Solr client.'
+'view islandora solr debug':
+  title: 'View Solr debug messages'
+  description: 'See printed Solr queries when debug mode is turned on.'
