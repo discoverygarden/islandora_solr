@@ -10,3 +10,8 @@ islandora_solr.admin_breadcrumbs_settings:
   route_name: islandora_solr.admin_breadcrumbs_settings
   title: 'Solr breadcrumbs'
   base_route: islandora_solr.admin_index_settings
+islandora_solr.compound_object:
+  route_name: islandora_solr.compound_object
+  title: Solr Backend
+  description: Settings form for compound object backend
+  base_route: islandora_compound_object.admin
