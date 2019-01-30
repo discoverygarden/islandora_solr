@@ -72,6 +72,8 @@ class CompoundBackendAdmin extends ModuleHandlerAdminForm {
     $config->set('islandora_solr_compound_sequence_pattern', $form_state->getValue('islandora_solr_compound_sequence_pattern'));
 
     $config->save();
+
+    parent::submitForm($form, $form_state);
   }
 
 }
