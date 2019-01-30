@@ -61,4 +61,5 @@ islandora_solr.compound_object:
     _title: 'Settings form for compound object backend'
     _form: \Drupal\islandora_solr\Form\CompoundBackendAdmin
   requirements:
+    _module_dependencies: islandora_compound_object
     _permission: 'administer compound relationships'
