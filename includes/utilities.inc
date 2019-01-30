@@ -513,8 +513,8 @@ function islandora_solr_compound_object_query($pid) {
   module_load_include('inc', 'islandora_solr', 'includes/breadcrumbs');
   $solr_build = new IslandoraSolrQueryProcessor();
   $rows = 1000;
-  $relationship = \Drupal::config('islandora_solr.settings')->get('islandora_solr_compound_relationship_field', 'RELS_EXT_isConstituentOf_uri_ms');
-  $sequence_pattern = \Drupal::config('islandora_solr.settings')->get('islandora_solr_compound_sequence_pattern', 'RELS_EXT_isSequenceNumberOf%PID%_literal_ms');
+  $relationship = \Drupal::config('islandora_solr.settings')->get('islandora_solr_compound_relationship_field');
+  $sequence_pattern = \Drupal::config('islandora_solr.settings')->get('islandora_solr_compound_sequence_pattern');
   $sequence_pattern = str_replace('%PID%', str_replace(':', '_', $pid), $sequence_pattern);
   $query = format_string('@field:("@pid"+OR+"info:fedora/@pid")', [
     '@field' => $relationship,

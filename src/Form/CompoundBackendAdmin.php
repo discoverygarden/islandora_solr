@@ -34,14 +34,14 @@ class CompoundBackendAdmin extends ModuleHandlerAdminForm {
       '#type' => 'textfield',
       '#title' => $this->t('Solr compound relationship field'),
       '#description' => $this->t('Solr field containing the compound relationship. Defaults to RELS_EXT_isConstituentOf_uri_ms'),
-      '#default_value' => $config->get('islandora_solr_compound_relationship_field', 'RELS_EXT_isConstituentOf_uri_ms'),
+      '#default_value' => $config->get('islandora_solr_compound_relationship_field');
       '#autocomplete_path' => 'islandora_solr/autocomplete_luke',
     ];
     $form['islandora_solr_compound_sequence_pattern'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Solr compound sequence pattern'),
       '#description' => $this->t('Compound sequences are stored with a unique relationship, if you index these in Solr provide the field name with %PID% in place of the actual escaped pid to use the SOLR Compound Member Query. Defaults to RELS_EXT_isSequenceNumberOf%PID%_literal_ms'),
-      '#default_value' => $config->get('islandora_solr_compound_sequence_pattern', 'RELS_EXT_isSequenceNumberOf%PID%_literal_ms'),
+      '#default_value' => $config->get('islandora_solr_compound_sequence_pattern');
     ];
     return parent::buildForm($form, $form_state);
   }
@@ -51,7 +51,7 @@ class CompoundBackendAdmin extends ModuleHandlerAdminForm {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('islandora_solr.settings');
-    $default_pattern = $config->get('islandora_solr_compound_sequence_pattern', 'RELS_EXT_isSequenceNumberOf%PID%_literal_ms');
+    $default_pattern = $config->get('islandora_solr_compound_sequence_pattern');
 
     $pattern = $form_state->getValue('islandora_solr_compound_sequence_pattern');
     if ($pattern && $pattern != $default_pattern) {
