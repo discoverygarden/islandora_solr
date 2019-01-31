@@ -42,6 +42,14 @@ class IslandoraSolrFacets {
   public $title = NULL;
   public $content = [];
 
+  /**
+   * Is this a range on a Solr date field?
+   *
+   * @var bool
+   *   Whether it is.
+   */
+  protected $date_range = FALSE;
+
   protected $sliderKey = NULL;
 
 
@@ -72,8 +80,8 @@ class IslandoraSolrFacets {
   public static function init($islandora_solr_query) {
     self::$islandoraSolrQuery = $islandora_solr_query;
     self::$facet_fields = isset($islandora_solr_query->islandoraSolrResult) ? $islandora_solr_query->islandoraSolrResult['facet_counts']['facet_fields'] : [];
-    self::$facet_dates = isset($islandora_solr_query->islandoraSolrResult) ? $islandora_solr_query->islandoraSolrResult['facet_counts']['facet_dates'] : [];
-    // Not in place yet.
+    // XXX: isset() checking, as newer Solrs (7) won't return a value.
+    self::$facet_dates = isset($islandora_solr_query->islandoraSolrResult['facet_counts']['facet_dates']) ? $islandora_solr_query->islandoraSolrResult['facet_counts']['facet_dates'] : [];
     // XXX: isset() checking, as older Solrs (before 3.1) won't return a value.
     self::$facet_ranges = isset($islandora_solr_query->islandoraSolrResult['facet_counts']['facet_ranges']) ?
       $islandora_solr_query->islandoraSolrResult['facet_counts']['facet_ranges'] :
@@ -143,6 +151,7 @@ class IslandoraSolrFacets {
     }
     if (array_key_exists($facet_field, self::$facet_ranges)) {
       $this->facet_type = 'facet_ranges';
+      $this->date_range = islandora_solr_is_date_field($facet_field);
     }
   }
 
@@ -177,7 +186,8 @@ class IslandoraSolrFacets {
     if ($facet_type == 'facet_fields') {
       $this->processFacetFields();
     }
-    if ($facet_type == 'facet_dates') {
+    if ($facet_type == 'facet_dates'
+      || ($facet_type == 'facet_ranges' && $this->date_range)) {
       $this->processFacetDates();
     }
     if ($facet_type == 'facet_ranges') {
@@ -287,6 +297,10 @@ class IslandoraSolrFacets {
     $facet_field = $this->facet_field;
     $results = $this->results;
     $format = $this->getDateFormat();
+    if ($this->facet_type == 'facet_ranges') {
+      $results = array_merge($results, $results['counts']);
+      unset($results['counts']);
+    }
     $date_results = [];
     // Render date facet fields.
     foreach ($results as $bucket => $count) {
@@ -301,7 +315,7 @@ class IslandoraSolrFacets {
       $field_keys = array_keys($results);
       $field_key = array_search($bucket, $field_keys);
       $field_key++;
-      $bucket_next = (!in_array($field_keys[$field_key], self::$exclude_range_values)) ? $field_keys[$field_key] : $results['end'];
+      $bucket_next = (isset($field_keys[$field_key]) && !in_array($field_keys[$field_key], self::$exclude_range_values) ? $field_keys[$field_key] : $results['end']);
       // Set date range filter for facet URL.
       $item['filter'] = $facet_field . ':[' . $bucket . ' TO ' . $bucket_next . ']';
       // Set formatted value for facet link.
@@ -501,6 +515,9 @@ class IslandoraSolrFacets {
     $results_end = $results['end'];
     foreach (self::$exclude_range_values as $exclude) {
       unset($results[$exclude]);
+    }
+    if ($this->facet_type == 'facet_ranges' && isset($results['counts'])) {
+      $results = $results['counts'];
     }
 
     // Strip empty buckets top and bottom when no date range filters are set.

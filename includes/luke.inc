@@ -236,3 +236,72 @@ function islandora_solr_get_type_class($solr_type) {
     return FALSE;
   }
 }
+
+/**
+ * Determine the version of solr being run.
+ *
+ * @param bool $reset
+ *   Force a reset of the static version variable.
+ *
+ * @return array|bool
+ *   The version array or FALSE if can't be determined.
+ *
+ *   Version array has keys:
+ *    'version' => 'string of version'.
+ *    'major' => first digit (if parseable),
+ *    'minor' => second digit (if applicable),
+ *    'patch' => third digit (if applicable)
+ *
+ *   Only version is guaranteed to be returned on a successful request.
+ */
+function islandora_solr_get_solr_version($reset = FALSE) {
+  $version = &drupal_static(__FUNCTION__);
+  if (!isset($version) || $reset) {
+    $version = FALSE;
+    $solr_url = \Drupal::config('islandora_solr.settings')->get('islandora_solr_url');
+    if (islandora_solr_ping($solr_url)) {
+      $parts = explode('/', $solr_url);
+      while (count($parts) >= 2) {
+        // If we pass a core, we need to move up to solr root.
+        $solr_url = implode('/', $parts);
+        $admin_url = $solr_url . '/admin/info/system';
+        $admin_url = islandora_solr_check_http($admin_url);
+        // Need to set a timeout greater than the default 30 seconds as some
+        // indexescould contain a lot of fields and the Luke needs longer to
+        // respond in kind.
+        $timeout = \Drupal::config('islandora_solr.settings')->get('islandora_solr_luke_timeout');
+        $admin_url = Url::fromUri($admin_url, [
+          'absolute' => TRUE,
+          'timeout' => $timeout,
+          'query' => [
+            'wt' => 'json',
+          ],
+        ]);
+        $r = \Drupal::httpClient()->request('GET', $admin_url->toString());
+        if ($r->getStatusCode() == 200) {
+          $admin_json = $r->getBody();
+          // Parse JSON.
+          $admin_array = json_decode($admin_json, TRUE);
+          if (isset($admin_array['lucene']['solr-spec-version'])) {
+            $v_parts = explode('.', $admin_array['lucene']['solr-spec-version']);
+            $version = [
+              'version' => $admin_array['lucene']['solr-spec-version'],
+            ];
+            if ($v_parts) {
+              $version['major'] = (int) $v_parts[0];
+            }
+            if (count($v_parts) > 1) {
+              $version['minor'] = (int) $v_parts[1];
+            }
+            if (count($v_parts) > 2) {
+              $version['patch'] = (int) $v_parts[2];
+            }
+            break;
+          }
+        }
+        array_pop($parts);
+      }
+    }
+  }
+  return $version;
+}
