@@ -55,3 +55,11 @@ islandora_solr.autocomplete_luke:
     _controller: '\Drupal\islandora_solr\Controller\DefaultController::autocompleteLuke'
   requirements:
     _permission: 'administer islandora solr'
+islandora_solr.compound_object:
+  path: '/admin/config/islandora/solution_pack_config/compound_object/solr'
+  defaults:
+    _title: 'Settings form for compound object backend'
+    _form: \Drupal\islandora_solr\Form\CompoundBackendAdmin
+  requirements:
+    _module_dependencies: islandora_compound_object
+    _permission: 'administer compound relationships'

@@ -90,3 +90,7 @@ islandora_solr.settings:
       type: sequence
     islandora_solr_explore_config:
       type: sequence
+    islandora_solr_compound_relationship_field:
+      type: string
+    islandora_solr_compound_sequence_pattern:
+      type: string
