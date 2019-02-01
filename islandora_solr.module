@@ -268,3 +268,23 @@ function islandora_solr_islandora_breadcrumbs_backends() {
     ],
   ];
 }
+
+/**
+ * Implements hook_preprocess().
+ */
+function islandora_solr_preprocess_islandora_objects_subset(array &$variables) {
+  $backend = \Drupal::config('islandora_basic_collection.settings')->get('islandora_basic_collection_display_backend');
+  if ($backend == 'islandora_solr_query_backend') {
+    // Set the collection pager limit based on correct page size.
+    global $_islandora_solr_queryclass;
+    $variables['limit'] = $_islandora_solr_queryclass->solrLimit;
+
+    // Initialize a new pager with the correct limit.
+    $variables['pager'] = [
+      '#type' => 'pager',
+      '#element' => $variables['pager_element'],
+    ];
+    pager_default_initialize($variables['total'], $variables['limit'], $variables['pager_element']);
+    $variables['pager'] = \Drupal::service("renderer")->render($variables['pager']);
+  }
+}
