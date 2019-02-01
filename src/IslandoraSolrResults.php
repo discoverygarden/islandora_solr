@@ -75,7 +75,7 @@ class IslandoraSolrResults {
 
     // Debug (will be removed).
     $elements['solr_debug'] = '';
-    if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode')) {
+    if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode') && \Drupal::currentUser()->hasPermission('view islandora solr debug')) {
       $elements['solr_debug'] = $this->printDebugOutput($islandora_solr_result);
     }
 

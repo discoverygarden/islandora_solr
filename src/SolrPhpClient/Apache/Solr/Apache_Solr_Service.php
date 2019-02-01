@@ -340,7 +340,7 @@ class Apache_Solr_Service
 		}
 
 		// Islandora: dump solr query address in debug mode
-        if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode') ) {
+        if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode') && \Drupal::currentUser()->hasPermission('view islandora solr debug')) {
           drupal_set_message(
             Link::fromTextAndUrl(
               'solr query',
