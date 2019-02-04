@@ -34,7 +34,7 @@ class CompoundBackendAdmin extends ModuleHandlerAdminForm {
       '#type' => 'textfield',
       '#title' => $this->t('Solr compound relationship field'),
       '#description' => $this->t('Solr field containing the compound relationship. Defaults to RELS_EXT_isConstituentOf_uri_ms'),
-      '#default_value' => $config->get('islandora_solr_compound_relationship_field');
+      '#default_value' => $config->get('islandora_solr_compound_relationship_field'),
       '#autocomplete_route_name' => 'islandora_solr.autocomplete_luke',
     ];
     $form['islandora_solr_compound_sequence_pattern'] = [
