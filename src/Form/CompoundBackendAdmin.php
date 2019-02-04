@@ -41,7 +41,7 @@ class CompoundBackendAdmin extends ModuleHandlerAdminForm {
       '#type' => 'textfield',
       '#title' => $this->t('Solr compound sequence pattern'),
       '#description' => $this->t('Compound sequences are stored with a unique relationship, if you index these in Solr provide the field name with %PID% in place of the actual escaped pid to use the SOLR Compound Member Query. Defaults to RELS_EXT_isSequenceNumberOf%PID%_literal_ms'),
-      '#default_value' => $config->get('islandora_solr_compound_sequence_pattern');
+      '#default_value' => $config->get('islandora_solr_compound_sequence_pattern'),
     ];
     return parent::buildForm($form, $form_state);
   }
