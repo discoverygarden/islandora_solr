@@ -1,0 +1,5 @@
+islandora_solr.field_translation:
+  title: 'Islandora Solr Fields'
+  base_route_name: islandora_solr.admin_index_settings
+  names:
+    - islandora_solr.fields

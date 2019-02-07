@@ -1,0 +1,16 @@
+result_fields:
+  fgs_label_ms:
+    solr_field: 'fgs_label_ms'
+    label: 'Label'
+    weight: 1
+  dc_description:
+    solr_field: 'dc.description'
+    label: 'Description'
+    weight: 2
+sort_fields:
+  fgs_label_ms:
+    solr_field: 'fgs_label_ms'
+    label: 'Label'
+    weight: 1
+facet_fields: []
+search_fields: []

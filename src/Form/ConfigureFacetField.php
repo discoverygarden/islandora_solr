@@ -2,22 +2,70 @@
 
 namespace Drupal\islandora_solr\Form;
 
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\OpenModalDialogCommand;
-use Drupal\Core\Ajax\ReplaceCommand;
 
 /**
  * Form to configure a Solr facet field.
  */
-class ConfigureFacetField extends FormBase {
+class ConfigureFacetField extends ConfigFieldFormBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
     return 'islandora_solr_configure_facet_field_form';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getFieldType() {
+    return 'facet_fields';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getFieldConfiguration(array $solr_field_settings) {
+    $fields = array_combine([
+      'label',
+      'range_facet_select',
+      'range_facet_variable_gap',
+      'range_facet_start',
+      'range_facet_end',
+      'range_facet_gap',
+      'date_facet_format',
+      'range_facet_slider_enabled',
+      'range_facet_slider_color',
+      'date_filter_datepicker_enabled',
+      'date_filter_datepicker_range',
+      'pid_object_label',
+      'boolean_facet_true_replacement',
+      'boolean_facet_false_replacement',
+      'sort_by',
+    ], [
+      'label',
+      'range_facet_select',
+      'range_facet_variable_gap',
+      'range_facet_start',
+      'range_facet_end',
+      'range_facet_gap',
+      'date_facet_format',
+      'range_facet_slider_enabled',
+      'range_facet_slider_color',
+      'date_filter_datepicker_enabled',
+      'date_filter_datepicker_range',
+      'pid_object_label',
+      'boolean_facet_true_replacement',
+      'boolean_facet_false_replacement',
+      'sort_by',
+    ]);
+    $relevant_values = array_intersect_key($solr_field_settings, $fields);
+    $relevant_values['label'] = isset($relevant_values['label']) ?
+      trim($relevant_values['label']) :
+      '';
+    $relevant_values['permissions'] = empty($solr_field_settings['enable_permissions']) ? FALSE : $solr_field_settings['permissions'];
+    return $relevant_values;
   }
 
   /**
@@ -206,7 +254,7 @@ class ConfigureFacetField extends FormBase {
     }
 
     // Permissions.
-    islandora_solr_append_permissions_and_actions($values, $form, TRUE, [$this, 'modalSubmit']);
+    $this->appendPermissionsAndActions($values, $form, $form_state, TRUE, [$this, 'modalSubmit']);
 
     $form['options']['pid_object_label'] = [
       '#type' => 'checkbox',
@@ -216,32 +264,6 @@ class ConfigureFacetField extends FormBase {
       '#description' => $this->t("Replace a PID (islandora:foo) or a URI (info:fedora/islandora:foo) with that object's label. Will only work with non-tokenized Solr fields (full literal strings)."),
     ];
     return $form;
-  }
-
-  /**
-   * Non-reloading ajax submit handler.
-   */
-  public function modalSubmit(array $form, FormStateInterface $form_state) {
-    $response = new AjaxResponse();
-
-    if ($form_state->hasAnyErrors()) {
-      $response->addCommand(new ReplaceCommand('#facet_fields_modal', $form));
-    }
-    else {
-      $response->addCommand(new OpenModalDialogCommand($this->t('Saved'), $this->t('The configuration has been saved.'), ['width' => 800]));
-    }
-
-    return $response;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
-    $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
-    $settings = _islandora_solr_handle_solr_field_settings($form_state->getValues(), 'facet_fields');
-    islandora_solr_set_field_configuration('facet_fields', $form_state->getStorage()['solr_field'], $settings);
   }
 
 }

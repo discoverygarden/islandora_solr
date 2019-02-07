@@ -94,3 +94,27 @@ islandora_solr.settings:
       type: string
     islandora_solr_compound_sequence_pattern:
       type: string
+islandora_solr.fields:
+  type: config_object
+  label: Fields
+  mapping:
+    result_fields:
+      type: sequence
+      label: Result Fields
+      sequence:
+        type: islandora_solr.result_fields
+    sort_fields:
+      type: sequence
+      label: Sort Fields
+      sequence:
+        type: islandora_solr.sort_fields
+    facet_fields:
+      type: sequence
+      label: Facet Fields
+      sequence:
+        type: islandora_solr.facet_fields
+    search_fields:
+      type: sequence
+      label: Search Result Fields
+      sequence:
+        type: islandora_solr.search_fields

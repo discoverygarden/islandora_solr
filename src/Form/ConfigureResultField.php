@@ -2,22 +2,44 @@
 
 namespace Drupal\islandora_solr\Form;
 
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\OpenModalDialogCommand;
-use Drupal\Core\Ajax\ReplaceCommand;
 
 /**
  * Form to configure a Solr result field.
  */
-class ConfigureResultField extends FormBase {
+class ConfigureResultField extends ConfigFieldFormBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
     return 'islandora_solr_configure_result_field_form';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getFieldType() {
+    return 'result_fields';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getFieldConfiguration(array $solr_field_settings) {
+    return [
+      'label' => trim($solr_field_settings['label']),
+      'link_rendering' => $solr_field_settings['link_rendering'],
+      'snippet' => isset($solr_field_settings['snippet']) ? (bool) $solr_field_settings['snippet'] : FALSE,
+      'date_format' => isset($solr_field_settings['date_format']) ? trim($solr_field_settings['date_format']) : '',
+      'truncation_type' => isset($solr_field_settings['truncation_type']) ? trim($solr_field_settings['truncation_type']) : 'separate_value_option',
+      'maximum_length' => isset($solr_field_settings['maximum_length']) ? (int) trim($solr_field_settings['maximum_length']) : 0,
+      'add_ellipsis' => isset($solr_field_settings['add_ellipsis']) ? (bool) $solr_field_settings['add_ellipsis'] : FALSE,
+      'wordsafe' => isset($solr_field_settings['wordsafe']) ? (bool) $solr_field_settings['wordsafe'] : FALSE,
+      'wordsafe_length' => isset($solr_field_settings['wordsafe_length']) ? (int) $solr_field_settings['wordsafe_length'] : 1,
+      'permissions' => empty($solr_field_settings['enable_permissions']) ? FALSE : $solr_field_settings['permissions'],
+      'replace_pid_with_label' => empty($solr_field_settings['replace_pid_with_label']) ? FALSE : (bool) $solr_field_settings['replace_pid_with_label'],
+    ];
   }
 
   /**
@@ -148,35 +170,9 @@ class ConfigureResultField extends FormBase {
       ],
     ];
 
-    islandora_solr_append_permissions_and_actions($values, $form, TRUE, [$this, 'modalSubmit']);
+    $this->appendPermissionsAndActions($values, $form, $form_state, TRUE, [$this, 'modalSubmit']);
 
     return $form;
-  }
-
-  /**
-   * Non-reloading ajax submit handler.
-   */
-  public function modalSubmit(array $form, FormStateInterface $form_state) {
-    $response = new AjaxResponse();
-
-    if ($form_state->hasAnyErrors()) {
-      $response->addCommand(new ReplaceCommand('#result_fields_modal', $form));
-    }
-    else {
-      $response->addCommand(new OpenModalDialogCommand($this->t('Saved'), $this->t('The configuration has been saved.'), ['width' => 800]));
-    }
-
-    return $response;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
-    $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
-    $settings = _islandora_solr_handle_solr_field_settings($form_state->getValues(), 'result_fields');
-    islandora_solr_set_field_configuration('result_fields', $form_state->getStorage()['solr_field'], $settings);
   }
 
 }

@@ -1,0 +1,100 @@
+islandora_solr.result_fields:
+  type: mapping
+  label: Display Result Field
+  mapping:
+    solr_field:
+      type: string
+      nullable: false
+    label:
+      type: label
+    weight:
+      type: integer
+    snippet:
+      type: boolean
+    truncation_type:
+      type: string
+    maximum_length:
+      type: integer
+    add_ellipsis:
+      type: boolean
+    wordsafe:
+      type: boolean
+    wordsafe_length:
+      type: integer
+    date_format:
+      type: string
+    link_to_object:
+      type: boolean
+    link_to_search:
+      type: boolean
+    replace_pid_with_label:
+      type: boolean
+    permissions:
+      type: sequence
+islandora_solr.sort_fields:
+  type: mapping
+  label: Sort Field
+  mapping:
+    solr_field:
+      type: string
+      nullable: false
+    label:
+      type: label
+    weight:
+      type: integer
+    permissions:
+      type: sequence
+islandora_solr.facet_fields:
+  type: mapping
+  label: Facet Field
+  mapping:
+    solr_field:
+      type: string
+      nullable: false
+    label:
+      type: label
+    weight:
+      type: integer
+    sort_by:
+      type: string
+    date_facet_format:
+      type: string
+    range_facet_select:
+      type: boolean
+    range_facet_variable_gap:
+      type: boolean
+    range_facet_start:
+      type: string
+    range_facet_end:
+      type: string
+    range_facet_gap:
+      type: string
+    range_facet_slider_enabled:
+      type: boolean
+    range_facet_slider_color:
+      type: string
+    date_filter_datepicker_enabled:
+      type: boolean
+    date_filter_datepicker_range:
+      type: string
+    boolean_facet_true_replacement:
+      type: string
+    boolean_facet_false_replacement:
+      type: string
+    pid_object_label:
+      type: boolean
+    permissions:
+      type: sequence
+islandora_solr.search_fields:
+  type: mapping
+  label: Advanced Search Field
+  mapping:
+    solr_field:
+      type: string
+      nullable: false
+    label:
+      type: label
+    weight:
+      type: integer
+    permissions:
+      type: sequence
