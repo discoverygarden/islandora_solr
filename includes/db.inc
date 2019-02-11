@@ -5,15 +5,15 @@
  * This file contains DB query functions.
  */
 
+use Drupal\islandora_solr\Form\ConfigFieldFormBase;
+
 /**
  * Get the configuration of a Solr field.
  */
 function islandora_solr_get_field_configuration($field_type, $field_name) {
-  $fields = \Drupal::config('islandora_solr.fields')->get($field_type);
-  if (isset($fields[$field_name])) {
-    return $fields[$field_name];
-  }
-  return FALSE;
+  $machine_name = ConfigFieldFormBase::generateFieldKey($field_name);
+  $field = \Drupal::config('islandora_solr.fields')->get("$field_type.$machine_name");
+  return $field ?: FALSE;
 }
 
 /**
