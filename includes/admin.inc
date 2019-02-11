@@ -33,11 +33,8 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, ar
   // 2.b. Remove field
   // 1. Saved values from the config.
   $fields = [];
-  $config_fields = [];
-  $records = islandora_solr_get_fields($field_type, FALSE, FALSE);
-  foreach ($records as $record) {
-    $config_fields[] = $record['solr_field'];
-  }
+  $records = islandora_solr_get_fields($field_type, FALSE, FALSE, TRUE);
+  $config_fields = array_keys($records);
   if (!$form_state->getValues()) {
     // Get values from config unfiltered, not simplified and incremental keys.
     // Set fields to populate the admin table.

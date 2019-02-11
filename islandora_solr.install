@@ -83,8 +83,10 @@ function islandora_solr_update_8000() {
     return t('No islandora_solr_fields table found in the database; nothing to import');
   }
 
+  module_load_include('inc', 'islandora_solr', 'includes/admin');
   $fields = $db->select('islandora_solr_fields', 'isf')
     ->fields('isf', [])
+    ->orderBy('isf.weight', 'ASC')
     ->execute()
     ->fetchAll(PDO::FETCH_ASSOC);
   $config_factory = \Drupal::configFactory();
@@ -100,8 +102,27 @@ function islandora_solr_update_8000() {
   $migrated = 0;
   foreach ($fields as &$field) {
     $settings = unserialize($field['solr_field_settings']);
+    // This was being maintained to support legacy code, so we can drop it.
+    if (isset($settings['link_rendering'])) {
+      $link_choice = $settings['link_rendering'];
+      $settings['link_to_object'] = FALSE;
+      $settings['link_to_search'] = FALSE;
+      if ($link_choice === 'object') {
+        $settings['link_to_object'] = TRUE;
+      }
+      elseif ($link_choice === 'search') {
+        $settings['link_to_search'] = TRUE;
+      }
+      unset($settings['link_rendering']);
+    }
     if (isset($field_config_class[$field['field_type']])) {
       $field_config = call_user_func_array([$field_config_class[$field['field_type']], 'getFieldConfiguration'], [$settings]);
+      $field_config['solr_field'] = $field['solr_field'];
+      $field_config['weight'] = $field['weight'];
+      unset($field_config['field_type']);
+      if (!$field_config['permissions']) {
+        $field_config['permissions'] = _islandora_solr_permissions_default();
+      }
       $machine_name = call_user_func_array([$field_config_class[$field['field_type']], 'generateFieldKey'], [$field['solr_field']]);
       $config->set("{$field['field_type']}.{$machine_name}", $field_config);
       $migrated++;

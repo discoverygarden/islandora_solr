@@ -47,10 +47,10 @@ function islandora_solr_get_fields($field_type = NULL, $filter = TRUE, $simplifi
     $types = [$field_type];
   }
   foreach ($types as $type) {
-    foreach (\Drupal::config('islandora_solr.fields')->get($type) as $field_name => $field_definition) {
+    foreach (\Drupal::config('islandora_solr.fields')->get($type) as $field_definition) {
       $field_definition['field_type'] = $type;
       if ($keys && !$simplified) {
-        $records[$field_name] = $field_definition;
+        $records[$field_definition['solr_field']] = $field_definition;
       }
       else {
         $records[] = $field_definition;
@@ -150,7 +150,7 @@ function islandora_solr_get_link_to_object_fields() {
   $records = islandora_solr_get_fields('result_fields', TRUE, FALSE);
   $link_to_object_fields = [];
   foreach ($records as $value) {
-    if (isset($value['link_rendering']) && $value['link_rendering'] == 'object') {
+    if ($value['link_to_object']) {
       $link_to_object_fields[] = $value['solr_field'];
     }
   }
@@ -207,7 +207,7 @@ function islandora_solr_get_link_to_search_fields() {
   $records = islandora_solr_get_fields('result_fields', TRUE, FALSE);
   $link_to_search_fields = [];
   foreach ($records as $value) {
-    if (isset($value['link_rendering']) && $value['link_rendering'] == 'search') {
+    if ($value['link_to_search']) {
       $link_to_search_fields[] = $value['solr_field'];
     }
   }

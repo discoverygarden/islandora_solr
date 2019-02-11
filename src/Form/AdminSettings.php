@@ -605,8 +605,7 @@ class AdminSettings extends ModuleHandlerAdminForm {
     ];
     foreach ($field_types as $field_type) {
       if ($form_state->getValue(["islandora_solr_{$field_type}", 'terms'])) {
-        $result_fields = $form_state->getValue(["islandora_solr_{$field_type}", 'terms']);
-        foreach ($result_fields as $value) {
+        foreach ($form_state->getValue(["islandora_solr_{$field_type}", 'terms']) as $value) {
           $solr_field = $value['solr_field'];
           $solr_field_settings = [];
           if ($form_state->get(['solr_field_settings',
@@ -617,24 +616,9 @@ class AdminSettings extends ModuleHandlerAdminForm {
               "islandora_solr_{$field_type}",
               $solr_field,
             ]);
-            $solr_field_settings['weight'] = $value['weight'];
-            // Handle linking to objects to not break existing features while
-            // adding new functionality.
-            if ($field_type == 'result_fields') {
-              if (isset($solr_field_settings['link_rendering'])) {
-                $link_choice = $solr_field_settings['link_rendering'];
-                $solr_field_settings['link_to_object'] = FALSE;
-                $solr_field_settings['link_to_search'] = FALSE;
-                if ($link_choice === 'object') {
-                  $solr_field_settings['link_to_object'] = TRUE;
-                }
-                elseif ($link_choice === 'search') {
-                  $solr_field_settings['link_to_search'] = TRUE;
-                }
-                unset($solr_field_settings['link_rendering']);
-              }
-            }
           }
+          $solr_field_settings['weight'] = $value['weight'];
+          $solr_field_settings['solr_field'] = $solr_field;
           $field_key = ConfigFieldFormBase::generateFieldKey($solr_field);
           $this->config('islandora_solr.fields')->set("$field_type.$field_key", $solr_field_settings);
         }

@@ -7,7 +7,6 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\OpenModalDialogCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
-use Drupal\Component\Utility\SortArray;
 
 /**
  * Base form for configuring types of fields.
@@ -141,14 +140,11 @@ abstract class ConfigFieldFormBase extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $field_type = $this->getFieldType();
     $field_name = $this->getRequest()->get('solr_field');
-    $config = $this->config('islandora_solr.fields')
-      ->get($field_type);
     $field_key = static::generateFieldKey($field_name);
-    $config[$field_key] = static::getFieldConfiguration($form_state->getValues());
-    $config[$field_key]['solr_field'] = $field_name;
-    uasort($config, [SortArray::class, 'sortByWeightElement']);
+    $config = static::getFieldConfiguration($form_state->getValues());
+    $config['solr_field'] = $field_name;
     $this->config('islandora_solr.fields')
-      ->set($field_type, $config)
+      ->set("$field_type.$field_key", $config)
       ->save();
     parent::submitForm($form, $form_state);
   }

@@ -29,7 +29,6 @@ class ConfigureResultField extends ConfigFieldFormBase {
   public static function getFieldConfiguration(array $solr_field_settings) {
     return [
       'label' => trim($solr_field_settings['label']),
-      'link_rendering' => $solr_field_settings['link_rendering'],
       'snippet' => isset($solr_field_settings['snippet']) ? (bool) $solr_field_settings['snippet'] : FALSE,
       'date_format' => isset($solr_field_settings['date_format']) ? trim($solr_field_settings['date_format']) : '',
       'truncation_type' => isset($solr_field_settings['truncation_type']) ? trim($solr_field_settings['truncation_type']) : 'separate_value_option',
@@ -72,14 +71,14 @@ class ConfigureResultField extends ConfigFieldFormBase {
     ];
     $default_link = 'none';
 
-    if (isset($values['link_rendering'])) {
-      $default_link = $values['link_rendering'];
-    }
-    elseif (isset($values['link_to_object']) && $values['link_to_object'] != FALSE) {
+    if ($values['link_to_object']) {
       $default_link = 'object';
     }
-    elseif (isset($values['link_to_search']) && $values['link_to_search'] != FALSE) {
+    elseif ($values['link_to_search']) {
       $default_link = 'search';
+    }
+    else {
+      $default_link = NULL;
     }
     $form['options']['link_rendering'] = [
       '#type' => 'radios',
