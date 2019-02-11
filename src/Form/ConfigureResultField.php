@@ -26,7 +26,7 @@ class ConfigureResultField extends ConfigFieldFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function getFieldConfiguration(array $solr_field_settings) {
+  public static function getFieldConfiguration(array $solr_field_settings) {
     return [
       'label' => trim($solr_field_settings['label']),
       'link_rendering' => $solr_field_settings['link_rendering'],

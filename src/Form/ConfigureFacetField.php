@@ -26,7 +26,7 @@ class ConfigureFacetField extends ConfigFieldFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function getFieldConfiguration(array $solr_field_settings) {
+  public static function getFieldConfiguration(array $solr_field_settings) {
     $fields = array_combine([
       'label',
       'range_facet_select',

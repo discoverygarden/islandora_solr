@@ -8,6 +8,10 @@
 use Drupal\Core\Url;
 use Drupal\Core\Link;
 use Drupal\Component\Utility\Xss;
+use Drupal\islandora_solr\Form\ConfigureFacetField;
+use Drupal\islandora_solr\Form\ConfigureResultField;
+use Drupal\islandora_solr\Form\ConfigureSearchField;
+use Drupal\islandora_solr\Form\ConfigureSortField;
 
 /**
  * Implements hook_requirements().
@@ -67,4 +71,54 @@ function islandora_solr_schema() {
     'primary key' => [['collection_pid', 191]],
   ];
   return $schema;
+}
+
+/**
+ * Migrate old Drupal database fields into the new configuration.
+ */
+function islandora_solr_update_8000() {
+  $db = \Drupal::database();
+  $schema = $db->schema();
+  if (!$schema->tableExists('islandora_solr_fields')) {
+    return t('No islandora_solr_fields table found in the database; nothing to import');
+  }
+
+  $fields = $db->select('islandora_solr_fields', 'isf')
+    ->fields('isf', [])
+    ->execute()
+    ->fetchAll(PDO::FETCH_ASSOC);
+  $config_factory = \Drupal::configFactory();
+  $config = $config_factory->getEditable('islandora_solr.fields');
+  // Rather than reinventing the wheel just use the field config mapper from the
+  // field forms.
+  $field_config_class = [
+    'facet_fields' => ConfigureFacetField::class,
+    'sort_fields' => ConfigureSortField::class,
+    'result_fields' => ConfigureResultField::class,
+    'search_fields' => ConfigureSearchField::class,
+  ];
+  $migrated = 0;
+  foreach ($fields as &$field) {
+    $settings = unserialize($field['solr_field_settings']);
+    if (isset($field_config_class[$field['field_type']])) {
+      $field_config = call_user_func_array([$field_config_class[$field['field_type']], 'getFieldConfiguration'], [$settings]);
+      $machine_name = call_user_func_array([$field_config_class[$field['field_type']], 'generateFieldKey'], [$field['solr_field']]);
+      $config->set("{$field['field_type']}.{$machine_name}", $field_config);
+      $migrated++;
+    }
+  }
+  $config->save(TRUE);
+  if ($migrated == count($fields)) {
+    $schema->dropTable('islandora_solr_fields');
+    return t('Migrated @count/@total field(s); the islandora_solr_fields table has been removed', [
+      '@count' => $migrated,
+      '@total' => count($fields),
+    ]);
+  }
+  else {
+    return t('Migrated @count/@total field(s); fields with unknown field types were not migrated, and the islandora_solr_fields table was not removed as a result.', [
+      '@count' => $migrated,
+      '@total' => count($fields),
+    ]);
+  }
 }

@@ -42,7 +42,7 @@ abstract class ConfigFieldFormBase extends ConfigFormBase {
    * @return array
    *   An array containing the configuration to apply to this field.
    */
-  protected function getFieldConfiguration(array $solr_field_settings) {
+  public static function getFieldConfiguration(array $solr_field_settings) {
     return [
       'label' => trim($solr_field_settings['label']),
       'permissions' => empty($solr_field_settings['enable_permissions']) ? FALSE : $solr_field_settings['permissions'],
@@ -144,7 +144,7 @@ abstract class ConfigFieldFormBase extends ConfigFormBase {
     $config = $this->config('islandora_solr.fields')
       ->get($field_type);
     $field_key = static::generateFieldKey($field_name);
-    $config[$field_key] = $this->getFieldConfiguration($form_state->getValues());
+    $config[$field_key] = static::getFieldConfiguration($form_state->getValues());
     $config[$field_key]['solr_field'] = $field_name;
     uasort($config, [SortArray::class, 'sortByWeightElement']);
     $this->config('islandora_solr.fields')

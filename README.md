@@ -15,6 +15,12 @@ This module requires the following modules/libraries:
 
 ## Installation
 
+Existing Solr fields configuration from Drupal 7 can be migrated by dropping the
+`islandora_solr_fields` table into your Drupal 8 database before installing this
+module, then running DB updates after the module has been enabled. Existing
+fields will be converted into configuration, and the `islandora_solr_fields`
+table will be removed from the Drupal 8 database.
+
 Install as
 [usual](https://www.drupal.org/docs/8/extending-drupal-8/installing-drupal-8-modules).
 
