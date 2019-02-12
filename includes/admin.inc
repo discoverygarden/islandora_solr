@@ -82,6 +82,7 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, ar
       // Add new field to values.
       if ($solr_field_error == NULL) {
         $form_state_terms = $form_state->getValue(['islandora_solr_' . $field_type, 'terms']);
+        $form_state_terms = $form_state_terms === '' ? [] : $form_state_terms;
         $form_state_terms[] = ['solr_field' => $add_solr_field];
         $form_state->setValue(['islandora_solr_' . $field_type, 'terms'], $form_state_terms);
       }
