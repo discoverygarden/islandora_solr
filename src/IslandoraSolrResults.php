@@ -19,6 +19,7 @@ class IslandoraSolrResults {
   public $islandoraSolrQueryProcessor;
   public $rangeFacets = [];
   public $dateFormatFacets = [];
+  public $facetFieldSettings = [];
 
   /**
    * Constructor.
@@ -379,7 +380,16 @@ class IslandoraSolrResults {
         $format = $this->dateFormatFacets[$solr_field]['solr_field_settings']['date_facet_format'];
         $filter_split[1] = format_date(strtotime(stripslashes($filter_split[1])), 'custom', $format);
       }
+      $facet_fields_settings = $this->facetFieldSettings;
       $filter_string = $filter_split[1];
+      if (isset($facet_fields_settings[$solr_field]['solr_field_settings']['pid_object_label']) && $facet_fields_settings[$solr_field]['solr_field_settings']['pid_object_label'] == 1) {
+        $pid = str_replace('info:fedora/', '', stripslashes($filter_string));
+        if ($object = islandora_object_load($pid)) {
+          if (islandora_object_access(ISLANDORA_VIEW_OBJECTS, $object)) {
+            $filter_string = $object->label;
+          }
+        }
+      }
     }
     return stripslashes($filter_string);
   }
@@ -452,7 +462,8 @@ class IslandoraSolrResults {
    */
   public function prepFieldSubstitutions() {
 
-    $this->facetFieldArray = islandora_solr_get_fields('facet_fields');
+    $facet_fields = $this->facetFieldSettings = islandora_solr_get_fields('facet_fields', TRUE, FALSE, TRUE);
+    $this->facetFieldArray = _islandora_solr_simplify_fields($facet_fields);
 
     $this->searchFieldArray = islandora_solr_get_fields('search_fields');
 
