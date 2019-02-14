@@ -42,9 +42,11 @@ abstract class ConfigFieldFormBase extends ConfigFormBase {
    *   An array containing the configuration to apply to this field.
    */
   public static function getFieldConfiguration(array $solr_field_settings) {
+    module_load_include('inc', 'islandora_solr', 'includes/admin');
     return [
-      'label' => trim($solr_field_settings['label']),
-      'permissions' => empty($solr_field_settings['enable_permissions']) ? FALSE : $solr_field_settings['permissions'],
+      'label' => isset($solr_field_settings['label']) ? trim($solr_field_settings['label']) : '',
+      'permissions' => empty($solr_field_settings['enable_permissions']) ? _islandora_solr_permissions_default() : $solr_field_settings['permissions'],
+      'weight' => isset($solr_field_settings['weight']) ? (int) $solr_field_settings['weight'] : 0,
     ];
   }
 

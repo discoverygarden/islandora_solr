@@ -562,6 +562,7 @@ class AdminSettings extends ModuleHandlerAdminForm {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
     // XXX: To preserve backwards compatability of the primary display table
     // need to munge the data into the Drupal 7 form.
     $munged_config = [
@@ -618,7 +619,7 @@ class AdminSettings extends ModuleHandlerAdminForm {
             ]);
           }
           $solr_field_settings['weight'] = $value['weight'];
-          $solr_field_settings['solr_field'] = $solr_field;
+          $solr_field_settings = islandora_solr_get_default_field_configuration($solr_field, $field_type, $solr_field_settings);
           $field_key = ConfigFieldFormBase::generateFieldKey($solr_field);
           $this->config('islandora_solr.fields')->set("$field_type.$field_key", $solr_field_settings);
         }

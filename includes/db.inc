@@ -6,6 +6,10 @@
  */
 
 use Drupal\islandora_solr\Form\ConfigFieldFormBase;
+use Drupal\islandora_solr\Form\ConfigureFacetField;
+use Drupal\islandora_solr\Form\ConfigureSortField;
+use Drupal\islandora_solr\Form\ConfigureResultField;
+use Drupal\islandora_solr\Form\ConfigureSearchField;
 
 /**
  * Get the configuration of a Solr field.
@@ -14,6 +18,31 @@ function islandora_solr_get_field_configuration($field_type, $field_name) {
   $machine_name = ConfigFieldFormBase::generateFieldKey($field_name);
   $field = \Drupal::config('islandora_solr.fields')->get("$field_type.$machine_name");
   return $field ?: FALSE;
+}
+
+/**
+ * Gets a full default configuration for a given field type and defaults.
+ *
+ * @param string $solr_field
+ *   The field to be given a default configuration.
+ * @param string $field_type
+ *   The type of field to get a default configuration for.
+ * @param array $defaults
+ *   An array of default values to override with.
+ *
+ * @return array
+ *   A full configuration for the given field type.
+ */
+function islandora_solr_get_default_field_configuration($solr_field, $field_type, array $defaults = []) {
+  $field_config_class = [
+    'facet_fields' => ConfigureFacetField::class,
+    'sort_fields' => ConfigureSortField::class,
+    'result_fields' => ConfigureResultField::class,
+    'search_fields' => ConfigureSearchField::class,
+  ];
+  $config = call_user_func_array([$field_config_class[$field_type], 'getFieldConfiguration'], [$defaults]);
+  $config['solr_field'] = $solr_field;
+  return $config;
 }
 
 /**

@@ -9,6 +9,7 @@ use Drupal\Core\Url;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\SortArray;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\islandora_solr\Form\ConfigFieldFormBase;
 
 /**
  * Generates fields for the admin fields table.
@@ -95,6 +96,13 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, ar
       foreach ($form_state_terms as $key => $value) {
         if ($field == $value['solr_field']) {
           unset($form_state_terms[$key]);
+          $field_key = ConfigFieldFormBase::generateFieldKey($value['solr_field']);
+          $config = \Drupal::configFactory()
+            ->getEditable('islandora_solr.fields');
+          $fields = $config->get($field_type);
+          unset($fields[$field_key]);
+          $config->set($field_type, $fields)
+            ->save();
         }
       }
       $form_state->setValue(['islandora_solr_' . $field_type, 'terms'], $form_state_terms);

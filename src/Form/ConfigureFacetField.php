@@ -27,6 +27,7 @@ class ConfigureFacetField extends ConfigFieldFormBase {
    * {@inheritdoc}
    */
   public static function getFieldConfiguration(array $solr_field_settings) {
+    module_load_include('inc', 'islandora_solr', 'includes/admin');
     $fields = array_combine([
       'label',
       'range_facet_select',
@@ -64,7 +65,8 @@ class ConfigureFacetField extends ConfigFieldFormBase {
     $relevant_values['label'] = isset($relevant_values['label']) ?
       trim($relevant_values['label']) :
       '';
-    $relevant_values['permissions'] = empty($solr_field_settings['enable_permissions']) ? FALSE : $solr_field_settings['permissions'];
+    $relevant_values['permissions'] = empty($solr_field_settings['enable_permissions']) ? _islandora_solr_permissions_default() : $solr_field_settings['permissions'];
+    $relevant_values['weight'] = isset($solr_field_settings['weight']) ? (int) $solr_field_settings['weight'] : 0;
     return $relevant_values;
   }
 

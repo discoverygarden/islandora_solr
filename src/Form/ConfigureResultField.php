@@ -27,8 +27,9 @@ class ConfigureResultField extends ConfigFieldFormBase {
    * {@inheritdoc}
    */
   public static function getFieldConfiguration(array $solr_field_settings) {
+    module_load_include('inc', 'islandora_solr', 'includes/admin');
     return [
-      'label' => trim($solr_field_settings['label']),
+      'label' => isset($solr_field_settings['label']) ? trim($solr_field_settings['label']) : '',
       'snippet' => isset($solr_field_settings['snippet']) ? (bool) $solr_field_settings['snippet'] : FALSE,
       'date_format' => isset($solr_field_settings['date_format']) ? trim($solr_field_settings['date_format']) : '',
       'truncation_type' => isset($solr_field_settings['truncation_type']) ? trim($solr_field_settings['truncation_type']) : 'separate_value_option',
@@ -36,8 +37,11 @@ class ConfigureResultField extends ConfigFieldFormBase {
       'add_ellipsis' => isset($solr_field_settings['add_ellipsis']) ? (bool) $solr_field_settings['add_ellipsis'] : FALSE,
       'wordsafe' => isset($solr_field_settings['wordsafe']) ? (bool) $solr_field_settings['wordsafe'] : FALSE,
       'wordsafe_length' => isset($solr_field_settings['wordsafe_length']) ? (int) $solr_field_settings['wordsafe_length'] : 1,
-      'permissions' => empty($solr_field_settings['enable_permissions']) ? FALSE : $solr_field_settings['permissions'],
+      'permissions' => empty($solr_field_settings['enable_permissions']) ? _islandora_solr_permissions_default() : $solr_field_settings['permissions'],
       'replace_pid_with_label' => empty($solr_field_settings['replace_pid_with_label']) ? FALSE : (bool) $solr_field_settings['replace_pid_with_label'],
+      'link_to_object' => isset($solr_field_settings['link_rendering']) && $solr_field_settings['link_rendering'] == 'object',
+      'link_to_search' => isset($solr_field_settings['link_rendering']) && $solr_field_settings['link_rendering'] == 'search',
+      'weight' => isset($solr_field_settings['weight']) ? (int) $solr_field_settings['weight'] : 0,
     ];
   }
 

@@ -8,10 +8,7 @@
 use Drupal\Core\Url;
 use Drupal\Core\Link;
 use Drupal\Component\Utility\Xss;
-use Drupal\islandora_solr\Form\ConfigureFacetField;
-use Drupal\islandora_solr\Form\ConfigureResultField;
-use Drupal\islandora_solr\Form\ConfigureSearchField;
-use Drupal\islandora_solr\Form\ConfigureSortField;
+use Drupal\islandora_solr\Form\ConfigFieldFormBase;
 
 /**
  * Implements hook_requirements().
@@ -84,6 +81,7 @@ function islandora_solr_update_8000() {
   }
 
   module_load_include('inc', 'islandora_solr', 'includes/admin');
+  module_load_include('inc', 'islandora_solr', 'includes/db');
   $fields = $db->select('islandora_solr_fields', 'isf')
     ->fields('isf', [])
     ->orderBy('isf.weight', 'ASC')
@@ -91,18 +89,12 @@ function islandora_solr_update_8000() {
     ->fetchAll(PDO::FETCH_ASSOC);
   $config_factory = \Drupal::configFactory();
   $config = $config_factory->getEditable('islandora_solr.fields');
-  // Rather than reinventing the wheel just use the field config mapper from the
-  // field forms.
-  $field_config_class = [
-    'facet_fields' => ConfigureFacetField::class,
-    'sort_fields' => ConfigureSortField::class,
-    'result_fields' => ConfigureResultField::class,
-    'search_fields' => ConfigureSearchField::class,
-  ];
   $migrated = 0;
   foreach ($fields as &$field) {
     $settings = unserialize($field['solr_field_settings']);
-    // This was being maintained to support legacy code, so we can drop it.
+    // A previous update in 7.x split the link_rendering property into two other
+    // properties, but maintained support for the link_rendering property for
+    // legacy purposes. Use of this property is being phased out in 8.x.
     if (isset($settings['link_rendering'])) {
       $link_choice = $settings['link_rendering'];
       $settings['link_to_object'] = FALSE;
@@ -115,18 +107,15 @@ function islandora_solr_update_8000() {
       }
       unset($settings['link_rendering']);
     }
-    if (isset($field_config_class[$field['field_type']])) {
-      $field_config = call_user_func_array([$field_config_class[$field['field_type']], 'getFieldConfiguration'], [$settings]);
-      $field_config['solr_field'] = $field['solr_field'];
-      $field_config['weight'] = $field['weight'];
-      unset($field_config['field_type']);
-      if (!$field_config['permissions']) {
-        $field_config['permissions'] = _islandora_solr_permissions_default();
-      }
-      $machine_name = call_user_func_array([$field_config_class[$field['field_type']], 'generateFieldKey'], [$field['solr_field']]);
-      $config->set("{$field['field_type']}.{$machine_name}", $field_config);
-      $migrated++;
+    $field_config = islandora_solr_get_default_field_configuration($field['solr_field'], $field['field_type'], $settings);
+    // Don't need to hang onto this since the configs are split by type.
+    unset($field_config['field_type']);
+    if (!$field_config['permissions']) {
+      $field_config['permissions'] = _islandora_solr_permissions_default();
     }
+    $machine_name = ConfigFieldFormBase::generateFieldKey($field['solr_field']);
+    $config->set("{$field['field_type']}.{$machine_name}", $field_config);
+    $migrated++;
   }
   $config->save(TRUE);
   if ($migrated == count($fields)) {
