@@ -624,6 +624,15 @@ class AdminSettings extends ModuleHandlerAdminForm {
           $this->config('islandora_solr.fields')->set("$field_type.$field_key", $solr_field_settings);
         }
       }
+      // Remove any fields that have been cut out of the list.
+      if ($form_state->get(['solr_field_settings', 'islandora_solr_' . $field_type])) {
+        foreach ($form_state->get(['solr_field_settings', 'islandora_solr_' . $field_type]) as $field => $values) {
+          if (is_null($values)) {
+            $field_key = ConfigFieldFormBase::generateFieldKey($field);
+            $this->config('islandora_solr.fields')->clear("$field_type.$field_key");
+          }
+        }
+      }
     }
     $this->config('islandora_solr.fields')->save();
     parent::submitForm($form, $form_state);
