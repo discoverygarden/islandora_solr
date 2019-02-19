@@ -8,11 +8,7 @@
   // Datepicker.
   Drupal.behaviors.islandoraSolrDatepicker = {
     attach: function (context, settings) {
-      if (!settings.islandora_solr.islandoraSolrDatepickerRange) {
-        return;
-      }
-      var datepickerRange = settings.islandora_solr.islandoraSolrDatepickerRange;
-      $.each(datepickerRange, function () {
+      $.each(settings.islandora_solr.islandoraSolrDatepickerRange, function () {
         var formKey = this.formKey;
         var yearRangeVal = this.datepickerRange;
         // Set datepicker.
