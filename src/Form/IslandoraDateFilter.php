@@ -166,7 +166,7 @@ class IslandoraDateFilter extends BaseSubForm {
       '#name' => 'date_filter_facet_field_' . $form_key,
       '#form_key' => $form_key,
     ];
-    $form['#attached']['library'][] = 'core/jquery.ui.datepicker';
+    $form['#attached']['library'][] = 'islandora_solr/islandora_solr_facets.datepicker.js';
     $form['#attached']['drupalSettings']['islandora_solr']['islandoraSolrDatepickerRange'][$facet_field] = [
       'datepickerRange' => trim($datepicker_range),
       'formKey' => $form_key,

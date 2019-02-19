@@ -84,7 +84,6 @@ function islandora_solr_update_8000() {
   module_load_include('inc', 'islandora_solr', 'includes/db');
   $fields = $db->select('islandora_solr_fields', 'isf')
     ->fields('isf', [])
-    ->orderBy('isf.weight', 'ASC')
     ->execute()
     ->fetchAll(PDO::FETCH_ASSOC);
   $config_factory = \Drupal::configFactory();
@@ -113,6 +112,7 @@ function islandora_solr_update_8000() {
     if (!$field_config['permissions']) {
       $field_config['permissions'] = _islandora_solr_permissions_default();
     }
+    $field_config['weight'] = $field['weight'];
     $machine_name = ConfigFieldFormBase::generateFieldKey($field['solr_field']);
     $config->set("{$field['field_type']}.{$machine_name}", $field_config);
     $migrated++;

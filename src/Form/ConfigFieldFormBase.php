@@ -73,7 +73,7 @@ abstract class ConfigFieldFormBase extends ConfigFormBase {
       '#default_value' => isset($values['label']) ? $values['label'] : '',
       '#description' => $this->t('A human-readable name.'),
     ];
-    $this->appendPermissionsAndActions($values, $form, TRUE, [$this, 'modalSubmit']);
+    $this->appendPermissionsAndActions($values, $form, $form_state, TRUE, [$this, 'modalSubmit']);
     return $form;
   }
 
