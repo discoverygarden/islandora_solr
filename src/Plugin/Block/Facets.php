@@ -45,4 +45,11 @@ class Facets extends BlockBase {
     }
   }
 
+  /**
+   * Don't allow caching.
+   */
+  public function getCacheMaxAge() {
+    return 0;
+  }
+
 }
