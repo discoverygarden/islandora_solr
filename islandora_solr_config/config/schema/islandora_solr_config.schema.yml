@@ -1,5 +1,5 @@
 islandora_solr_config.settings:
-  type: mapping
+  type: config_object
   label: Settings
   mapping:
     islandora_solr_config_rss_item:
