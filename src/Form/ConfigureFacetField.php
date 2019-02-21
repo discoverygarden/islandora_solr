@@ -44,6 +44,8 @@ class ConfigureFacetField extends ConfigFieldFormBase {
       'boolean_facet_true_replacement',
       'boolean_facet_false_replacement',
       'sort_by',
+      'enable_permissions',
+      'permissions',
     ], [
       'label',
       'range_facet_select',
@@ -60,12 +62,13 @@ class ConfigureFacetField extends ConfigFieldFormBase {
       'boolean_facet_true_replacement',
       'boolean_facet_false_replacement',
       'sort_by',
+      'enable_permissions',
+      'permissions',
     ]);
     $relevant_values = array_intersect_key($solr_field_settings, $fields);
     $relevant_values['label'] = isset($relevant_values['label']) ?
       trim($relevant_values['label']) :
       '';
-    $relevant_values['permissions'] = empty($solr_field_settings['enable_permissions']) ? _islandora_solr_permissions_default() : $solr_field_settings['permissions'];
     $relevant_values['weight'] = isset($solr_field_settings['weight']) ? (int) $solr_field_settings['weight'] : 0;
     return $relevant_values;
   }

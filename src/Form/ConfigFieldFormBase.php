@@ -45,7 +45,8 @@ abstract class ConfigFieldFormBase extends ConfigFormBase {
     module_load_include('inc', 'islandora_solr', 'includes/admin');
     return [
       'label' => isset($solr_field_settings['label']) ? trim($solr_field_settings['label']) : '',
-      'permissions' => empty($solr_field_settings['enable_permissions']) ? _islandora_solr_permissions_default() : $solr_field_settings['permissions'],
+      'enable_permissions' => isset($solr_field_settings['enable_permissions']) ? $solr_field_settings['enable_permissions'] : FALSE,
+      'permissions' => isset($solr_field_settings['permissions']) ? $solr_field_settings['permissions'] : NULL,
       'weight' => isset($solr_field_settings['weight']) ? (int) $solr_field_settings['weight'] : 0,
     ];
   }

@@ -109,8 +109,14 @@ function islandora_solr_update_8000() {
     $field_config = islandora_solr_get_default_field_configuration($field['solr_field'], $field['field_type'], $settings);
     // Don't need to hang onto this since the configs are split by type.
     unset($field_config['field_type']);
-    if (!$field_config['permissions']) {
-      $field_config['permissions'] = _islandora_solr_permissions_default();
+    // Permissions now nullable.
+    if (!isset($field_config['permissions']) || empty($field_config['permissions'])) {
+      $field_config['permissions'] = NULL;
+      // Tracking this separate from the permissions config now.
+      $field_config['enable_permissions'] = FALSE;
+    }
+    else {
+      $field_config['enable_permissions'] = TRUE;
     }
     $field_config['weight'] = $field['weight'];
     $machine_name = ConfigFieldFormBase::generateFieldKey($field['solr_field']);

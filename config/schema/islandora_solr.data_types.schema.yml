@@ -29,8 +29,11 @@ islandora_solr.result_fields:
       type: boolean
     replace_pid_with_label:
       type: boolean
+    enable_permissions:
+      type: boolean
     permissions:
       type: sequence
+      nullable: true
 islandora_solr.sort_fields:
   type: mapping
   label: Sort Field
@@ -42,8 +45,11 @@ islandora_solr.sort_fields:
       type: label
     weight:
       type: integer
+    enable_permissions:
+      type: boolean
     permissions:
       type: sequence
+      nullable: true
 islandora_solr.facet_fields:
   type: mapping
   label: Facet Field
@@ -83,8 +89,11 @@ islandora_solr.facet_fields:
       type: string
     pid_object_label:
       type: boolean
+    enable_permissions:
+      type: boolean
     permissions:
       type: sequence
+      nullable: true
 islandora_solr.search_fields:
   type: mapping
   label: Advanced Search Field
@@ -96,5 +105,8 @@ islandora_solr.search_fields:
       type: label
     weight:
       type: integer
+    enable_permissions:
+      type: boolean
     permissions:
       type: sequence
+      nullable: true
