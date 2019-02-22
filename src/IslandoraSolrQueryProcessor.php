@@ -233,9 +233,9 @@ class IslandoraSolrQueryProcessor {
       });
       foreach ($facet_dates_ranges as $key => $value) {
         $field = $value['solr_field'];
-        $start = $value['solr_field_settings']['range_facet_start'];
-        $end = $value['solr_field_settings']['range_facet_end'];
-        $gap = $value['solr_field_settings']['range_facet_gap'];
+        $start = $value['range_facet_start'];
+        $end = $value['range_facet_end'];
+        $gap = $value['range_facet_gap'];
         if ($this->solrHasDateFacets()) {
           // < Solr 6 or we don't know.
           $params_date_facets["facet.date"][] = $field;
@@ -283,7 +283,7 @@ class IslandoraSolrQueryProcessor {
         }
         // When the range slider is enabled we always want to return empty
         // values.
-        if ($value['solr_field_settings']['range_facet_slider_enabled'] == 1) {
+        if ($value['range_facet_slider_enabled']) {
           $params_date_facets["f.{$field}.facet.mincount"] = 0;
         }
         // Remove range/date field from facet.field array.
@@ -299,9 +299,9 @@ class IslandoraSolrQueryProcessor {
 
     $facet_sort_array = [];
     foreach ($facet_array as $key => $value) {
-      if (isset($value['solr_field_settings']['sort_by']) && $value['solr_field_settings']['sort_by'] != $default_sort) {
+      if (isset($value['sort_by']) && $value['sort_by'] != $default_sort) {
         // If the sort doesn't match default then specify it in the parameters.
-        $facet_sort_array["f.{$key}.facet.sort"] = Html::escape($value['solr_field_settings']['sort_by']);
+        $facet_sort_array["f.{$key}.facet.sort"] = Html::escape($value['sort_by']);
       }
     }
     $params_array = array_merge($params_array, $facet_sort_array);

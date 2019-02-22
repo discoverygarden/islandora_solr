@@ -365,8 +365,8 @@ class IslandoraSolrResults {
       if (isset($islandora_solr_query->solrParams['facet.date']) && in_array($solr_field, $islandora_solr_query->solrParams['facet.date'])) {
         // Check date format setting.
         foreach ($this->rangeFacets as $value) {
-          if ($value['solr_field'] == $solr_field && isset($value['solr_field_settings']['date_facet_format']) && !empty($value['solr_field_settings']['date_facet_format'])) {
-            $format = $value['solr_field_settings']['date_facet_format'];
+          if ($value['solr_field'] == $solr_field && isset($value['date_facet_format']) && !empty($value['date_facet_format'])) {
+            $format = $value['date_facet_format'];
           }
         }
         // Split range filter string to return formatted date values.
@@ -377,7 +377,7 @@ class IslandoraSolrResults {
         $filter_split[1] = format_date(strtotime(trim($filter_array[0])) + (60 * 60 * 24), 'custom', $format) . ' - ' . format_date(strtotime(trim($filter_array[1])) + (60 * 60 * 24), 'custom', $format);
       }
       elseif (isset($this->dateFormatFacets[$solr_field])) {
-        $format = $this->dateFormatFacets[$solr_field]['solr_field_settings']['date_facet_format'];
+        $format = $this->dateFormatFacets[$solr_field]['date_facet_format'];
         $filter_split[1] = format_date(strtotime(stripslashes($filter_split[1])), 'custom', $format);
       }
       $facet_fields_settings = $this->facetFieldSettings;

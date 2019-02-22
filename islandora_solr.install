@@ -8,6 +8,7 @@
 use Drupal\Core\Url;
 use Drupal\Core\Link;
 use Drupal\Component\Utility\Xss;
+use Drupal\islandora_solr\Form\ConfigFieldFormBase;
 
 /**
  * Implements hook_requirements().
@@ -48,38 +49,6 @@ function islandora_solr_install() {
  * Implements hook_schema().
  */
 function islandora_solr_schema() {
-  $schema['islandora_solr_fields'] = [
-    'description' => 'Table that stores Islandora Solr field settings.',
-    'fields' => [
-      'solr_field' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'description' => 'The field name as indexed in Solr',
-      ],
-      'field_type' => [
-        'type' => 'varchar',
-        'length' => 64,
-        'not null' => TRUE,
-        'default' => '',
-        'description' => 'The type of the field settings.',
-      ],
-      'weight' => [
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-        'description' => 'Weight of the field within field type.',
-      ],
-      'solr_field_settings' => [
-        'type' => 'blob',
-        'not null' => FALSE,
-        'size' => 'big',
-        'serialize' => TRUE,
-        'description' => 'A serialized array of name value pairs that store additional field settings.',
-      ],
-    ],
-    'primary key' => [['solr_field', 191], 'field_type'],
-  ];
   $schema['islandora_solr_collection_sort_strings'] = [
     'description' => 'Table that stores sort strings for collection objects.',
     'fields' => [
@@ -99,4 +68,73 @@ function islandora_solr_schema() {
     'primary key' => [['collection_pid', 191]],
   ];
   return $schema;
+}
+
+/**
+ * Migrate old Drupal database fields into the new configuration.
+ */
+function islandora_solr_update_8000() {
+  $db = \Drupal::database();
+  $schema = $db->schema();
+  if (!$schema->tableExists('islandora_solr_fields')) {
+    return t('No islandora_solr_fields table found in the database; nothing to import');
+  }
+
+  module_load_include('inc', 'islandora_solr', 'includes/admin');
+  module_load_include('inc', 'islandora_solr', 'includes/db');
+  $fields = $db->select('islandora_solr_fields', 'isf')
+    ->fields('isf', [])
+    ->execute()
+    ->fetchAll(PDO::FETCH_ASSOC);
+  $config_factory = \Drupal::configFactory();
+  $config = $config_factory->getEditable('islandora_solr.fields');
+  $migrated = 0;
+  foreach ($fields as &$field) {
+    $settings = unserialize($field['solr_field_settings']);
+    // A previous update in 7.x split the link_rendering property into two other
+    // properties, but maintained support for the link_rendering property for
+    // legacy purposes. Use of this property is being phased out in 8.x.
+    if (isset($settings['link_rendering'])) {
+      $link_choice = $settings['link_rendering'];
+      $settings['link_to_object'] = FALSE;
+      $settings['link_to_search'] = FALSE;
+      if ($link_choice === 'object') {
+        $settings['link_to_object'] = TRUE;
+      }
+      elseif ($link_choice === 'search') {
+        $settings['link_to_search'] = TRUE;
+      }
+      unset($settings['link_rendering']);
+    }
+    $field_config = islandora_solr_get_default_field_configuration($field['solr_field'], $field['field_type'], $settings);
+    // Don't need to hang onto this since the configs are split by type.
+    unset($field_config['field_type']);
+    // Permissions now nullable.
+    if (!isset($field_config['permissions']) || !($field_config['permissions'])) {
+      $field_config['permissions'] = NULL;
+      // Tracking this separate from the permissions config now.
+      $field_config['enable_permissions'] = FALSE;
+    }
+    else {
+      $field_config['enable_permissions'] = TRUE;
+    }
+    $field_config['weight'] = (int) $field['weight'];
+    $machine_name = ConfigFieldFormBase::generateFieldKey($field['solr_field']);
+    $config->set("{$field['field_type']}.{$machine_name}", $field_config);
+    $migrated++;
+  }
+  $config->save(TRUE);
+  if ($migrated == count($fields)) {
+    $schema->dropTable('islandora_solr_fields');
+    return t('Migrated @count/@total field(s); the islandora_solr_fields table has been removed', [
+      '@count' => $migrated,
+      '@total' => count($fields),
+    ]);
+  }
+  else {
+    return t('Migrated @count/@total field(s); fields with unknown field types were not migrated, and the islandora_solr_fields table was not removed as a result.', [
+      '@count' => $migrated,
+      '@total' => count($fields),
+    ]);
+  }
 }

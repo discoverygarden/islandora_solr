@@ -18,6 +18,14 @@ facets-js:
     - core/jquery
     - core/drupalSettings
     - core/drupal
+datepicker:
+  js:
+    js/islandora_solr_facets.datepicker.js: {}
+  dependencies:
+    - core/jquery.ui.datepicker
+    - core/jquery
+    - core/drupalSettings
+    - core/drupal
 toggle:
   js:
     js/truncation-toggle.js: {}
@@ -27,7 +35,7 @@ toggle:
 slider:
   js:
     js/flot/jquery.flot.min.js: {}
-    js/islandora_solr_facets.js: {}
+    js/islandora_solr_facets.date_slider.js: {}
   dependencies:
     - core/jquery.ui.slider
     - core/drupalSettings

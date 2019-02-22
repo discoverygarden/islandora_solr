@@ -41,11 +41,18 @@ islandora_solr.configure_facet_field:
     _form: \Drupal\islandora_solr\Form\ConfigureFacetField
   requirements:
     _permission: 'administer islandora solr'
-islandora_solr.configure_sort_or_search_field:
-  path: /islandora_solr/sort_or_field/{field_type}/{solr_field}
+islandora_solr.configure_sort_field:
+  path: /islandora_solr/sort_field/{solr_field}
   defaults:
     _title: 'Configure field'
-    _form: \Drupal\islandora_solr\Form\ConfigureSortOrSearchField
+    _form: \Drupal\islandora_solr\Form\ConfigureSortField
+  requirements:
+    _permission: 'administer islandora solr'
+islandora_solr.configure_search_field:
+  path: /islandora_solr/search_field/{solr_field}
+  defaults:
+    _title: 'Configure field'
+    _form: \Drupal\islandora_solr\Form\ConfigureSearchField
   requirements:
     _permission: 'administer islandora solr'
 islandora_solr.autocomplete_luke:

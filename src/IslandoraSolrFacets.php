@@ -220,8 +220,8 @@ class IslandoraSolrFacets {
    */
   public function processFacetDates() {
     // @todo Make this check better. Could be pluggable in the future.
-    if (isset($this->settings['solr_field_settings']['range_facet_slider_enabled']) &&
-        $this->settings['solr_field_settings']['range_facet_slider_enabled'] == 1) {
+    if (isset($this->settings['range_facet_slider_enabled']) &&
+        $this->settings['range_facet_slider_enabled']) {
       // Prepare and render facet dates as slider.
       $facet_dates_as_slider = $this->prepareFacetDatesSlider();
       if (!empty($facet_dates_as_slider)) {
@@ -234,8 +234,8 @@ class IslandoraSolrFacets {
       $this->renderText($facet_dates_as_text);
     }
     // Date filter.
-    if (isset($this->settings['solr_field_settings']['date_filter_datepicker_enabled']) &&
-        $this->settings['solr_field_settings']['date_filter_datepicker_enabled'] == 1) {
+    if (isset($this->settings['date_filter_datepicker_enabled']) &&
+        $this->settings['date_filter_datepicker_enabled'] == 1) {
       // Prepare and render facet dates as slider.
       $facet_dates_datefilter = $this->prepareFacetDatesFilter();
       if (!empty($facet_dates_datefilter)) {
@@ -259,9 +259,9 @@ class IslandoraSolrFacets {
    * Finds the date formatting settings from user configuration.
    */
   public function getDateFormat() {
-    if (isset($this->settings['solr_field_settings']['date_facet_format']) &&
-        !empty($this->settings['solr_field_settings']['date_facet_format'])) {
-      return $this->settings['solr_field_settings']['date_facet_format'];
+    if (isset($this->settings['date_facet_format']) &&
+        !empty($this->settings['date_facet_format'])) {
+      return $this->settings['date_facet_format'];
     }
     else {
       return 'Y';
@@ -278,7 +278,7 @@ class IslandoraSolrFacets {
     module_load_include('inc', 'islandora_solr', 'includes/utilities');
     // It's possible that there could be a facet that's a date field
     // that's not a range.
-    $date_format = isset($this->settings['solr_field_settings']['date_facet_format']) ? $this->settings['solr_field_settings']['date_facet_format'] : FALSE;
+    $date_format = isset($this->settings['date_facet_format']) ? $this->settings['date_facet_format'] : FALSE;
     foreach ($results as $bucket => $count) {
       $facet_results[] = [
         'count' => $count,
@@ -341,7 +341,7 @@ class IslandoraSolrFacets {
     $islandora_solr_query = self::$islandoraSolrQuery;
     $soft_limit = self::$soft_limit;
     $buckets = [];
-    $replace_bucket = (isset($this->settings['solr_field_settings']['pid_object_label']) && $this->settings['solr_field_settings']['pid_object_label'] ? TRUE : FALSE);
+    $replace_bucket = (isset($this->settings['pid_object_label']) && $this->settings['pid_object_label'] ? TRUE : FALSE);
     $pid_mapper = function ($result) {
       $pid = str_replace('info:fedora/', '', $result['bucket']);
       return $pid;
@@ -394,11 +394,11 @@ class IslandoraSolrFacets {
       }
 
       // Replace labels for boolean values if necessary.
-      if ($bucket == 'true' && isset($this->settings['solr_field_settings']['boolean_facet_true_replacement']) && !empty($this->settings['solr_field_settings']['boolean_facet_true_replacement'])) {
-        $bucket = $this->settings['solr_field_settings']['boolean_facet_true_replacement'];
+      if ($bucket == 'true' && isset($this->settings['boolean_facet_true_replacement']) && !empty($this->settings['boolean_facet_true_replacement'])) {
+        $bucket = $this->settings['boolean_facet_true_replacement'];
       }
-      if ($bucket == 'false' && isset($this->settings['solr_field_settings']['boolean_facet_false_replacement']) && !empty($this->settings['solr_field_settings']['boolean_facet_false_replacement'])) {
-        $bucket = $this->settings['solr_field_settings']['boolean_facet_false_replacement'];
+      if ($bucket == 'false' && isset($this->settings['boolean_facet_false_replacement']) && !empty($this->settings['boolean_facet_false_replacement'])) {
+        $bucket = $this->settings['boolean_facet_false_replacement'];
       }
 
       // Current URL query.
@@ -632,9 +632,9 @@ class IslandoraSolrFacets {
     }
 
     // Add range slider color.
-    if (isset($settings['solr_field_settings']['range_facet_slider_color']) &&
-        !empty($settings['solr_field_settings']['range_facet_slider_color'])) {
-      $slider_color = $settings['solr_field_settings']['range_facet_slider_color'];
+    if (isset($settings['range_facet_slider_color']) &&
+        !empty($settings['range_facet_slider_color'])) {
+      $slider_color = $settings['range_facet_slider_color'];
     }
     else {
       $slider_color = '#edc240';
@@ -693,8 +693,8 @@ class IslandoraSolrFacets {
   public function prepareFacetDatesFilter() {
     $settings = $this->settings;
     // Datepicker range.
-    if (isset($settings['solr_field_settings']['date_filter_datepicker_range']) && !empty($settings['solr_field_settings']['date_filter_datepicker_range'])) {
-      $datepicker_range = $settings['solr_field_settings']['date_filter_datepicker_range'];
+    if (isset($settings['date_filter_datepicker_range']) && !empty($settings['date_filter_datepicker_range'])) {
+      $datepicker_range = $settings['date_filter_datepicker_range'];
     }
     else {
       $datepicker_range = '-100:+3';
@@ -749,7 +749,7 @@ class IslandoraSolrFacets {
     $facet_fields_settings = self::$facet_fields_settings;
     $variable_date_gap = [];
     foreach ($facet_fields_settings as $settings) {
-      if (isset($settings['solr_field_settings']['range_facet_variable_gap']) && $settings['solr_field_settings']['range_facet_variable_gap'] == 1) {
+      if (isset($settings['range_facet_variable_gap']) && $settings['range_facet_variable_gap']) {
         $variable_date_gap[] = $settings['solr_field'];
       }
     }

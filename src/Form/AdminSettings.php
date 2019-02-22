@@ -2,8 +2,6 @@
 
 namespace Drupal\islandora_solr\Form;
 
-use PDO;
-
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\islandora\Form\ModuleHandlerAdminForm;
 
@@ -23,7 +21,10 @@ class AdminSettings extends ModuleHandlerAdminForm {
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
-    return ['islandora_solr.settings'];
+    return [
+      'islandora_solr.settings',
+      'islandora_solr.fields',
+    ];
   }
 
   /**
@@ -561,6 +562,7 @@ class AdminSettings extends ModuleHandlerAdminForm {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
     // XXX: To preserve backwards compatability of the primary display table
     // need to munge the data into the Drupal 7 form.
     $munged_config = [
@@ -596,7 +598,6 @@ class AdminSettings extends ModuleHandlerAdminForm {
     $this->config('islandora_solr.settings')->save();
 
     // Handle fields.
-    $current_values = [];
     $field_types = [
       'result_fields',
       'sort_fields',
@@ -605,8 +606,7 @@ class AdminSettings extends ModuleHandlerAdminForm {
     ];
     foreach ($field_types as $field_type) {
       if ($form_state->getValue(["islandora_solr_{$field_type}", 'terms'])) {
-        $result_fields = $form_state->getValue(["islandora_solr_{$field_type}", 'terms']);
-        foreach ($result_fields as $key => $value) {
+        foreach ($form_state->getValue(["islandora_solr_{$field_type}", 'terms']) as $value) {
           $solr_field = $value['solr_field'];
           $solr_field_settings = [];
           if ($form_state->get(['solr_field_settings',
@@ -617,105 +617,24 @@ class AdminSettings extends ModuleHandlerAdminForm {
               "islandora_solr_{$field_type}",
               $solr_field,
             ]);
-            // Handle linking to objects to not break existing features while
-            // adding new functionality.
-            if ($field_type == 'result_fields') {
-              if (isset($solr_field_settings['link_rendering'])) {
-                $link_choice = $solr_field_settings['link_rendering'];
-                $solr_field_settings['link_to_object'] = FALSE;
-                $solr_field_settings['link_to_search'] = FALSE;
-                if ($link_choice === 'object') {
-                  $solr_field_settings['link_to_object'] = TRUE;
-                }
-                elseif ($link_choice === 'search') {
-                  $solr_field_settings['link_to_search'] = TRUE;
-                }
-                unset($solr_field_settings['link_rendering']);
-              }
-            }
           }
-          $current_values[] = [
-            'solr_field' => $solr_field,
-            'field_type' => $field_type,
-            'weight' => $value['weight'],
-            'solr_field_settings' => serialize($solr_field_settings),
-          ];
+          $solr_field_settings['weight'] = $value['weight'];
+          $solr_field_settings = islandora_solr_get_default_field_configuration($solr_field, $field_type, $solr_field_settings);
+          $field_key = ConfigFieldFormBase::generateFieldKey($solr_field);
+          $this->config('islandora_solr.fields')->set("$field_type.$field_key", $solr_field_settings);
         }
       }
-    }
-    // Get fields.
-    $query = \Drupal::database()->select('islandora_solr_fields');
-    $query->fields('islandora_solr_fields');
-    $result = $query->execute();
-    $records = $result->fetchAll(PDO::FETCH_ASSOC);
-    // Find things to Add/Update.
-    $insert_values = [];
-    $update_values = [];
-    foreach ($current_values as $current_value) {
-      $found = FALSE;
-      foreach ($records as $existing_value) {
-        if ($current_value['solr_field'] == $existing_value['solr_field'] && $current_value['field_type'] == $existing_value['field_type']) {
-          if ($current_value['weight'] != $existing_value['weight']) {
-            $update_values[] = $current_value;
+      // Remove any fields that have been cut out of the list.
+      if ($form_state->get(['solr_field_settings', 'islandora_solr_' . $field_type])) {
+        foreach ($form_state->get(['solr_field_settings', 'islandora_solr_' . $field_type]) as $field => $values) {
+          if (is_null($values)) {
+            $field_key = ConfigFieldFormBase::generateFieldKey($field);
+            $this->config('islandora_solr.fields')->clear("$field_type.$field_key");
           }
-          $found = TRUE;
-          break;
         }
       }
-      if (!$found) {
-        $insert_values[] = $current_value;
-      }
     }
-    // Find things to remove.
-    $remove_values = [
-      'result_fields' => [],
-      'sort_fields' => [],
-      'facet_fields' => [],
-      'search_fields' => [],
-    ];
-    foreach ($records as $existing_value) {
-      $found = FALSE;
-      foreach ($current_values as $current_value) {
-        if ($current_value['solr_field'] == $existing_value['solr_field'] && $current_value['field_type'] == $existing_value['field_type']) {
-          $found = TRUE;
-          break;
-        }
-      }
-      if (!$found) {
-        $remove_values[$existing_value['field_type']][] = $existing_value['solr_field'];
-      }
-    }
-    // Remove values.
-    foreach ($remove_values as $field_type => $values) {
-      if (!$values) {
-        continue;
-      }
-      \Drupal::database()->delete('islandora_solr_fields')
-        ->condition('field_type', $field_type)
-        ->condition('solr_field', $values, 'IN')
-        ->execute();
-    }
-    // Add values.
-    if ($insert_values) {
-      $insert = \Drupal::database()->insert('islandora_solr_fields')->fields([
-        'solr_field',
-        'field_type',
-        'weight',
-        'solr_field_settings',
-      ]);
-      foreach ($insert_values as $record) {
-        $insert->values($record);
-      }
-      $insert->execute();
-    }
-    // Update values.
-    foreach ($update_values as $value) {
-      \Drupal::database()->update('islandora_solr_fields')
-        ->fields(['weight' => $value['weight']])
-        ->condition('field_type', $value['field_type'])
-        ->condition('solr_field', $value['solr_field'])
-        ->execute();
-    }
+    $this->config('islandora_solr.fields')->save();
     parent::submitForm($form, $form_state);
   }
 
