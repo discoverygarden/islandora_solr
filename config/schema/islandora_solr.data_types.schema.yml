@@ -34,6 +34,9 @@ islandora_solr.result_fields:
     permissions:
       type: sequence
       nullable: true
+      sequence:
+        type: integer
+        nullable: true
 islandora_solr.sort_fields:
   type: mapping
   label: Sort Field
@@ -50,6 +53,9 @@ islandora_solr.sort_fields:
     permissions:
       type: sequence
       nullable: true
+      sequence:
+        type: integer
+        nullable: true
 islandora_solr.facet_fields:
   type: mapping
   label: Facet Field
@@ -94,6 +100,9 @@ islandora_solr.facet_fields:
     permissions:
       type: sequence
       nullable: true
+      sequence:
+        type: integer
+        nullable: true
 islandora_solr.search_fields:
   type: mapping
   label: Advanced Search Field
@@ -110,3 +119,6 @@ islandora_solr.search_fields:
     permissions:
       type: sequence
       nullable: true
+      sequence:
+        type: integer
+        nullable: true

@@ -110,7 +110,7 @@ function islandora_solr_update_8000() {
     // Don't need to hang onto this since the configs are split by type.
     unset($field_config['field_type']);
     // Permissions now nullable.
-    if (!isset($field_config['permissions']) || empty($field_config['permissions'])) {
+    if (!isset($field_config['permissions']) || !($field_config['permissions'])) {
       $field_config['permissions'] = NULL;
       // Tracking this separate from the permissions config now.
       $field_config['enable_permissions'] = FALSE;
@@ -118,7 +118,7 @@ function islandora_solr_update_8000() {
     else {
       $field_config['enable_permissions'] = TRUE;
     }
-    $field_config['weight'] = $field['weight'];
+    $field_config['weight'] = (int) $field['weight'];
     $machine_name = ConfigFieldFormBase::generateFieldKey($field['solr_field']);
     $config->set("{$field['field_type']}.{$machine_name}", $field_config);
     $migrated++;
