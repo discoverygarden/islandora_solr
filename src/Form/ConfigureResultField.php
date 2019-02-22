@@ -40,8 +40,8 @@ class ConfigureResultField extends ConfigFieldFormBase {
       'enable_permissions' => isset($solr_field_settings['enable_permissions']) ? $solr_field_settings['enable_permissions'] : FALSE,
       'permissions' => isset($solr_field_settings['permissions']) ? $solr_field_settings['permissions'] : NULL,
       'replace_pid_with_label' => empty($solr_field_settings['replace_pid_with_label']) ? FALSE : (bool) $solr_field_settings['replace_pid_with_label'],
-      'link_to_object' => isset($solr_field_settings['link_rendering']) && $solr_field_settings['link_rendering'] == 'object',
-      'link_to_search' => isset($solr_field_settings['link_rendering']) && $solr_field_settings['link_rendering'] == 'search',
+      'link_to_object' => isset($solr_field_settings['link_to_object']) ? $solr_field_settings['link_to_object'] : FALSE,
+      'link_to_search' => isset($solr_field_settings['link_to_search']) ? $solr_field_settings['link_to_search'] : FALSE,
       'weight' => isset($solr_field_settings['weight']) ? (int) $solr_field_settings['weight'] : 0,
     ];
   }
@@ -83,7 +83,7 @@ class ConfigureResultField extends ConfigFieldFormBase {
       $default_link = 'search';
     }
     else {
-      $default_link = NULL;
+      $default_link = 'none';
     }
     $form['options']['link_rendering'] = [
       '#type' => 'radios',
