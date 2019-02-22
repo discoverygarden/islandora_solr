@@ -94,7 +94,8 @@ abstract class ConfigFieldFormBase extends ConfigFormBase {
    */
   protected function appendPermissionsAndActions(array $values, array &$form, FormStateInterface $form_state, $default_value = TRUE, callable $callback = NULL) {
     $form_state->loadInclude('inc', 'islandora_solr', 'includes/admin');
-    $permissions = isset($values['permissions']) ? $values['permissions'] : [];
+    // Use perms only if enabled.
+    $permissions = $values['enable_permissions'] ? $values['permissions'] : $values['enable_permissions'];
     $permissions_disable = _islandora_solr_permissions_disable();
     $permissions_default = _islandora_solr_permissions_default();
     $form['options']['permissions_fieldset'] = islandora_solr_get_admin_permissions_fieldset($permissions, $permissions_default, $permissions_disable, $default_value);
