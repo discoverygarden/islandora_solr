@@ -579,6 +579,8 @@ class AdminSettings extends ModuleHandlerAdminForm {
     // Skip values that are part of the form state object or need combination
     // for special handling.
     $skipped_keys = [
+      'islandora_solr_tabs__active_tab',
+      'islandora_solr_primary_table_default_choice',
       'islandora_solr_primary_display_table',
       'op',
       'form_build_id',
