@@ -83,13 +83,37 @@ islandora_solr.settings:
     islandora_solr_breadcrumbs_parent_fields:
       type: string
     islandora_solr_primary_display_table:
-      type: sequence
+      type: mapping
+      mapping:
+        default:
+          type: string
+        weight:
+          type: sequence
+          sequence:
+            type: integer
+        enabled:
+          type: sequence
+          sequence:
+            type: boolean
     islandora_solr_secondary_display:
       type: sequence
+      sequence:
+        type: string
     islandora_solr_num_of_results_advanced:
       type: sequence
+      sequence:
+        type: integer
     islandora_solr_explore_config:
       type: sequence
+      sequence:
+        type: mapping
+        mapping:
+          label:
+            type: label
+          filter:
+            type: string
+          weight:
+            type: integer
     islandora_solr_compound_relationship_field:
       type: string
     islandora_solr_compound_sequence_pattern:
