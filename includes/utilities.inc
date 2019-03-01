@@ -129,13 +129,13 @@ function islandora_solr_csv_explode($delim = ',', $str = '', $enclose = '"', $pr
  *
  * @param string $value
  *   A string to escape.
- * @param array $pattern
- *   An regular expression pattern.
+ * @param array|string $pattern
+ *   A(or set of) regular expression pattern(s).
  *
  * @return string
  *   The escaped string.
  */
-function islandora_solr_facet_query_escape($value, array $pattern = NULL) {
+function islandora_solr_facet_query_escape($value, $pattern = NULL) {
   if (!$pattern) {
     $pattern = ISLANDORA_SOLR_QUERY_FACET_LUCENE_ESCAPE_REGEX_DEFAULT;
   }
