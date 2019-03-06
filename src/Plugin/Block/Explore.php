@@ -2,10 +2,13 @@
 
 namespace Drupal\islandora_solr\Plugin\Block;
 
-use Drupal\islandora\Plugin\Block\AbstractConfiguredBlockBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Cache\Cache;
+
+use Drupal\islandora\Plugin\Block\AbstractConfiguredBlockBase;
+use Drupal\islandora\Controller\DefaultController as IslandoraController;
 
 /**
  * Provides a block for exploring objects through facets.
@@ -32,12 +35,7 @@ class Explore extends AbstractConfiguredBlockBase {
    * {@inheritdoc}
    */
   protected function blockAccess(AccountInterface $account) {
-    if ($account->hasPermission('search islandora solr')) {
-      return AccessResult::allowed();
-    }
-    else {
-      return AccessResult::forbidden();
-    }
+    return AccessResult::allowedIfHasPermission($account, 'search islandora solr');
   }
 
   /**
@@ -365,6 +363,26 @@ class Explore extends AbstractConfiguredBlockBase {
       $config->set('islandora_solr_explore_config', $form_state->get('islandora_solr_facet_filters'));
       $config->save();
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheTags() {
+    return Cache::mergeTags(parent::getCacheTags(), [
+      IslandoraController::LISTING_TAG,
+      'config:islandora_solr.settings',
+    ]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheContexts() {
+    return Cache::mergeContexts(parent::getCacheContexts(), [
+      'user',
+      'languages',
+    ]);
   }
 
 }

@@ -8,7 +8,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Cache\Cache;
 
 use Drupal\islandora_solr\IslandoraSolrResults;
-use const Drupal\islandora\Controller\DefaultController\LISTING_TAG;
+use Drupal\islandora\Controller\DefaultController as IslandoraController;
 
 /**
  * Provides a faceting block.
@@ -47,7 +47,7 @@ class Facets extends BlockBase {
    */
   public function getCacheTags() {
     return Cache::mergeTags(parent::getCacheTags(), [
-      LISTING_TAG,
+      IslandoraController::LISTING_TAG,
       'config:islandora_solr.settings',
     ]);
   }
