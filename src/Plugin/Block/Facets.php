@@ -48,6 +48,7 @@ class Facets extends BlockBase {
   public function getCacheTags() {
     return Cache::mergeTags(parent::getCacheTags(), [
       LISTING_TAG,
+      'config:islandora_solr.settings',
     ]);
   }
 
