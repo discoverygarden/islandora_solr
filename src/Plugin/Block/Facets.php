@@ -5,8 +5,10 @@ namespace Drupal\islandora_solr\Plugin\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Cache\Cache;
 
 use Drupal\islandora_solr\IslandoraSolrResults;
+use const Drupal\islandora\Controller\DefaultController\LISTING_TAG;
 
 /**
  * Provides a faceting block.
@@ -37,19 +39,27 @@ class Facets extends BlockBase {
    * {@inheritdoc}
    */
   protected function blockAccess(AccountInterface $account) {
-    if ($account->hasPermission('search islandora solr')) {
-      return AccessResult::allowed();
-    }
-    else {
-      return AccessResult::forbidden();
-    }
+    return AccessResult::allowedIfHasPermission($account, 'search islandora solr');
   }
 
   /**
-   * Don't allow caching.
+   * {@inheritdoc}
    */
-  public function getCacheMaxAge() {
-    return 0;
+  public function getCacheTags() {
+    return Cache::mergeTags(parent::getCacheTags(), [
+      LISTING_TAG,
+    ]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheContexts() {
+    return Cache::mergeContexts(parent::getCacheContexts(), [
+      'user',
+      'url',
+      'languages',
+    ]);
   }
 
 }
