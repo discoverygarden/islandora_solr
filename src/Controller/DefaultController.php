@@ -3,19 +3,40 @@
 namespace Drupal\islandora_solr\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Cache\CacheableJsonResponse as JsonResponse;
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\Xss;
 
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 use Drupal\islandora_solr\IslandoraSolrResults;
-use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\Xss;
+use Drupal\islandora\Controller\DefaultController as IslandoraController;
 
 /**
  * Default controller for the islandora_solr module.
  */
 class DefaultController extends ControllerBase {
+
+  protected $renderer;
+
+  /**
+   * Constructor.
+   */
+  public function __construct(RendererInterface $renderer) {
+    $this->renderer = $renderer;
+  }
+
+  /**
+   * Dependency Injection.
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('renderer')
+    );
+  }
 
   /**
    * Page callback: Islandora Solr.
@@ -131,6 +152,8 @@ class DefaultController extends ControllerBase {
     }
     $output['#attached']['library'][] = 'islandora_solr/islandora-solr-theme';
 
+    $this->renderer->addCacheableDependency($output, $_islandora_solr_queryclass);
+
     return $output;
   }
 
@@ -158,7 +181,13 @@ class DefaultController extends ControllerBase {
     // @XXX: Sorting arrays isn't documented well http://php.net/manual/en/function.sort.php#54903 .
     sort($result);
 
-    return new JsonResponse($result);
+    return (new JsonResponse($result))
+      ->addCacheTags([
+        IslandoraController::LISTING_TAG,
+      ])
+      ->addCacheContexts([
+        'url.query_args:q',
+      ]);
   }
 
 }

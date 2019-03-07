@@ -10,6 +10,7 @@ use Drupal\Core\Template\Attribute;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Cache\CacheableMetadata;
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 
@@ -52,17 +53,25 @@ function _islandora_solr_advanced_search_terms(array $form, FormStateInterface $
 function islandora_solr_display() {
   global $_islandora_solr_queryclass;
 
+  $cache_meta = (new CacheableMetadata())
+    ->addCacheContexts([
+      'url',
+    ]);
+
   $output = [];
 
   // Check if the page is dealing with search results.
   if (islandora_solr_results_page($_islandora_solr_queryclass)) {
+    $cache_meta->addCacheableDependency($_islandora_solr_queryclass);
 
     // Parameters set in URL.
     $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : [];
 
     $profiles = \Drupal::moduleHandler()->invokeAll("islandora_solr_primary_display");
     // Get the table settings.
-    $primary_display_array = \Drupal::config('islandora_solr.settings')->get('islandora_solr_primary_display_table');
+    $config = \Drupal::config('islandora_solr.settings');
+    $cache_meta->addCacheableDependency($config);
+    $primary_display_array = $config->get('islandora_solr_primary_display_table');
     if (!empty($primary_display_array)) {
 
       $weight = $primary_display_array['weight'];
@@ -109,7 +118,7 @@ function islandora_solr_display() {
       }
       // Theme item list (if more than one displays are available).
       if (count($list_items) > 1) {
-        return [
+        $output = [
           '#theme' => 'item_list',
           '#items' => $list_items,
           '#title' => NULL,
@@ -118,7 +127,11 @@ function islandora_solr_display() {
         ];
       }
     }
+
   }
+
+  $cache_meta->applyTo($output);
+
   return $output;
 }
 
@@ -133,18 +146,41 @@ function islandora_solr_display() {
  *   A rendered list containing Solr sort links.
  */
 function islandora_solr_sort() {
+  $function = '_' . __FUNCTION__;
+  $elements = $function();
+  return \Drupal::service('renderer')->render($elements);
+}
+
+/**
+ * Provides a list to change the sorting on a current search query.
+ *
+ * @global IslandoraSolrQueryProcessor $_islandora_solr_queryclass
+ *   The IslandoraSolrQueryProcessor object which includes the current query
+ *   settings and the raw Solr results.
+ *
+ * @return arrau
+ *   A renderable array containing Solr sort links.
+ */
+function _islandora_solr_sort() {
   module_load_include('inc', 'islandora', 'includes/utilities');
   global $_islandora_solr_queryclass;
 
-  $output = '';
+  $output = [];
+
+  $cache_meta = (new CacheableMetadata())
+    ->addCacheContexts([
+      'url',
+    ]);
 
   // Check if the page is dealing with search results.
   if (islandora_solr_results_page($_islandora_solr_queryclass)) {
+    $cache_meta->addCacheableDependency($_islandora_solr_queryclass);
 
     // Parameters set in URL.
     $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : [];
 
     $sort_terms = islandora_solr_get_fields('sort_fields');
+    $cache_meta->addCacheableDependency(\Drupal::config('islandora_solr.fields'));
 
     // Get current sort (check in the actual parameters used for the query,
     // because modules might have altered it).
@@ -172,13 +208,11 @@ function islandora_solr_sort() {
       if ($term == $current_sort_term) {
         if (isset($current_sort_order) && $current_sort_order == 'asc') {
           $order = 'desc';
-          $element = ['#markup' => '(DESC)'];
-          $indicator = \Drupal::service('renderer')->render($element);
+          $indicator = t('(DESC)');
         }
         else {
           $order = 'asc';
-          $element = ['#markup' => '(ASC)'];
-          $indicator = \Drupal::service('renderer')->render($element);
+          $indicator = t('(ASC)');
         }
       }
       // The term is score or a date, we want descending order by default.
@@ -223,17 +257,17 @@ function islandora_solr_sort() {
 
     // Theme item list.
     if (!empty($list_items)) {
-      $list = [
+      $output += [
         '#theme' => 'item_list',
         '#items' => $list_items,
         '#title' => NULL,
         '#type' => 'ul',
         '#attributes' => ['class' => ['islandora-solr-sort']],
       ];
-      $output = \Drupal::service('renderer')->render($list);
     }
   }
 
+  $cache_meta->applyTo($output);
   return $output;
 }
 
@@ -250,9 +284,35 @@ function islandora_solr_sort() {
  *   The rendered html for the block content.
  */
 function islandora_solr_search_navigation() {
-  $return = NULL;
+  $function = '_' . __FUNCTION__;
+  $elements = $function();
+  return \Drupal::service('renderer')->render($elements);
+}
+
+/**
+ * Search results navigation block.
+ *
+ * Pull params out of the URL to determine search id
+ * and object offset.
+ *
+ * We use offset because the pid of a search result can be altered.
+ * eg: Book pages
+ *
+ * @return array
+ *   The rendererable array for the block content.
+ */
+function _islandora_solr_search_navigation() {
+  $return = [];
+
   $params = \Drupal::request()->query->all();
-  if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_search_navigation') &&
+  $config = \Drupal::config('islandora_solr.settings');
+  $cache_meta = (new CacheableMetadata())
+    ->addCacheableDependency($config)
+    ->addCacheContexts([
+      'url',
+      'session',
+    ]);
+  if ($config->get('islandora_solr_search_navigation') &&
     isset($params['solr_nav']['id']) &&
     isset($params['solr_nav']['page']) &&
     isset($params['solr_nav']['offset']) &&
@@ -278,6 +338,8 @@ function islandora_solr_search_navigation() {
 
     // Get solr objects for current page.
     $query_processor->executeQuery();
+
+    $cache_meta->addCacheableDependency($query_processor);
 
     $objects = [];
     if (!empty($query_processor->islandoraSolrResult)) {
@@ -369,7 +431,7 @@ function islandora_solr_search_navigation() {
         ]
       )->toString();
     }
-    $element = [
+    $return = [
       '#theme' => 'islandora_solr_search_navigation_block',
       '#return_link' => $return_link,
       '#return_text' => t('Return to search'),
@@ -378,8 +440,9 @@ function islandora_solr_search_navigation() {
       '#next_link' => $next_link,
       '#next_text' => t('Next Object'),
     ];
-    $return = \Drupal::service('renderer')->render($element);
   }
+
+  $cache_meta->applyTo($return);
   return $return;
 }
 
@@ -392,11 +455,36 @@ function islandora_solr_search_navigation() {
  *   The rendered html for the block content.
  */
 function islandora_solr_search_results_limit() {
+  $function = '_' . __FUNCTION__;
+  $elements = $function();
+  return \Drupal::service('renderer')->render($elements);
+}
+
+/**
+ * Search results page size block.
+ *
+ * Use the limit URL param to increase or decrease the result page size.
+ *
+ * @return array
+ *   The renderable array for the block content.
+ */
+function _islandora_solr_search_results_limit() {
   global $_islandora_solr_queryclass;
+
+  $cache_meta = (new CacheableMetadata())
+    ->addCacheContexts([
+      'url',
+    ]);
+
   // Check if the page is dealing with search results.
   if (islandora_solr_results_page($_islandora_solr_queryclass)) {
-    $default_limit = \Drupal::config('islandora_solr.settings')->get('islandora_solr_num_of_results');
-    $limits = \Drupal::config('islandora_solr.settings')->get('islandora_solr_num_of_results_advanced');
+    $config = \Drupal::config('islandora_solr.settings');
+
+    $cache_meta
+      ->addCacheableDependency($_islandora_solr_queryclass)
+      ->addCacheableDependency($config);
+    $default_limit = $config->get('islandora_solr_num_of_results');
+    $limits = $config->get('islandora_solr_num_of_results_advanced');
     $params = \Drupal::request()->query->all();
     if (isset($params['limit']) && is_numeric($params['limit'])) {
       $default_limit = $params['limit'];
@@ -429,7 +517,8 @@ function islandora_solr_search_results_limit() {
         '#type' => 'ul',
         '#attributes' => ['id' => 'islandora_solr_results_limit'],
       ];
-      return \Drupal::service('renderer')->render($list);
+      $cache_meta->applyTo($list);
+      return $list;
     }
   }
 }

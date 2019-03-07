@@ -5,7 +5,7 @@ namespace Drupal\islandora_solr\Plugin\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableMetadata;
 
 use Drupal\islandora_solr\IslandoraSolrResults;
 
@@ -24,14 +24,26 @@ class Query extends BlockBase {
    */
   public function build() {
     global $_islandora_solr_queryclass;
-    if (!islandora_solr_results_page($_islandora_solr_queryclass)) {
-      return;
+
+    $cache_meta = (new CacheableMetadata())
+      ->addCacheContexts([
+        'url',
+      ]);
+
+    $output = [];
+
+    if (islandora_solr_results_page($_islandora_solr_queryclass)) {
+      $cache_meta->addCacheableDependency($_islandora_solr_queryclass);
+      $results = new IslandoraSolrResults();
+      $output_candidate = $results->currentQuery($_islandora_solr_queryclass);
+      if ($output_candidate) {
+        $output['#markup'] = $output_candidate;
+      }
     }
-    $results = new IslandoraSolrResults();
-    $output = $results->currentQuery($_islandora_solr_queryclass);
-    if ($output) {
-      return ['#markup' => $output];
-    }
+
+    $cache_meta->applyTo($output);
+
+    return $output;
   }
 
   /**
@@ -39,27 +51,6 @@ class Query extends BlockBase {
    */
   protected function blockAccess(AccountInterface $account) {
     return AccessResult::allowedIfHasPermission($account, 'search islandora solr');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCacheTags() {
-    return Cache::mergeTags(parent::getCacheTags(), [
-      'config:islandora_solr.settings',
-      'config:islandora_solr.fields',
-    ]);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCacheContexts() {
-    return Cache::mergeContexts(parent::getCacheContexts(), [
-      'user',
-      'url',
-      'languages',
-    ]);
   }
 
 }

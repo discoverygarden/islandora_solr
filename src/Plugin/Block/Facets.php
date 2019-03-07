@@ -5,10 +5,9 @@ namespace Drupal\islandora_solr\Plugin\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableMetadata;
 
 use Drupal\islandora_solr\IslandoraSolrResults;
-use Drupal\islandora\Controller\DefaultController as IslandoraController;
 
 /**
  * Provides a faceting block.
@@ -25,14 +24,23 @@ class Facets extends BlockBase {
    */
   public function build() {
     global $_islandora_solr_queryclass;
-    if (!islandora_solr_results_page($_islandora_solr_queryclass)) {
-      return;
+
+    $cache_meta = (new CacheableMetadata())
+      ->addCacheableDependency($_islandora_solr_queryclass)
+      ->addCacheContexts([
+        'url',
+      ]);
+
+    $output = [];
+
+    if (islandora_solr_results_page($_islandora_solr_queryclass)) {
+      $results = new IslandoraSolrResults();
+      $output += $results->displayFacets($_islandora_solr_queryclass);
     }
-    $results = new IslandoraSolrResults();
-    $output = $results->displayFacets($_islandora_solr_queryclass);
-    if ($output) {
-      return $output;
-    }
+
+    $cache_meta->applyTo($output);
+
+    return $output;
   }
 
   /**
@@ -40,27 +48,6 @@ class Facets extends BlockBase {
    */
   protected function blockAccess(AccountInterface $account) {
     return AccessResult::allowedIfHasPermission($account, 'search islandora solr');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCacheTags() {
-    return Cache::mergeTags(parent::getCacheTags(), [
-      IslandoraController::LISTING_TAG,
-      'config:islandora_solr.settings',
-    ]);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCacheContexts() {
-    return Cache::mergeContexts(parent::getCacheContexts(), [
-      'user',
-      'url',
-      'languages',
-    ]);
   }
 
 }

@@ -4,6 +4,7 @@ namespace Drupal\islandora_solr\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Cache\CacheableMetadata;
 
 /**
  * The advanced search form.
@@ -41,6 +42,12 @@ class IslandoraAdvancedSearch extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     global $_islandora_solr_queryclass;
+
+    $cache_meta = (new CacheableMetadata())
+      ->addCacheContexts([
+        'url',
+      ]);
+
     // @XXX: Drupal overwrites the form's default values after each AJAX
     // request; tracking an offset here so Drupal will uniquely identify
     // form elements across form builds.
@@ -71,6 +78,7 @@ class IslandoraAdvancedSearch extends FormBase {
     }
     // 2: Populate with current query on search results page.
     elseif (islandora_solr_results_page($_islandora_solr_queryclass) == TRUE && !isset($_islandora_solr_queryclass->internalSolrParams['type'])) {
+      $cache_meta->addCacheableDependency($_islandora_solr_queryclass);
 
       // Get current query.
       $query = $_islandora_solr_queryclass->solrQuery;
@@ -133,6 +141,7 @@ class IslandoraAdvancedSearch extends FormBase {
       '#suffix' => '</div>',
       '#tree' => TRUE,
     ];
+    $cache_meta->addCacheableDependency($this->config('islandora_solr.fields'));
     foreach ($values['terms'] as $i => $value) {
       $term = [
         '#tree' => TRUE,
@@ -226,6 +235,11 @@ class IslandoraAdvancedSearch extends FormBase {
       '#type' => 'submit',
       '#value' => $this->t('Search'),
     ];
+
+    $cache_meta
+      ->addCacheableDependency($this->config('islandora_solr.settings'))
+      ->applyTo($form);
+
     return $form;
   }
 
