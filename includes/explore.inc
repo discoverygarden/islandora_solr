@@ -56,6 +56,7 @@ function _islandora_solr_explore_generate_links() {
         ['query' => ['f' => [$option['filter']]]])
         ->toString() . '&nbsp;<span>(' . htmlentities($qp->islandoraSolrResult['facet_counts']['facet_queries'][$option['filter']]) . ')</span>';
     }
+    $cache_meta->addCacheableDependency($qp);
   }
 
   $output = !empty($links) ?
