@@ -39,6 +39,11 @@ class IslandoraSimpleSearch extends FormBase {
       '#type' => 'submit',
       '#value' => $this->t('search'),
     ];
+    $form['#cache'] = [
+      'contexts' => [
+        'user.permissions',
+      ],
+    ];
     return $form;
   }
 
