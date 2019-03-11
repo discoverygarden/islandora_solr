@@ -46,9 +46,6 @@ class IslandoraRangeSlider extends BaseSubForm {
       '#range_to' => $this->dateFormatter->format(strtotime(trim($to_default['date'])), 'custom', $date_format, 'UTC'),
     ];
     $form['markup'] = $slider_element;
-    #$form['markup'] = [
-    #  '#markup' => $this->renderer->render($slider_element),
-    #];
 
     // Hidden from.
     $form['range_slider_hidden_from'] = [
