@@ -181,13 +181,17 @@ class DefaultController extends ControllerBase {
     // @XXX: Sorting arrays isn't documented well http://php.net/manual/en/function.sort.php#54903 .
     sort($result);
 
-    return (new JsonResponse($result))
+    $response = new JsonResponse($result);
+
+    $response->getCacheableMetadata()
       ->addCacheTags([
         IslandoraController::LISTING_TAG,
       ])
       ->addCacheContexts([
         'url.query_args:q',
       ]);
+
+    return $response;
   }
 
 }
