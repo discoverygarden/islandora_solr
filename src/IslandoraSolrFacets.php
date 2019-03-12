@@ -460,6 +460,7 @@ class IslandoraSolrFacets {
       $link['count']['#markup'] = $count;
       $link['link_plus']['#markup'] = '<a' . $attributes['plus']['attr'] . '>+</a>';
       $link['link_minus']['#markup'] = '<a' . $attributes['minus']['attr'] . '>-</a>';
+      $link['value'] = $bucket;
       $buckets[] = $link;
     }
 
