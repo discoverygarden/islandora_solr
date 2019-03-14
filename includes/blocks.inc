@@ -180,7 +180,6 @@ function _islandora_solr_sort() {
     $params = isset($_islandora_solr_queryclass->internalSolrParams) ? $_islandora_solr_queryclass->internalSolrParams : [];
 
     $sort_terms = islandora_solr_get_fields('sort_fields');
-    $cache_meta->addCacheableDependency(\Drupal::config('islandora_solr.fields'));
 
     // Get current sort (check in the actual parameters used for the query,
     // because modules might have altered it).

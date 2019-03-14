@@ -83,7 +83,11 @@ class IslandoraSolrQueryProcessor implements RefinableCacheableDependencyInterfa
     $this->solrVersion = islandora_solr_get_solr_version();
     $this->config = \Drupal::config('islandora_solr.settings');
 
-    $this->addCacheableDependency($this->config)
+    $this
+      ->addCacheableDependency($this->config)
+      // XXX: Field config is used indirectly in a number of places... let's
+      // account for it.
+      ->addCacheableDependency(\Drupal::config('islandora_solr.fields'))
       ->addCacheTags([
         IslandoraController::LISTING_TAG,
       ])
