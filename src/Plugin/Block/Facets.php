@@ -26,7 +26,6 @@ class Facets extends BlockBase {
     global $_islandora_solr_queryclass;
 
     $cache_meta = (new CacheableMetadata())
-      ->addCacheableDependency($_islandora_solr_queryclass)
       ->addCacheContexts([
         'url',
       ]);
@@ -34,6 +33,7 @@ class Facets extends BlockBase {
     $output = [];
 
     if (islandora_solr_results_page($_islandora_solr_queryclass)) {
+      $cache_meta->addCacheableDependency($_islandora_solr_queryclass);
       $results = new IslandoraSolrResults();
       $output += $results->displayFacets($_islandora_solr_queryclass);
     }
