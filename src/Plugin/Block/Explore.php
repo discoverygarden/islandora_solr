@@ -2,10 +2,11 @@
 
 namespace Drupal\islandora_solr\Plugin\Block;
 
-use Drupal\islandora\Plugin\Block\AbstractConfiguredBlockBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Form\FormStateInterface;
+
+use Drupal\islandora\Plugin\Block\AbstractConfiguredBlockBase;
 
 /**
  * Provides a block for exploring objects through facets.
@@ -22,22 +23,14 @@ class Explore extends AbstractConfiguredBlockBase {
    */
   public function build() {
     module_load_include('inc', 'islandora_solr', 'includes/explore');
-    $explore = islandora_solr_explore_generate_links();
-    if ($explore) {
-      return ['#markup' => $explore];
-    }
+    return _islandora_solr_explore_generate_links();
   }
 
   /**
    * {@inheritdoc}
    */
   protected function blockAccess(AccountInterface $account) {
-    if ($account->hasPermission('search islandora solr')) {
-      return AccessResult::allowed();
-    }
-    else {
-      return AccessResult::forbidden();
-    }
+    return AccessResult::allowedIfHasPermission($account, 'search islandora solr');
   }
 
   /**

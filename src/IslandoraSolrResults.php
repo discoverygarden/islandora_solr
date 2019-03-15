@@ -4,6 +4,8 @@ namespace Drupal\islandora_solr;
 
 use Drupal\Core\Url;
 use Drupal\Core\Template\Attribute;
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Access\AccessResult;
 
 use Drupal\Component\Utility\Html;
 
@@ -21,10 +23,13 @@ class IslandoraSolrResults {
   public $dateFormatFacets = [];
   public $facetFieldSettings = [];
 
+  protected $renderer;
+
   /**
    * Constructor.
    */
   public function __construct() {
+    $this->renderer = \Drupal::service('renderer');
     $this->prepFieldSubstitutions();
     $this->rangeFacets = islandora_solr_get_range_facets();
     $this->dateFormatFacets = islandora_solr_get_date_format_facets();
@@ -45,6 +50,10 @@ class IslandoraSolrResults {
    */
   public function displayResults(IslandoraSolrQueryProcessor $islandora_solr_query) {
     $this->islandoraSolrQueryProcessor = $islandora_solr_query;
+
+    $cache_meta = (new CacheableMetadata())
+      ->addCacheableDependency($islandora_solr_query)
+      ->addCacheableDependency(\Drupal::config('islandora_solr.settings'));
 
     // Set variables to collect returned data.
     $results = NULL;
@@ -76,8 +85,12 @@ class IslandoraSolrResults {
 
     // Debug (will be removed).
     $elements['solr_debug'] = '';
-    if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode') && \Drupal::currentUser()->hasPermission('view islandora solr debug')) {
-      $elements['solr_debug'] = $this->printDebugOutput($islandora_solr_result);
+    if (\Drupal::config('islandora_solr.settings')->get('islandora_solr_debug_mode')) {
+      $check = AccessResult::allowedIfHasPermission(\Drupal::currentUser(), 'view islandora solr debug');
+      $cache_meta->addCacheableDependency($check);
+      if ($check->isAllowed()) {
+        $elements['solr_debug'] = $this->debugOutput($islandora_solr_result);
+      }
     }
 
     // Rendered secondary display profiles.
@@ -86,12 +99,16 @@ class IslandoraSolrResults {
     // Rendered results.
     $results = $this->printResults($islandora_solr_result);
 
-    return [
+    $output = [
       '#theme' => 'islandora_solr_wrapper',
       '#results' => $results,
       '#secondary_profiles' => $secondary_profiles,
       '#elements' => $elements,
     ];
+
+    $cache_meta->applyTo($output);
+
+    return $output;
   }
 
   /**
@@ -107,6 +124,10 @@ class IslandoraSolrResults {
    * @see IslandoraSolrResults::displayResults()
    */
   public function addSecondaries(IslandoraSolrQueryProcessor $islandora_solr_query) {
+    $cache_meta = (new CacheableMetadata())
+      ->addCacheableDependency(\Drupal::config('islandora_solr.settings'))
+      ->addCacheableDependency($islandora_solr_query);
+
     $query_list = [];
     // Get secondary display profiles.
     $secondary_display_profiles = \Drupal::moduleHandler()->invokeAll('islandora_solr_secondary_display');
@@ -135,13 +156,18 @@ class IslandoraSolrResults {
         $query_list[]['#markup'] = '<a' . $attr . '>' . $logo . '</a>';
       }
     }
-    return [
+
+    $output = [
       '#theme' => 'item_list',
       '#items' => $query_list,
       '#title' => NULL,
       '#type' => 'ul',
       '#attributes' => ['id' => 'secondary-display-profiles'],
     ];
+
+    $cache_meta->applyTo($output);
+
+    return $output;
 
   }
 
@@ -250,7 +276,7 @@ class IslandoraSolrResults {
         '#type' => 'ul',
         '#attributes' => ['class' => ['islandora-solr-query-list', 'query-list']],
       ];
-      $output .= \Drupal::service('renderer')->render($list);
+      $output .= $this->renderer->render($list);
 
       $output .= '</div>';
 
@@ -315,7 +341,7 @@ class IslandoraSolrResults {
         '#type' => 'ul',
         '#attributes' => ['class' => ['islandora-solr-filter-list', 'filter-list']],
       ];
-      $output .= \Drupal::service('renderer')->render($list);
+      $output .= $this->renderer->render($list);
 
       $output .= '</div>';
     }
@@ -422,6 +448,9 @@ class IslandoraSolrResults {
       $facet_obj = new IslandoraSolrFacets($facet_key);
       $output[$facet_key] = $facet_obj->getFacet();
     }
+
+    $this->renderer->addCacheableDependency($output, $islandora_solr_query);
+
     return $output;
   }
 
@@ -441,16 +470,34 @@ class IslandoraSolrResults {
    * @see IslandoraSolrResults::displayResults()
    */
   public function printDebugOutput(array $islandora_solr_results) {
-    // Debug dump.
+    $fieldset = $this->debugOutput($islandora_solr_results);
+    return $this->renderer->render($fieldset);
+  }
+
+  /**
+   * Create a fieldset for debugging purposes.
+   *
+   * Creates a fieldset containing raw Solr results of the current page for
+   * debugging purposes.
+   *
+   * @param array $islandora_solr_results
+   *   The processed Solr results from
+   *   IslandoraSolrQueryProcessor::islandoraSolrResult.
+   *
+   * @return array
+   *   Renderable array fieldset containing raw Solr results data.
+   *
+   * @see IslandoraSolrResults::displayResults()
+   */
+  protected function debugOutput(array $islandora_solr_results) {
     $results = "<pre>Results: " . print_r($islandora_solr_results, TRUE) . "</pre>";
-    $fieldset = [
+    return [
       '#title' => t("Islandora Processed Solr Results"),
       '#type' => 'details',
       '#open' => TRUE,
       '#markup' => $results,
       '#children' => '',
     ];
-    return \Drupal::service('renderer')->render($fieldset);
   }
 
   /**

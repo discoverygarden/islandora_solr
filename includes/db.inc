@@ -10,6 +10,7 @@ use Drupal\islandora_solr\Form\ConfigureFacetField;
 use Drupal\islandora_solr\Form\ConfigureSortField;
 use Drupal\islandora_solr\Form\ConfigureResultField;
 use Drupal\islandora_solr\Form\ConfigureSearchField;
+use Drupal\Component\Utility\SortArray;
 
 /**
  * Get the configuration of a Solr field.
@@ -76,7 +77,11 @@ function islandora_solr_get_fields($field_type = NULL, $filter = TRUE, $simplifi
     $types = [$field_type];
   }
   foreach ($types as $type) {
-    foreach (\Drupal::config('islandora_solr.fields')->get($type) as $field_definition) {
+    $fields = \Drupal::config('islandora_solr.fields')->get($type);
+
+    uasort($fields, [SortArray::class, 'sortByWeightElement']);
+
+    foreach ($fields as $field_definition) {
       $field_definition['field_type'] = $type;
       if ($keys && !$simplified) {
         $records[$field_definition['solr_field']] = $field_definition;
@@ -114,21 +119,28 @@ function _islandora_solr_filter_fields(array $records = []) {
   if ($user->id() == 1) {
     return $records;
   }
-  $filtered_records = [];
-  foreach ($records as $record) {
+
+  $default_permission_info = [
+    'enable_permissions' => FALSE,
+    'permissions' => [],
+  ];
+
+  $filter = function (array $record) use ($default_permission_info, $user) {
+    $record += $default_permission_info;
     // If field settings are set, check permissions.
-    if ($record['enable_permissions'] && !is_null($record['permissions'])) {
+    if ($record['enable_permissions']) {
       // Check field permissions against user roles.
-      if (!empty(array_intersect($record['permissions'], $user->getRoles()))) {
-        $filtered_records[] = $record;
+      if (is_array($record['permissions']) && !empty(array_intersect($record['permissions'], $user->getRoles()))) {
+        return $record;
       }
     }
     else {
       // If permissions are never explicitly set, include by default.
-      $filtered_records[] = $record;
+      return $record;
     }
-  }
-  return $filtered_records;
+  };
+
+  return array_filter($records, $filter);
 }
 
 /**

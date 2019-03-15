@@ -171,6 +171,9 @@ class IslandoraDateFilter extends BaseSubForm {
       'datepickerRange' => trim($datepicker_range),
       'formKey' => $form_key,
     ];
+
+    $this->renderer->addCacheableDependency($form, $_islandora_solr_queryclass);
+
     return $form;
   }
 

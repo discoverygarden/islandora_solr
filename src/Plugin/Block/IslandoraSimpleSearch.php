@@ -27,12 +27,7 @@ class IslandoraSimpleSearch extends AbstractFormBlockBase {
    * {@inheritdoc}
    */
   protected function blockAccess(AccountInterface $account) {
-    if ($account->hasPermission('search islandora solr')) {
-      return AccessResult::allowed();
-    }
-    else {
-      return AccessResult::forbidden();
-    }
+    return AccessResult::allowedIfHasPermission($account, 'search islandora solr');
   }
 
 }

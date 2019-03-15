@@ -14,6 +14,8 @@ class IslandoraRangeSlider extends BaseSubForm {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, array $elements = []) {
+    global $_islandora_solr_queryclass;
+
     $gap = $elements['gap'];
     $facet_field = $elements['facet_field'];
     $form_key = $elements['form_key'];
@@ -43,9 +45,7 @@ class IslandoraRangeSlider extends BaseSubForm {
       '#range_from' => $this->dateFormatter->format(strtotime(trim($from_default['date'])) + 1, 'custom', $date_format, 'UTC'),
       '#range_to' => $this->dateFormatter->format(strtotime(trim($to_default['date'])), 'custom', $date_format, 'UTC'),
     ];
-    $form['markup'] = [
-      '#markup' => $this->renderer->render($slider_element),
-    ];
+    $form['markup'] = $slider_element;
 
     // Hidden from.
     $form['range_slider_hidden_from'] = [
@@ -76,6 +76,9 @@ class IslandoraRangeSlider extends BaseSubForm {
       'data' => $data,
       'slider_color' => $slider_color,
     ];
+
+    $this->renderer->addCacheableDependency($form, $_islandora_solr_queryclass);
+
     return $form;
   }
 

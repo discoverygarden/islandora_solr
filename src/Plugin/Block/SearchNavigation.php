@@ -21,22 +21,14 @@ class SearchNavigation extends BlockBase {
    */
   public function build() {
     module_load_include('inc', 'islandora_solr', 'includes/blocks');
-    $nav = islandora_solr_search_navigation();
-    if ($nav) {
-      return ['#markup' => $nav];
-    }
+    return _islandora_solr_search_navigation();
   }
 
   /**
    * {@inheritdoc}
    */
   protected function blockAccess(AccountInterface $account) {
-    if ($account->hasPermission('search islandora solr')) {
-      return AccessResult::allowed();
-    }
-    else {
-      return AccessResult::forbidden();
-    }
+    return AccessResult::allowedIfHasPermission($account, 'search islandora solr');
   }
 
 }

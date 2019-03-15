@@ -21,22 +21,14 @@ class ResultLimit extends BlockBase {
    */
   public function build() {
     module_load_include('inc', 'islandora_solr', 'includes/blocks');
-    $limits = islandora_solr_search_results_limit();
-    if ($limits) {
-      return ['#markup' => $limits];
-    }
+    return _islandora_solr_search_results_limit();
   }
 
   /**
    * {@inheritdoc}
    */
   protected function blockAccess(AccountInterface $account) {
-    if ($account->hasPermission('search islandora solr')) {
-      return AccessResult::allowed();
-    }
-    else {
-      return AccessResult::forbidden();
-    }
+    return AccessResult::allowedIfHasPermission($account, 'search islandora solr');
   }
 
 }

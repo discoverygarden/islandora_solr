@@ -6,25 +6,42 @@
  */
 
 use Drupal\Core\Link;
+use Drupal\Core\Cache\CacheableMetadata;
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 
 /**
  * Generates the links for the Islandora explore block.
  *
- * @return output
+ * @return string
  *   A rendered list containing explore links to search and object counts.
  */
 function islandora_solr_explore_generate_links() {
-  $output = '';
+  $function = '_' . __FUNCTION__;
+  $elements = $function();
+  return \Drupal::service('renderer')->render($elements);
+}
+
+/**
+ * Generates the links for the Islandora explore block.
+ *
+ * @return array
+ *   A rendered list containing explore links to search and object counts.
+ */
+function _islandora_solr_explore_generate_links() {
+  $config = \Drupal::config('islandora_solr.settings');
+  $cache_meta = (new CacheableMetadata())
+    ->addCacheableDependency($config);
+
   $links = [];
-  $expore_config = \Drupal::config('islandora_solr.settings')->get('islandora_solr_explore_config');
+
+  $expore_config = $config->get('islandora_solr_explore_config');
   if (!empty($expore_config)) {
     $qp = new IslandoraSolrQueryProcessor();
     $qp->buildQuery('*:*');
     $qp->solrParams['fl'] = '*';
     $qp->solrParams['facet.limit'] = 100000;
-    $qp->solrParams['facet.mincount'] = \Drupal::config('islandora_solr.settings')->get('islandora_solr_facet_min_limit');
+    $qp->solrParams['facet.mincount'] = $config->get('islandora_solr_facet_min_limit');
     $qp->solrParams['facet.field'] = [];
     $qp->solrParams['fl'] = 'PID';
     foreach ($expore_config as $option) {
@@ -36,21 +53,23 @@ function islandora_solr_explore_generate_links() {
         htmlentities($option['label']),
         'islandora_solr.islandora_solr',
         [],
-        ['query' => ['f' => $option['filter']]])
+        ['query' => ['f' => [$option['filter']]]])
         ->toString() . '&nbsp;<span>(' . htmlentities($qp->islandoraSolrResult['facet_counts']['facet_queries'][$option['filter']]) . ')</span>';
     }
+    $cache_meta->addCacheableDependency($qp);
   }
 
-  if (!empty($links)) {
-    $list = [
+  $output = !empty($links) ?
+    [
       '#theme' => 'item_list',
       '#items' => $links,
       '#title' => NULL,
       '#type' => 'ul',
       '#attributes' => ['class' => ['islandora-solr-explore']],
-    ];
-    $output = \Drupal::service('renderer')->render($list);
-  }
+    ] :
+    [];
+
+  $cache_meta->applyTo($output);
 
   return $output;
 }

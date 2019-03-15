@@ -21,22 +21,14 @@ class ResultsSort extends BlockBase {
    */
   public function build() {
     module_load_include('inc', 'islandora_solr', 'includes/blocks');
-    $sort = islandora_solr_sort();
-    if ($sort) {
-      return ['#markup' => $sort];
-    }
+    return _islandora_solr_sort();
   }
 
   /**
    * {@inheritdoc}
    */
   protected function blockAccess(AccountInterface $account) {
-    if ($account->hasPermission('search islandora solr')) {
-      return AccessResult::allowed();
-    }
-    else {
-      return AccessResult::forbidden();
-    }
+    return AccessResult::allowedIfHasPermission($account, 'search islandora solr');
   }
 
 }
