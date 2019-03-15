@@ -119,21 +119,28 @@ function _islandora_solr_filter_fields(array $records = []) {
   if ($user->id() == 1) {
     return $records;
   }
-  $filtered_records = [];
-  foreach ($records as $record) {
+
+  $default_permission_info = [
+    'enable_permissions' => FALSE,
+    'permissions' => [],
+  ];
+
+  $filter = function (array $record) use ($default_permission_info, $user) {
+    $record += $default_permission_info;
     // If field settings are set, check permissions.
-    if ($record['enable_permissions'] && !is_null($record['permissions'])) {
+    if ($record['enable_permissions'] && ) {
       // Check field permissions against user roles.
-      if (!empty(array_intersect($record['permissions'], $user->getRoles()))) {
-        $filtered_records[] = $record;
+      if (is_array($record['permissions']) && !empty(array_intersect($record['permissions'], $user->getRoles()))) {
+        return $record;
       }
     }
     else {
       // If permissions are never explicitly set, include by default.
-      $filtered_records[] = $record;
+      return $record;
     }
-  }
-  return $filtered_records;
+  };
+
+  return array_filter($records, $filter);
 }
 
 /**
