@@ -20,7 +20,7 @@ class ConfigureFacetField extends ConfigFieldFormBase {
     $form['#suffix'] = '</div>';
 
     $form_state->setStorage(['solr_field' => $solr_field]);
-    $values = islandora_solr_get_field_configuration($this->getFieldType(), $solr_field);
+    $values = islandora_solr_get_field_configuration(static::getFieldType(), $solr_field);
 
     $form['options'] = [
       '#type' => 'container',
