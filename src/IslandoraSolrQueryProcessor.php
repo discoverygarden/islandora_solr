@@ -228,12 +228,17 @@ class IslandoraSolrQueryProcessor implements RefinableCacheableDependencyInterfa
     $facet_fields = implode(",", array_keys($facet_array));
 
     // Set params.
-    $params_array = [
-      'facet' => 'true',
-      'facet.mincount' => $this->config->get('islandora_solr_facet_min_limit'),
-      'facet.limit' => $this->config->get('islandora_solr_facet_max_limit'),
-      'facet.field' => explode(',', $facet_fields),
-    ];
+    if (count($facet_array) > 0) {
+      $params_array = [
+        'facet' => 'true',
+        'facet.mincount' => $this->config->get('islandora_solr_facet_min_limit'),
+        'facet.limit' => $this->config->get('islandora_solr_facet_max_limit'),
+        'facet.field' => explode(',', $facet_fields),
+      ];
+    }
+    else {
+      $params_array = [];
+    }
 
     $request_handler = $this->config->get('islandora_solr_request_handler');
     if ($request_handler) {

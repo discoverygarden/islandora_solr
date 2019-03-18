@@ -49,12 +49,14 @@ function _islandora_solr_explore_generate_links() {
     }
     $qp->executeQuery(FALSE);
     foreach ($expore_config as $option) {
-      $links[]['#markup'] = Link::createFromRoute(
-        htmlentities($option['label']),
-        'islandora_solr.islandora_solr',
-        [],
-        ['query' => ['f' => [$option['filter']]]])
-        ->toString() . '&nbsp;<span>(' . htmlentities($qp->islandoraSolrResult['facet_counts']['facet_queries'][$option['filter']]) . ')</span>';
+      if (isset($qp->islandoraSolrResult['facet_counts']['facet_queries'])) {
+        $links[]['#markup'] = Link::createFromRoute(
+          htmlentities($option['label']),
+          'islandora_solr.islandora_solr',
+          [],
+          ['query' => ['f' => [$option['filter']]]])
+          ->toString() . '&nbsp;<span>(' . htmlentities($qp->islandoraSolrResult['facet_counts']['facet_queries'][$option['filter']]) . ')</span>';
+      }
     }
     $cache_meta->addCacheableDependency($qp);
   }
