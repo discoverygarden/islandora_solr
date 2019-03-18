@@ -437,16 +437,24 @@ class IslandoraSolrResults {
    * @see islandora_solr_block_view()
    */
   public function displayFacets(IslandoraSolrQueryProcessor $islandora_solr_query) {
-    IslandoraSolrFacets::init($islandora_solr_query);
-    $output = [
-      '#attached' => [
-        'library' => ['islandora_solr/facets-js'],
-      ],
-    ];
     $facet_order = $this->facetFieldArray;
-    foreach ($facet_order as $facet_key => $facet_label) {
-      $facet_obj = new IslandoraSolrFacets($facet_key);
-      $output[$facet_key] = $facet_obj->getFacet();
+
+    if (!$facet_order) {
+      // No facets configured; nothing to do.
+      $output = [];
+    }
+    else {
+      IslandoraSolrFacets::init($islandora_solr_query);
+      $output = [
+        '#attached' => [
+          'library' => ['islandora_solr/facets-js'],
+        ],
+      ];
+
+      foreach ($facet_order as $facet_key => $facet_label) {
+        $facet_obj = new IslandoraSolrFacets($facet_key);
+        $output[$facet_key] = $facet_obj->getFacet();
+      }
     }
 
     $this->renderer->addCacheableDependency($output, $islandora_solr_query);
