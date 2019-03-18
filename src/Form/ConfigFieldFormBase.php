@@ -36,7 +36,7 @@ abstract class ConfigFieldFormBase extends ConfigFormBase {
    *   One of the field types, either 'result_fields', 'facet_fields',
    *   'sort_fields', or 'search_fields'.
    */
-  protected static function getFieldType() {
+  public static function getFieldType() {
     return static::FIELD_TYPE . 's';
   }
 
