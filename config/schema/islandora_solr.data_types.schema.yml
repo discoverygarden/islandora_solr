@@ -1,4 +1,4 @@
-islandora_solr.base_field:
+islandora_solr.base_fields:
   type: mapping
   label: Base field
   mapping:
@@ -18,7 +18,7 @@ islandora_solr.base_field:
         type: string
         nullable: true
 islandora_solr.result_fields:
-  type: islandora_solr.base_field
+  type: islandora_solr.base_fields
   label: Display Result Field
   mapping:
     snippet:
@@ -42,10 +42,10 @@ islandora_solr.result_fields:
     replace_pid_with_label:
       type: boolean
 islandora_solr.sort_fields:
-  type: islandora_solr.base_field
+  type: islandora_solr.base_fields
   label: Sort Field
 islandora_solr.facet_fields:
-  type: islandora_solr.base_field
+  type: islandora_solr.base_fields
   label: Facet Field
   mapping:
     sort_by:
@@ -77,5 +77,5 @@ islandora_solr.facet_fields:
     pid_object_label:
       type: boolean
 islandora_solr.search_fields:
-  type: islandora_solr.base_field
+  type: islandora_solr.base_fields
   label: Advanced Search Field
