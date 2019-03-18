@@ -7,18 +7,6 @@ namespace Drupal\islandora_solr\Form;
  */
 class ConfigureSearchField extends ConfigFieldFormBase {
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormId() {
-    return 'islandora_solr_configure_search_field_form';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getFieldType() {
-    return 'search_fields';
-  }
+  const FIELD_TYPE = 'search_field';
 
 }

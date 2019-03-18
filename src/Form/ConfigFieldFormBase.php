@@ -13,11 +13,20 @@ use Drupal\Core\Ajax\ReplaceCommand;
  */
 abstract class ConfigFieldFormBase extends ConfigFormBase {
 
+  const FIELD_TYPE = 'base_field';
+
   /**
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
     return ['islandora_solr.fields'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormId() {
+    return 'islandora_solr_configure_' . static::FIELD_TYPE . '_form';
   }
 
   /**
@@ -27,8 +36,8 @@ abstract class ConfigFieldFormBase extends ConfigFormBase {
    *   One of the field types, either 'result_fields', 'facet_fields',
    *   'sort_fields', or 'search_fields'.
    */
-  protected function getFieldType() {
-    return '';
+  protected static function getFieldType() {
+    return static::FIELD_TYPE . 's';
   }
 
   /**
@@ -42,12 +51,31 @@ abstract class ConfigFieldFormBase extends ConfigFormBase {
    *   An array containing the configuration to apply to this field.
    */
   public static function getFieldConfiguration(array $solr_field_settings) {
-    module_load_include('inc', 'islandora_solr', 'includes/admin');
+    $data_type = 'islandora_solr.' . static::getFieldType();
+    $config_service = \Drupal::service('config.typed');
+    $fields = $config_service->getDefinition($data_type);
+    $relevant_values = array_intersect_key($solr_field_settings, $fields['mapping']);
+    $defaults = static::fieldConfigurationDefaults();
+    $relevant_values += $defaults;
+
+    assert($config_service->createFromNameAndData($data_type, $relevant_values)->validate()->count() === 0, 'Configuration matches schema.');
+
+    return $relevant_values;
+  }
+
+  /**
+   * Helper; define default values for fields.
+   *
+   * @return array
+   *   An array matching the schema for this type of field, mapping
+   *   the property names to default values.
+   */
+  protected static function fieldConfigurationDefaults() {
     return [
-      'label' => isset($solr_field_settings['label']) ? trim($solr_field_settings['label']) : '',
-      'enable_permissions' => isset($solr_field_settings['enable_permissions']) ? $solr_field_settings['enable_permissions'] : FALSE,
-      'permissions' => isset($solr_field_settings['permissions']) ? $solr_field_settings['permissions'] : NULL,
-      'weight' => isset($solr_field_settings['weight']) ? (int) $solr_field_settings['weight'] : 0,
+      'label' => '',
+      'enable_permissions' => FALSE,
+      'permissions' => [],
+      'weight' => 0,
     ];
   }
 
@@ -95,9 +123,12 @@ abstract class ConfigFieldFormBase extends ConfigFormBase {
   protected function appendPermissionsAndActions(array $values, array &$form, FormStateInterface $form_state, $default_value = TRUE, callable $callback = NULL) {
     $form_state->loadInclude('inc', 'islandora_solr', 'includes/admin');
     // Use perms only if enabled.
-    $permissions = $values['enable_permissions'] ? $values['permissions'] : $values['enable_permissions'];
+    $permissions = $values['enable_permissions'] ?
+      $values['permissions'] :
+      $values['enable_permissions'];
     $permissions_disable = _islandora_solr_permissions_disable();
     $permissions_default = _islandora_solr_permissions_default();
+
     $form['options']['permissions_fieldset'] = islandora_solr_get_admin_permissions_fieldset($permissions, $permissions_default, $permissions_disable, $default_value);
 
     $form['actions'] = [
@@ -145,7 +176,8 @@ abstract class ConfigFieldFormBase extends ConfigFormBase {
     $field_type = $this->getFieldType();
     $field_name = $this->getRequest()->get('solr_field');
     $field_key = static::generateFieldKey($field_name);
-    $config = static::getFieldConfiguration($form_state->getValues());
+    $values = $form_state->getValues();
+    $config = static::getFieldConfiguration($values);
     $config['solr_field'] = $field_name;
     $this->config('islandora_solr.fields')
       ->set("$field_type.$field_key", $config)

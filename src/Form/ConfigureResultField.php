@@ -8,42 +8,24 @@ use Drupal\Core\Form\FormStateInterface;
  * Form to configure a Solr result field.
  */
 class ConfigureResultField extends ConfigFieldFormBase {
+  const FIELD_TYPE = 'result_field';
 
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
-    return 'islandora_solr_configure_result_field_form';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getFieldType() {
-    return 'result_fields';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function getFieldConfiguration(array $solr_field_settings) {
-    module_load_include('inc', 'islandora_solr', 'includes/admin');
+  protected static function fieldConfigurationDefaults() {
     return [
-      'label' => isset($solr_field_settings['label']) ? trim($solr_field_settings['label']) : '',
-      'snippet' => isset($solr_field_settings['snippet']) ? (bool) $solr_field_settings['snippet'] : FALSE,
-      'date_format' => isset($solr_field_settings['date_format']) ? trim($solr_field_settings['date_format']) : '',
-      'truncation_type' => isset($solr_field_settings['truncation_type']) ? trim($solr_field_settings['truncation_type']) : 'separate_value_option',
-      'maximum_length' => isset($solr_field_settings['maximum_length']) ? (int) trim($solr_field_settings['maximum_length']) : 0,
-      'add_ellipsis' => isset($solr_field_settings['add_ellipsis']) ? (bool) $solr_field_settings['add_ellipsis'] : FALSE,
-      'wordsafe' => isset($solr_field_settings['wordsafe']) ? (bool) $solr_field_settings['wordsafe'] : FALSE,
-      'wordsafe_length' => isset($solr_field_settings['wordsafe_length']) ? (int) $solr_field_settings['wordsafe_length'] : 1,
-      'enable_permissions' => isset($solr_field_settings['enable_permissions']) ? $solr_field_settings['enable_permissions'] : FALSE,
-      'permissions' => isset($solr_field_settings['permissions']) ? $solr_field_settings['permissions'] : NULL,
-      'replace_pid_with_label' => empty($solr_field_settings['replace_pid_with_label']) ? FALSE : (bool) $solr_field_settings['replace_pid_with_label'],
-      'link_to_object' => isset($solr_field_settings['link_to_object']) ? $solr_field_settings['link_to_object'] : FALSE,
-      'link_to_search' => isset($solr_field_settings['link_to_search']) ? $solr_field_settings['link_to_search'] : FALSE,
-      'weight' => isset($solr_field_settings['weight']) ? (int) $solr_field_settings['weight'] : 0,
-    ];
+      'snippet' => FALSE,
+      'date_format' => '',
+      'truncation_type' => 'separate_value_option',
+      'maximum_length' => 0,
+      'add_ellipsis' => FALSE,
+      'wordsafe' => FALSE,
+      'wordsafe_length' => 1,
+      'replace_pid_with_label' => FALSE,
+      'link_to_object' => FALSE,
+      'link_to_search' => FALSE,
+    ] + parent::fieldConfigurationDefaults();
   }
 
   /**
@@ -56,7 +38,7 @@ class ConfigureResultField extends ConfigFieldFormBase {
     $form['#suffix'] = '</div>';
 
     $form_state->setStorage(['solr_field' => $solr_field]);
-    $values = islandora_solr_get_field_configuration('result_fields', $solr_field);
+    $values = islandora_solr_get_field_configuration($this->getFieldType(), $solr_field);
 
     $form['options'] = [
       '#type' => 'container',
