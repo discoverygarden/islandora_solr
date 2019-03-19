@@ -115,7 +115,7 @@ function islandora_solr_update_8000() {
     // time of writing how to discover/hook into the mapping, let's just drop
     // the permission configuration.
     if (isset($field_config['permissions']) && $field_config['permissions']) {
-      \Drupal::logger('islandora_solr-7to8')->warning(\Drupal::t("@type.@field had permissions associated which we have not migrated.", [
+      \Drupal::logger('islandora_solr-7to8')->warning(t("@type.@field had permissions associated which we have not migrated.", [
         '@type' => $field['field_type'],
         '@field' => $field['solr_field'],
       ]));
