@@ -9,6 +9,7 @@ use Drupal\Core\Url;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\SortArray;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\user\RoleInterface;
 
 /**
  * Generates fields for the admin fields table.
@@ -402,36 +403,34 @@ function islandora_solr_get_admin_permissions_fieldset($permissions, array $perm
  * Returns an array of role IDs to disable checkboxes.
  */
 function _islandora_solr_permissions_disable() {
-  $user_roles = array_keys(user_roles());
-  $permissions_solr = array_keys(user_roles(FALSE, 'search islandora solr'));
-  $permissions_disable = array_diff($user_roles, $permissions_solr);
+  $user_roles = user_roles();
+  $permissions_solr = user_roles(FALSE, 'search islandora solr');
+  $permissions_disable = array_diff_key($user_roles, $permissions_solr);
   // If authenticated users have permission exclude all authenticated users
   // fields from the disable list.
-  if (in_array('2', $permissions_solr)) {
-    foreach ($permissions_disable as $key => $rid) {
-      if ($rid != '1') {
-        unset($permissions_disable[$key]);
-      }
-    }
+  if (isset($permissions_solr[RoleInterface::AUTHENTICATED_ID])) {
+    $permissions_disable = isset($permissions_disable[RoleInterface::ANONYMOUS_ID]) ?
+      [
+        RoleInterface::ANONYMOUS_ID => $permissions_disable[RoleInterface::ANONYMOUS_ID],
+      ] :
+      [];
   }
-  return $permissions_disable;
+  return array_keys($permissions_disable);
 }
 
 /**
  * Returns an array of role id's to set default values for checkboxes.
  */
 function _islandora_solr_permissions_default() {
-  $user_roles = array_keys(user_roles());
-  $permissions_solr = array_keys(user_roles(FALSE, 'search islandora solr'));
-  $permissions_default = array_intersect($user_roles, $permissions_solr);
+  $user_roles = user_roles();
+  $permissions_solr = user_roles(FALSE, 'search islandora solr');
+  $permissions_default = array_intersect_key($user_roles, $permissions_solr);
   // If authenticated users have permission include all authenticated users
   // fields to the default list.
-  if (in_array('2', $permissions_solr)) {
-    foreach ($user_roles as $rid) {
-      if ($rid != '1' && !in_array($rid, $permissions_default)) {
-        $permissions_default[] = $rid;
-      }
-    }
+  if (isset($permissions_solr[RoleInterface::AUTHENTICATED_ID])) {
+    $permissions_default += array_filter($user_roles, function ($role) {
+      return $role->id() != RoleInterface::ANONYMOUS_ID;
+    });
   }
-  return $permissions_default;
+  return array_keys($permissions_default);
 }

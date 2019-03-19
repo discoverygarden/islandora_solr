@@ -109,15 +109,20 @@ function islandora_solr_update_8000() {
     $field_config = islandora_solr_get_default_field_configuration($field['solr_field'], $field['field_type'], $settings);
     // Don't need to hang onto this since the configs are split by type.
     unset($field_config['field_type']);
-    // Permissions now nullable.
-    if (!isset($field_config['permissions']) || !($field_config['permissions'])) {
-      $field_config['permissions'] = NULL;
-      // Tracking this separate from the permissions config now.
-      $field_config['enable_permissions'] = FALSE;
+
+    // XXX: Given how role identification has changed between D7 and D8, where
+    // D7 used numeric IDs while D8 uses machine names, and it is unknown at
+    // time of writing how to discover/hook into the mapping, let's just drop
+    // the permission configuration.
+    if (isset($field_config['permissions']) && $field_config['permissions']) {
+      \Drupal::logger('islandora_solr-7to8')->warning(t("@type.@field had permissions associated which we have not migrated.", [
+        '@type' => $field['field_type'],
+        '@field' => $field['solr_field'],
+      ]));
     }
-    else {
-      $field_config['enable_permissions'] = TRUE;
-    }
+    $field_config['enable_permissions'] = FALSE;
+    $field_config['permissions'] = NULL;
+
     $field_config['weight'] = (int) $field['weight'];
     $machine_name = ConfigFieldFormBase::generateFieldKey($field['solr_field']);
     $config->set("{$field['field_type']}.{$machine_name}", $field_config);

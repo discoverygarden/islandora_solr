@@ -8,70 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
  * Form to configure a Solr facet field.
  */
 class ConfigureFacetField extends ConfigFieldFormBase {
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormId() {
-    return 'islandora_solr_configure_facet_field_form';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getFieldType() {
-    return 'facet_fields';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function getFieldConfiguration(array $solr_field_settings) {
-    module_load_include('inc', 'islandora_solr', 'includes/admin');
-    $fields = array_combine([
-      'label',
-      'range_facet_select',
-      'range_facet_variable_gap',
-      'range_facet_start',
-      'range_facet_end',
-      'range_facet_gap',
-      'date_facet_format',
-      'range_facet_slider_enabled',
-      'range_facet_slider_color',
-      'date_filter_datepicker_enabled',
-      'date_filter_datepicker_range',
-      'pid_object_label',
-      'boolean_facet_true_replacement',
-      'boolean_facet_false_replacement',
-      'sort_by',
-      'enable_permissions',
-      'permissions',
-    ], [
-      'label',
-      'range_facet_select',
-      'range_facet_variable_gap',
-      'range_facet_start',
-      'range_facet_end',
-      'range_facet_gap',
-      'date_facet_format',
-      'range_facet_slider_enabled',
-      'range_facet_slider_color',
-      'date_filter_datepicker_enabled',
-      'date_filter_datepicker_range',
-      'pid_object_label',
-      'boolean_facet_true_replacement',
-      'boolean_facet_false_replacement',
-      'sort_by',
-      'enable_permissions',
-      'permissions',
-    ]);
-    $relevant_values = array_intersect_key($solr_field_settings, $fields);
-    $relevant_values['label'] = isset($relevant_values['label']) ?
-      trim($relevant_values['label']) :
-      '';
-    $relevant_values['weight'] = isset($solr_field_settings['weight']) ? (int) $solr_field_settings['weight'] : 0;
-    return $relevant_values;
-  }
+  const FIELD_TYPE = 'facet_field';
 
   /**
    * {@inheritdoc}
@@ -83,7 +20,7 @@ class ConfigureFacetField extends ConfigFieldFormBase {
     $form['#suffix'] = '</div>';
 
     $form_state->setStorage(['solr_field' => $solr_field]);
-    $values = islandora_solr_get_field_configuration('facet_fields', $solr_field);
+    $values = islandora_solr_get_field_configuration(static::getFieldType(), $solr_field);
 
     $form['options'] = [
       '#type' => 'container',

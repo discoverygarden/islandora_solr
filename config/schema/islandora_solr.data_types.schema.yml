@@ -1,6 +1,6 @@
-islandora_solr.result_fields:
+islandora_solr.base_fields:
   type: mapping
-  label: Display Result Field
+  label: Base field
   mapping:
     solr_field:
       type: string
@@ -9,6 +9,18 @@ islandora_solr.result_fields:
       type: label
     weight:
       type: integer
+    enable_permissions:
+      type: boolean
+    permissions:
+      type: sequence
+      nullable: true
+      sequence:
+        type: string
+        nullable: true
+islandora_solr.result_fields:
+  type: islandora_solr.base_fields
+  label: Display Result Field
+  mapping:
     snippet:
       type: boolean
     truncation_type:
@@ -29,44 +41,13 @@ islandora_solr.result_fields:
       type: boolean
     replace_pid_with_label:
       type: boolean
-    enable_permissions:
-      type: boolean
-    permissions:
-      type: sequence
-      nullable: true
-      sequence:
-        type: integer
-        nullable: true
 islandora_solr.sort_fields:
-  type: mapping
+  type: islandora_solr.base_fields
   label: Sort Field
-  mapping:
-    solr_field:
-      type: string
-      nullable: false
-    label:
-      type: label
-    weight:
-      type: integer
-    enable_permissions:
-      type: boolean
-    permissions:
-      type: sequence
-      nullable: true
-      sequence:
-        type: integer
-        nullable: true
 islandora_solr.facet_fields:
-  type: mapping
+  type: islandora_solr.base_fields
   label: Facet Field
   mapping:
-    solr_field:
-      type: string
-      nullable: false
-    label:
-      type: label
-    weight:
-      type: integer
     sort_by:
       type: string
     date_facet_format:
@@ -95,30 +76,6 @@ islandora_solr.facet_fields:
       type: string
     pid_object_label:
       type: boolean
-    enable_permissions:
-      type: boolean
-    permissions:
-      type: sequence
-      nullable: true
-      sequence:
-        type: integer
-        nullable: true
 islandora_solr.search_fields:
-  type: mapping
+  type: islandora_solr.base_fields
   label: Advanced Search Field
-  mapping:
-    solr_field:
-      type: string
-      nullable: false
-    label:
-      type: label
-    weight:
-      type: integer
-    enable_permissions:
-      type: boolean
-    permissions:
-      type: sequence
-      nullable: true
-      sequence:
-        type: integer
-        nullable: true

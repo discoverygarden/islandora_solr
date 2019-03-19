@@ -7,18 +7,6 @@ namespace Drupal\islandora_solr\Form;
  */
 class ConfigureSortField extends ConfigFieldFormBase {
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormId() {
-    return 'islandora_solr_configure_sort_field_form';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getFieldType() {
-    return 'sort_fields';
-  }
+  const FIELD_TYPE = 'sort_field';
 
 }
