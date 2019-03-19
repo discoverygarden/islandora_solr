@@ -122,7 +122,7 @@ function _islandora_solr_filter_fields(array $records = []) {
 
   $default_permission_info = [
     'enable_permissions' => FALSE,
-    'permissions' => [],
+    'permissions' => NULL,
   ];
 
   $filter = function (array $record) use ($default_permission_info, $user) {

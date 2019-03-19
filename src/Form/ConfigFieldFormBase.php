@@ -74,7 +74,7 @@ abstract class ConfigFieldFormBase extends ConfigFormBase {
     return [
       'label' => '',
       'enable_permissions' => FALSE,
-      'permissions' => [],
+      'permissions' => NULL,
       'weight' => 0,
     ];
   }
