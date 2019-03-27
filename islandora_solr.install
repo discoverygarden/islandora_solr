@@ -73,7 +73,7 @@ function islandora_solr_schema() {
 /**
  * Migrate old Drupal database fields into the new configuration.
  */
-function islandora_solr_update_8000() {
+function islandora_solr_update_8001() {
   $db = \Drupal::database();
   $schema = $db->schema();
   if (!$schema->tableExists('islandora_solr_fields')) {
