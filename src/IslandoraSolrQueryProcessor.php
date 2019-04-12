@@ -9,6 +9,7 @@ use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Cache\RefinableCacheableDependencyTrait;
 use Drupal\islandora\Controller\DefaultController as IslandoraController;
+use Drupal\islandora_solr\Form\AdminIndexSettings;
 
 /**
  * Islandora Solr Query Processor.
@@ -412,7 +413,7 @@ class IslandoraSolrQueryProcessor implements RefinableCacheableDependencyInterfa
    */
   public function executeQuery($alter_results = TRUE, $use_post = FALSE) {
     // Init Apache_Solr_Service object.
-    $path_parts = parse_url($this->config->get('islandora_solr_url'));
+    $path_parts = parse_url(AdminIndexSettings::stateGet('islandora_solr_url'));
     $solr = new Apache_Solr_Service($path_parts['host'], $path_parts['port'], $path_parts['path'] . '/');
     $solr->setCreateDocuments(0);
 

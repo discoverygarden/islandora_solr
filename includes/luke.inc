@@ -8,6 +8,7 @@
 use Drupal\Core\Url;
 
 use Drupal\islandora_solr\SolrPhpClient\Apache\Solr\Apache_Solr_Service;
+use Drupal\islandora_solr\Form\AdminIndexSettings;
 
 /**
  * Pings a Solr instance for availability.
@@ -85,7 +86,7 @@ function islandora_solr_check_http($url) {
 function islandora_solr_get_luke($solr_url = NULL, $field = NULL, $num_terms = 0, $show_schema = FALSE) {
   if (!$solr_url) {
     // Create URL.
-    $solr_url = \Drupal::config('islandora_solr.settings')->get('islandora_solr_url');
+    $solr_url = AdminIndexSettings::stateGet('islandora_solr_url');
   }
   // If Solr is available get Luke.
   if (islandora_solr_ping($solr_url)) {
@@ -258,7 +259,7 @@ function islandora_solr_get_solr_version($reset = FALSE) {
   $version = &drupal_static(__FUNCTION__);
   if (!isset($version) || $reset) {
     $version = FALSE;
-    $solr_url = \Drupal::config('islandora_solr.settings')->get('islandora_solr_url');
+    $solr_url = AdminIndexSettings::stateGet('islandora_solr_url');
     if (islandora_solr_ping($solr_url)) {
       $parts = explode('/', $solr_url);
       while (count($parts) >= 2) {
