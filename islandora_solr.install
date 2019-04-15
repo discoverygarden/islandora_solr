@@ -9,6 +9,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Link;
 use Drupal\Component\Utility\Xss;
 use Drupal\islandora_solr\Form\ConfigFieldFormBase;
+use Drupal\islandora_solr\Form\AdminIndexSettings;
 
 /**
  * Implements hook_requirements().
@@ -43,6 +44,13 @@ function islandora_solr_install() {
     ]
   );
   drupal_set_message(Xss::filter($message));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function islandora_solr_uninstall() {
+  AdminIndexSettings::stateDeleteAll();
 }
 
 /**
