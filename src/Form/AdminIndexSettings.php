@@ -7,10 +7,14 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 
+use Drupal\islandora\Utility\StateTrait;
+
 /**
  * Islandora Solr index admin form.
  */
 class AdminIndexSettings extends ConfigFormBase {
+
+  use StateTrait;
 
   /**
    * {@inheritdoc}
@@ -33,7 +37,10 @@ class AdminIndexSettings extends ConfigFormBase {
     // Add admin form CSS.
     $form['#attached']['library'][] = 'islandora_solr/islandora-solr-admin';
 
-    $solr_url = $form_state->getValue(['islandora_solr_url']) ? $form_state->getValue(['islandora_solr_url']) : $this->config('islandora_solr.settings')->get('islandora_solr_url');
+    $solr_url = $form_state->getValue(
+      'islandora_solr_url',
+      static::stateGet('islandora_solr_url')
+    );
     // Solr connect triggering handler is dismax or not set on page load.
     // Get request handler.
     $handler = $form_state->getValue(['islandora_solr_request_handler']) ? $form_state->getValue(['islandora_solr_request_handler']) : $this->config('islandora_solr.settings')->get('islandora_solr_request_handler');
@@ -143,9 +150,19 @@ class AdminIndexSettings extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  public static function stateDefaults() {
+    return [
+      'islandora_solr_url' => 'localhost:8080/solr',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $this->stateSetAll($form_state);
+
     $this->config('islandora_solr.settings')
-      ->set('islandora_solr_url', $form_state->getValue('islandora_solr_url'))
       ->set('islandora_solr_request_handler', $form_state->getValue('islandora_solr_request_handler'))
       ->set('islandora_solr_force_update_index_after_object_purge', $form_state->getValue('islandora_solr_force_update_index_after_object_purge'))
       ->save();

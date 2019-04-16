@@ -8,6 +8,8 @@
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
+use Drupal\islandora_solr\Form\AdminIndexSettings;
+
 // @codingStandardsIgnoreStart
 const ISLANDORA_SOLR_SEARCH_PATH = 'islandora/search';
 const ISLANDORA_SOLR_QUERY_SPLIT_REGEX = '/(?<!\\\\) /';
@@ -139,7 +141,7 @@ function islandora_solr_check_dismax($reset = FALSE) {
   $cache = $reset ? FALSE : \Drupal::cache()->get($cache_id);
   if (!$cache) {
     module_load_include('inc', 'islandora_solr', 'includes/admin');
-    $solr_url = \Drupal::config('islandora_solr.settings')->get('islandora_solr_url');
+    $solr_url = AdminIndexSettings::stateGet('islandora_solr_url');
     $handler = \Drupal::config('islandora_solr.settings')->get('islandora_solr_request_handler');
     $dismax = _islandora_solr_check_dismax($solr_url, $handler);
     \Drupal::cache()->set($cache_id, $dismax);
@@ -196,7 +198,7 @@ function islandora_solr_islandora_object_purged($pid) {
     $client = \Drupal::httpClient();
     $client->request(
       'POST',
-      \Drupal::config('islandora_solr.settings')->get('islandora_solr_url') . '/update',
+      AdminIndexSettings::stateGet('islandora_solr_url') . '/update',
       $options
     );
   }
