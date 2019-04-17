@@ -112,30 +112,6 @@ function hook_islandora_solr_query_alter(IslandoraSolrQueryProcessor $islandora_
 }
 
 /**
- * Hook to collect data to populate block Islandora Solr blocks.
- *
- * Note: it is valid to specify *either* a class and method *or* a form. The
- * latter implies no class needs to be instantiated.
- *
- * @return array
- *   Returns an array with all the data required to build blocks. These include
- *   references to specific modules/methods/classes/functions to call in
- *   hook_block_view().
- */
-function hook_islandora_solr_query_blocks() {
-  return [
-    'machine_name' => [
-      'name' => t('Human-Readable Name'),
-      'module' => 'module_name',
-      'file' => 'FileName.inc',
-      'class' => 'ClassName',
-      'function' => 'method_name',
-      'form' => 'form_function_name',
-    ],
-  ];
-}
-
-/**
  * Hook to notify other modules of the query result.
  *
  * @param array $result
