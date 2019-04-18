@@ -433,7 +433,6 @@ class IslandoraSolrResults {
    *   Rendered lists of facets including links to include or exclude a facet
    *   field.
    *
-   * @see islandora_solr_islandora_solr_query_blocks()
    * @see islandora_solr_block_view()
    */
   public function displayFacets(IslandoraSolrQueryProcessor $islandora_solr_query) {
