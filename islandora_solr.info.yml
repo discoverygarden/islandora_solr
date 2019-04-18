@@ -5,5 +5,5 @@ description: 'Searches an Islandora Solr index'
 package: 'Islandora Search'
 configure: islandora_solr.admin_index_settings
 core: 8.x
-php: '5.5.9'
+php: '7.2'
 type: module
