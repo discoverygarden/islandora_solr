@@ -39,13 +39,18 @@ class Explore extends AbstractConfiguredBlockBase {
   public function blockForm($form, FormStateInterface $form_state) {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/blocks');
     $form = parent::blockForm($form, $form_state);
+
     // Get the variables for the form display facets.
-    $explore_config = ($form_state->get('islandora_solr_facet_filters') ? $form_state->get('islandora_solr_facet_filters') : $this->configFactory->get('islandora_solr.settings')->get('islandora_solr_explore_config'));
+    $explore_config = ($form_state->get('islandora_solr_facet_filters') ?
+      $form_state->get('islandora_solr_facet_filters') :
+      $this->configFactory->get('islandora_solr.settings')->get('islandora_solr_explore_config'));
+
     $triggering_element = $form_state->getTriggeringElement();
     // Check if remove was clicked and removed the label and filter from the
     // values and the table.
     if ($triggering_element && $triggering_element['#id'] == 'facet-filter-remove') {
-      foreach ($form_state->getCompleteFormState()->getValue(['settings',
+      foreach ($form_state->getCompleteFormState()->getValue([
+        'settings',
         'facet',
         'table',
       ]) as $key => $row) {
@@ -353,11 +358,16 @@ class Explore extends AbstractConfiguredBlockBase {
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
+    $config = $this->configFactory->getEditable('islandora_solr.settings');
+
     if ($form_state->get('islandora_solr_facet_filters')) {
-      $config = $this->configFactory->getEditable('islandora_solr.settings');
       $config->set('islandora_solr_explore_config', $form_state->get('islandora_solr_facet_filters'));
-      $config->save();
     }
+    else {
+      $config->delete('islandora_solr_explore_config');
+    }
+
+    $config->save();
   }
 
 }
