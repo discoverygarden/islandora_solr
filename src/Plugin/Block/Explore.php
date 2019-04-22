@@ -62,6 +62,7 @@ class Explore extends AbstractConfiguredBlockBase {
         }
       }
       $form_state->set('islandora_solr_facet_filters', $explore_config);
+      $form_state->set('is_dirty', TRUE);
     }
 
     // Check if weights are being updated.
@@ -75,6 +76,7 @@ class Explore extends AbstractConfiguredBlockBase {
       // Sort config array by weight and update drupal variable.
       uasort($explore_config, 'drupal_sort_weight');
       $form_state->set('islandora_solr_facet_filters', $explore_config);
+      $form_state->set('is_dirty', TRUE);
     }
 
     // Check if new display facet is being added to the table.
@@ -163,6 +165,13 @@ class Explore extends AbstractConfiguredBlockBase {
           $form_state->set(['islandora_solr_facet_filters'], $explore_config);
         }
       }
+      $form_state->set('is_dirty', TRUE);
+    }
+
+    // FormStateInterface::get() returns NULL if it hasn't been set, which works
+    // well enough here.
+    if ($form_state->get('is_dirty')) {
+      drupal_set_message($this->t('This form contains unsaved configuration; be sure to submit the form to persist all contained configuration.'), 'warning');
     }
 
     // Set table row data to be rendered.
@@ -368,6 +377,7 @@ class Explore extends AbstractConfiguredBlockBase {
     }
 
     $config->save();
+    $form_state->set('is_dirty', FALSE);
   }
 
 }
