@@ -37,7 +37,12 @@ islandora_solr_advanced_search_block_lucene_syntax_escape: false
 islandora_solr_advanced_search_block_lucene_regex_default: '/(\+|-|&&|\|\||!|\(|\)|\{|\}|\[|\]|\^| |~|\*|\?|\:|"|\\|\/)/'
 islandora_solr_base_advanced: false
 islandora_solr_breadcrumbs_parent_fields: "RELS_EXT_isMemberOfCollection_uri_ms\r\nRELS_EXT_isMemberOf_uri_ms"
-islandora_solr_primary_display_table: []
+islandora_solr_primary_display_table:
+  default: default
+  weight:
+    default: 0
+  enabled:
+    default: true
 islandora_solr_secondary_display: []
 islandora_solr_num_of_results_advanced: []
 islandora_solr_explore_config: []
