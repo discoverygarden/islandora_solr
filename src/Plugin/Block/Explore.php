@@ -373,7 +373,7 @@ class Explore extends AbstractConfiguredBlockBase {
       $config->set('islandora_solr_explore_config', $form_state->get('islandora_solr_facet_filters'));
     }
     else {
-      $config->delete('islandora_solr_explore_config');
+      $config->clear('islandora_solr_explore_config');
     }
 
     $config->save();
