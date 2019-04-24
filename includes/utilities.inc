@@ -523,7 +523,7 @@ function islandora_solr_compound_object_query($pid) {
   $params = [
     'limit' => $rows,
     'rows' => $rows,
-    'fl' => format_string('PID, !seq', [
+    'fl' => strtr('PID, !seq', [
       '!seq' => $sequence_pattern,
     ]),
   ];
