@@ -210,51 +210,6 @@ function islandora_solr_escape($facets) {
 }
 
 /**
- * Turns term fields strings from the admin forms into arrays.
- *
- * Mostly used with variable_get().
- *
- * @param string $raw_field_list
- *   A string containing the list of fields to parse, with individual items
- *   separated by either a comma or newline. Each field entry may be either a
- *   field name alone, or a field name, a tilde, and then a human-readable
- *   name, so for the field "field_name":
- *   - "field_name": The field itself will be used as the "human-readable".
- *   - "field_name ~ My Cool Field": "My Cool Field" will be used as as the
- *     human-readable version.
- *
- * @return array
- *   An associative array mapping the fields to our human-readable label.
- *
- * @deprecated
- *   No longer used, due to the use of a separate database table for
- *   configuration.
- */
-function islandora_solr_build_substitution_list($raw_field_list) {
-  $facet_array = [];
-  $facet_fields = '';
-  $lines = preg_split('/[,|\n|\r]/', $raw_field_list);
-  foreach ($lines as $line) {
-    if ($line) {
-      $line_array = explode('~', $line);
-      $key = trim($line_array[0]);
-      if (count($line_array) > 1) {
-        $value = trim($line_array[1]);
-      }
-      else {
-        $value = $key;
-      }
-      $facet_array[$key] = $value;
-      if ($facet_fields) {
-        $facet_fields .= ",";
-      }
-      $facet_fields .= $key;
-    }
-  }
-  return $facet_array;
-}
-
-/**
  * Prepares the Solr docs of an object results array.
  *
  * Preparing the Solr doc array includes adding the label, value and class name
