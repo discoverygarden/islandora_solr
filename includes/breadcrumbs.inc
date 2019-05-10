@@ -5,7 +5,6 @@
  * Breadcrumb functions.
  */
 
-use Drupal\Component\Utility\Html;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 
@@ -107,14 +106,8 @@ function islandora_solr_get_breadcrumb_parent($pid) {
   $solr_build->solrParams = islandora_solr_remove_base_filters($solr_build->solrParams);
   $solr_build->solrParams = islandora_solr_clean_compound_filters($solr_build->solrParams);
 
-  try {
-    $solr_build->executeQuery(FALSE);
-    $results = (array) $solr_build->islandoraSolrResult['response']['objects'];
-  }
-  catch (Exception $e) {
-    $results = [];
-    drupal_set_message(Html::escape(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error', FALSE);
-  }
+  $solr_build->executeQuery(FALSE);
+  $results = (array) $solr_build->islandoraSolrResult['response']['objects'];
 
   $find_solr_value = function ($o, $field) {
     if (isset($o[$field])) {

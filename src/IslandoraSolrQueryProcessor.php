@@ -424,7 +424,7 @@ class IslandoraSolrQueryProcessor implements RefinableCacheableDependencyInterfa
       $results = $solr->search($solr_query, $this->solrStart, $this->solrLimit, $this->solrParams, $method);
     }
     catch (Exception $e) {
-      drupal_set_message(Html::escape(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error');
+      islandora_solr_technical_difficulties($e);
     }
 
     $object_results = [];

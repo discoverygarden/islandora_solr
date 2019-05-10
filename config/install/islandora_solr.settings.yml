@@ -48,3 +48,4 @@ islandora_solr_num_of_results_advanced: []
 islandora_solr_explore_config: []
 islandora_solr_compound_relationship_field: 'RELS_EXT_isConstituentOf_uri_ms'
 islandora_solr_compound_sequence_pattern: 'RELS_EXT_isSequenceNumberOf%PID%_literal_ms'
+islandora_solr_technical_difficulties_message: 'We are experiencing technical difficulties at this time and are working to fix the problem. Please try back later.'

@@ -307,3 +307,27 @@ function islandora_solr_preprocess_islandora_objects_subset(array &$variables) {
     $variables['pager'] = \Drupal::service("renderer")->render($variables['pager']);
   }
 }
+
+/**
+ * Make nice text for screen and log the exception to watchdog.
+ *
+ * @param \Exception $e
+ *   The exception.
+ */
+function islandora_solr_technical_difficulties(Exception $e) {
+  // Only report the error once per screen.
+  $islandora_solr_error_reported = &drupal_static(__FUNCTION__, FALSE);
+
+  if ($islandora_solr_error_reported !== TRUE) {
+    drupal_set_message(t("@message", [
+      '@message' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_technical_difficulties_message'),
+    ]), 'warning');
+    \Drupal::logger('islandora_solr')->error(t("Received exception @code: @message\nLine: @line in file: @file", [
+      '@code' => $e->getCode(),
+      '@message' => $e->getMessage(),
+      '@file' => $e->getFile(),
+      '@line' => $e->getLine(),
+    ]));
+    $islandora_solr_error_reported = TRUE;
+  }
+}
