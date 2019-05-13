@@ -82,6 +82,8 @@ islandora_solr.settings:
       type: boolean
     islandora_solr_breadcrumbs_parent_fields:
       type: string
+    islandora_solr_technical_difficulties_message:
+      type: string
     islandora_solr_primary_display_table:
       type: mapping
       mapping:

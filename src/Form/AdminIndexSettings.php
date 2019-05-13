@@ -135,6 +135,16 @@ class AdminIndexSettings extends ConfigFormBase {
       '#description' => $this->t('If checked, deleting objects will also force their removal from the Solr index. <br/><strong>Note:</strong> When active, UI consistency will be increased on any pages using Solr queries for display. This setting is not appropriate for every installation (e.g., on sites with a large volume of Solr commits that hit execution limits, or where the Solr index is not directly writable from Drupal).'),
       '#default_value' => $this->config('islandora_solr.settings')->get('islandora_solr_force_update_index_after_object_purge'),
     ];
+
+    $form['solr_ajax_wrapper']['islandora_solr_technical_difficulties_message'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Solr unavailable message.'),
+      '#description' => $this->t('When Solr throws an Exception this message is displayed to the users.'),
+      '#size' => 150,
+      '#weight' => 10,
+      '#default_value' => $this->config('islandora_solr.settings')->get('islandora_solr_technical_difficulties_message'),
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -165,6 +175,7 @@ class AdminIndexSettings extends ConfigFormBase {
     $this->config('islandora_solr.settings')
       ->set('islandora_solr_request_handler', $form_state->getValue('islandora_solr_request_handler'))
       ->set('islandora_solr_force_update_index_after_object_purge', $form_state->getValue('islandora_solr_force_update_index_after_object_purge'))
+      ->set('islandora_solr_technical_difficulties_message', $form_state->getValue('islandora_solr_technical_difficulties_message'))
       ->save();
     // Force renewal of the cached value, as the request handler might have
     // changed.
