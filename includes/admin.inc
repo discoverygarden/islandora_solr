@@ -25,6 +25,7 @@ use Drupal\user\RoleInterface;
  *   An identifier for the field table which is being created.
  */
 function islandora_solr_admin_settings_fields(FormStateInterface $form_state, array &$terms, $field_type) {
+  module_load_include('inc', 'islandora_solr', 'includes/utilities');
   // Set variables.
   $field_type_class = str_replace('_', '-', $field_type);
   // Ways to populate the fields table:
@@ -154,7 +155,7 @@ function islandora_solr_admin_settings_fields(FormStateInterface $form_state, ar
         '#markup' => $solr_field_settings ? t('Label: @label', ['@label' => $solr_field_settings]) : '',
       ];
       if (in_array($solr_field, $config_fields)) {
-        $url = Url::fromRoute($route_map[$field_type], ['solr_field' => $solr_field]);
+        $url = Url::fromRoute($route_map[$field_type], ['solr_field' => islandora_solr_replace_slashes($solr_field)]);
         $row[] = [
           '#title' => t('configure'),
           '#type' => 'link',

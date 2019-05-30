@@ -16,6 +16,8 @@ class ConfigureFacetField extends ConfigFieldFormBase {
   public function buildForm(array $form, FormStateInterface $form_state, $solr_field = NULL) {
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/admin');
     $form_state->loadInclude('islandora_solr', 'inc', 'includes/db');
+    $form_state->loadInclude('islandora_solr', 'inc', 'includes/utilities');
+    $solr_field = islandora_solr_restore_slashes($solr_field);
     $form['#prefix'] = '<div id="facet_fields_modal">';
     $form['#suffix'] = '</div>';
 
