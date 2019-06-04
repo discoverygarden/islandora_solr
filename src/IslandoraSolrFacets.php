@@ -7,11 +7,14 @@ use Drupal\Core\Template\Attribute;
 
 use Drupal\islandora_solr\Form\IslandoraDateFilter;
 use Drupal\islandora_solr\Form\IslandoraRangeSlider;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Islandora Solr Facets.
  */
 class IslandoraSolrFacets {
+  use StringTranslationTrait;
+
   public static $islandoraSolrQuery;
 
   // XXX: Need to fix the property/member variable names...  Could have an
@@ -482,7 +485,7 @@ class IslandoraSolrFacets {
         '#attached' => ['library' => ['islandora_solr/facets_js']],
       ];
 
-      $this->content["more_$facet_field"]['#markup'] = '<a href="#" class="soft-limit">' . t('Show more') . '</a>';
+      $this->content["more_$facet_field"]['#markup'] = '<a href="#" class="soft-limit">' . $this->t('Show more') . '</a>';
     }
     elseif (!empty($buckets)) {
       $this->content[$facet_field] = [
@@ -583,39 +586,39 @@ class IslandoraSolrFacets {
     $gap = NULL;
     $date_format = 'Y';
     if ($calc_total_days < 7) {
-      $gap = t('days');
+      $gap = $this->t('days');
       $date_format = 'M j, Y';
     }
     elseif ($calc_total_days >= 7 && $calc_total_days <= 28) {
-      $gap = t('weeks');
+      $gap = $this->t('weeks');
       $date_format = 'M j, Y';
     }
     elseif ($calc_total_days >= 28 && $calc_total_days <= 32) {
-      $gap = t('months');
+      $gap = $this->t('months');
       $date_format = 'M Y';
     }
     elseif ($calc_total_days >= 360 && $calc_total_days <= 370) {
-      $gap = t('years');
+      $gap = $this->t('years');
       $date_format = 'Y';
     }
     elseif ($calc_total_days >= 720 && $calc_total_days <= 740) {
-      $gap = t('2 years');
+      $gap = $this->t('2 years');
       $date_format = 'Y';
     }
     elseif ($calc_total_days >= 1800 && $calc_total_days <= 1850) {
-      $gap = t('5 years');
+      $gap = $this->t('5 years');
       $date_format = 'Y';
     }
     elseif ($calc_total_days >= 3600 && $calc_total_days <= 3700) {
-      $gap = t('decades');
+      $gap = $this->t('decades');
       $date_format = 'Y';
     }
     elseif ($calc_total_days >= 36000 && $calc_total_days <= 37000) {
-      $gap = t('centuries');
+      $gap = $this->t('centuries');
       $date_format = 'Y';
     }
     elseif ($calc_total_days >= 360000 && $calc_total_days <= 370000) {
-      $gap = t('millennia');
+      $gap = $this->t('millennia');
       $date_format = 'Y';
     }
 

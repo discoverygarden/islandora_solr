@@ -6,6 +6,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 use Drupal\Component\Utility\Html;
 
@@ -13,6 +14,7 @@ use Drupal\Component\Utility\Html;
  * Islandora Solr Results.
  */
 class IslandoraSolrResults {
+  use StringTranslationTrait;
 
   public $facetFieldArray = [];
   public $searchFieldArray = [];
@@ -254,7 +256,7 @@ class IslandoraSolrResults {
         ],
       ];
       $attr_minus = new Attribute();
-      $attr_minus['title'] = t('Remove') . ' ' . $query_value;
+      $attr_minus['title'] = $this->t('Remove') . ' ' . $query_value;
       $attr_minus['class'] = ['remove-query'];
       $attr_minus['rel'] = 'nofollow';
       $attr_minus['href'] = Url::fromRoute('islandora_solr.islandora_solr', [], ['query' => $query_minus])->toString();
@@ -272,7 +274,7 @@ class IslandoraSolrResults {
       $list = [
         '#theme' => 'item_list',
         '#items' => $query_list,
-        '#title' => t('Query'),
+        '#title' => $this->t('Query'),
         '#type' => 'ul',
         '#attributes' => ['class' => ['islandora-solr-query-list', 'query-list']],
       ];
@@ -318,7 +320,7 @@ class IslandoraSolrResults {
           ],
         ];
         $attr_minus = new Attribute();
-        $attr_minus['title'] = t('Remove') . ' ' . $filter;
+        $attr_minus['title'] = $this->t('Remove') . ' ' . $filter;
         $attr_minus['class'] = ['remove-filter'];
         $attr_minus['rel'] = 'nofollow';
         $attr_minus['href'] = Url::fromRoute('islandora_solr.islandora_solr', [], ['query' => $query_minus])->toString();
@@ -337,7 +339,7 @@ class IslandoraSolrResults {
       $list = [
         '#theme' => 'item_list',
         '#items' => $filter_list,
-        '#title' => t("Enabled Filters"),
+        '#title' => $this->t("Enabled Filters"),
         '#type' => 'ul',
         '#attributes' => ['class' => ['islandora-solr-filter-list', 'filter-list']],
       ];
@@ -499,7 +501,7 @@ class IslandoraSolrResults {
   protected function debugOutput(array $islandora_solr_results) {
     $results = "<pre>Results: " . print_r($islandora_solr_results, TRUE) . "</pre>";
     return [
-      '#title' => t("Islandora Processed Solr Results"),
+      '#title' => $this->t("Islandora Processed Solr Results"),
       '#type' => 'details',
       '#open' => TRUE,
       '#markup' => $results,

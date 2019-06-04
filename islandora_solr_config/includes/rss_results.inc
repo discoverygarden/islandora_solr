@@ -9,6 +9,7 @@ use Drupal\Core\Url;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Template\Attribute;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 use Drupal\islandora_solr\IslandoraSolrResults;
 
@@ -27,6 +28,8 @@ use Drupal\islandora_solr\IslandoraSolrResults;
 class IslandoraSolrConfigResultsRSS extends IslandoraSolrResults {
 // @codingStandardsIgnoreEnd
 
+  use StringTranslationTrait;
+
   /**
    * Outputs results basically in the normal way.
    *
@@ -39,6 +42,9 @@ class IslandoraSolrConfigResultsRSS extends IslandoraSolrResults {
    */
   public function printRss($islandora_solr_query, $title = "Search Results") {
     header('Content-Type: application/rss+xml; charset=utf-8');
+
+    $islandora_solr_query->solrLimit = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_config_rss_limit');
+    $islandora_solr_query->executeQuery();
 
     // Get raw results.
     $solr_result = $islandora_solr_query->islandoraSolrResult;
@@ -190,10 +196,10 @@ class IslandoraSolrConfigResultsRSS extends IslandoraSolrResults {
 
     // Set the variables to be rendered as elements in the <channel> element.
     $result = [];
-    $result['title'] = t('@site_name aggregator', ['@site_name' => \Drupal::config('system.site')->get('name')]);
+    $result['title'] = $this->t('@site_name aggregator', ['@site_name' => \Drupal::config('system.site')->get('name')]);
 
     $result['url'] = $base_url;
-    $result['description'] = t('Aggregated search results of: @query', ['@query' => $query]);
+    $result['description'] = $this->t('Aggregated search results of: @query', ['@query' => $query]);
     $result['langcode'] = NULL;
     $result['args'] = [
       [
