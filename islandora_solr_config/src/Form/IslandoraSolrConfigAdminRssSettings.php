@@ -102,12 +102,12 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
       '#description' => $this->t('Email address for person responsible for technical issues relating to channel.'),
       '#default_value' => $rss_channel['webMaster'] ? $rss_channel['webMaster'] : '',
     ];
-    $form['rss_limit'] = array(
+    $form['rss_limit'] = [
       '#type' => 'textfield',
-      '#title' => 'RSS results limit',
-      '#description' => 'Maximum number of results via RSS.',
+      '#title' => $this->t('RSS results limit'),
+      '#description' => $this->t('Maximum number of results via RSS.'),
       '#default_value' => $rss_limit,
-    );
+    ];
     $form['buttons']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Save'),
