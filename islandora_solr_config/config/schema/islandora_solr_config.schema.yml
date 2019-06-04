@@ -26,6 +26,8 @@ islandora_solr_config.settings:
           type: string
         webMaster:
           type: string
+    islandora_solr_config_rss_limit:
+      type: integer
     islandora_solr_table_profile_display_row_no:
       type: integer
     islandora_solr_table_profile_table_class:
