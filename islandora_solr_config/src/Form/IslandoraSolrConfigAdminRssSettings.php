@@ -32,7 +32,11 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
       '#title' => $this->t('Item settings'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-      '#description' => $this->t('If the Solr Search Results Display fields are limited, only those fields which are configured for display can be used here, if an un-configured field is used it will be ignored. To take full control over the RSS item output you can also override the following method: IslandoraSolrResultsRSS::rssItem()'),
+      '#description' => $this->t('If the Solr Search Results Display fields are
+        limited, only those fields which are configured for display can be used
+        here; if an un-configured field is used it will be ignored. To take full
+        control over the RSS item output, you can also override the following
+        method: IslandoraSolrResultsRSS::rssItem()'),
     ];
     $form['rss_item']['title'] = [
       '#type' => 'textfield',
@@ -81,7 +85,9 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
       '#title' => $this->t('Channel settings'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-      '#description' => $this->t('To take full control over the RSS channel output you can also override the following method: IslandoraSolrResultsRSS::rssChannel()'),
+      '#description' => $this->t('To take full control over the RSS channel
+        output, you can also override the following method:
+        IslandoraSolrResultsRSS::rssChannel()'),
     ];
     $form['rss_channel']['copyright'] = [
       '#type' => 'textfield',

@@ -307,7 +307,7 @@ class AdminSettings extends ModuleHandlerAdminForm {
       '#type' => 'textfield',
       '#title' => $this->t('Minimum limit'),
       '#size' => 5,
-      '#description' => $this->t('The minimum number of results required to display a facet'),
+      '#description' => $this->t('The minimum number of results required to display a facet.'),
       '#default_value' => $config->get('islandora_solr_facet_min_limit'),
       '#required' => TRUE,
     ];
@@ -381,7 +381,7 @@ class AdminSettings extends ModuleHandlerAdminForm {
 
     $form['advanced_search_block']['islandora_solr_advanced_search_block_lucene_syntax_escape'] = [
       '#title' => $this->t('Escape Lucene special characters'),
-      '#description' => $this->t('Allow the use of lucene syntax string escaping on search terms'),
+      '#description' => $this->t('Allow the use of lucene syntax string escaping on search terms.'),
       '#type' => 'checkbox',
       '#default_value' => $config->get('islandora_solr_advanced_search_block_lucene_syntax_escape'),
     ];
@@ -509,7 +509,7 @@ class AdminSettings extends ModuleHandlerAdminForm {
       '#type' => 'textfield',
       '#title' => $this->t('The isMemberOf Solr field'),
       '#size' => 30,
-      '#description' => $this->t("The Solr field containing an object's isMemberOf relationship"),
+      '#description' => $this->t("The Solr field containing an object's isMemberOf relationship."),
       '#default_value' => $config->get('islandora_solr_member_of_field'),
       '#required' => TRUE,
     ];
@@ -518,7 +518,7 @@ class AdminSettings extends ModuleHandlerAdminForm {
       '#type' => 'textfield',
       '#title' => $this->t('The isMemberOfCollection Solr field'),
       '#size' => 30,
-      '#description' => $this->t("The Solr field containing an object's isMemberOfCollection relationship"),
+      '#description' => $this->t("The Solr field containing an object's isMemberOfCollection relationship."),
       '#default_value' => $config->get('islandora_solr_member_of_collection_field'),
       '#required' => TRUE,
     ];

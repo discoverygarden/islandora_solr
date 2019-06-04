@@ -38,7 +38,7 @@ function hook_islandora_solr_primary_display() {
       'file' => 'FileName.inc',
       'class' => 'ClassName',
       'function' => 'function_name',
-      'description' => t('A description of the display profile'),
+      'description' => t('A description of the display profile.'),
       'configuration' => 'path/to/configuration/page',
     ],
   ];
@@ -71,7 +71,7 @@ function hook_islandora_solr_secondary_display() {
       'file' => 'FileName.inc',
       'class' => 'ClassName',
       'function' => 'function_name',
-      'description' => t('A description of the display profile'),
+      'description' => t('A description of the display profile.'),
       'logo' => '<img src="path/to/icon.png">',
     ],
   ];
@@ -162,7 +162,7 @@ function hook_islandora_solr_object_result_alter(&$search_result, $query_process
 function hook_islandora_solr_search_rss_item_alter(rssItem $item, array $doc) {
 
   $item['title'] = $doc['PID'];
-  $item['description'] = 'this is the new rss item description';
+  $item['description'] = 'This is the new RSS item description.';
 }
 
 /**
