@@ -24,6 +24,7 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
     // Get variables.
     $rss_item = $this->config('islandora_solr_config.settings')->get('islandora_solr_config_rss_item');
     $rss_channel = $this->config('islandora_solr_config.settings')->get('islandora_solr_config_rss_channel');
+    $rss_limit = $this->config('islandora_solr_config.settings')->get('islandora_solr_config_rss_limit');
 
     $form['#tree'] = TRUE;
 
@@ -101,6 +102,12 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
       '#description' => $this->t('Email address for person responsible for technical issues relating to channel.'),
       '#default_value' => $rss_channel['webMaster'] ? $rss_channel['webMaster'] : '',
     ];
+    $form['rss_limit'] = array(
+      '#type' => 'textfield',
+      '#title' => 'RSS results limit',
+      '#description' => 'Maximum number of results via RSS.',
+      '#default_value' => $rss_limit,
+    );
     $form['buttons']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Save'),
@@ -117,10 +124,12 @@ class IslandoraSolrConfigAdminRssSettings extends FormBase {
     $config = $this->configFactory()->getEditable('islandora_solr_config.settings');
     $rss_item = $form_state->getValue('rss_item');
     $rss_channel = $form_state->getValue('rss_channel');
+    $rss_limit = $form_state->getValue('rss_limit');
 
     // Set variable.
     $config->set('islandora_solr_config_rss_item', $rss_item);
     $config->set('islandora_solr_config_rss_channel', $rss_channel);
+    $config->set('islandora_solr_config_rss_limit', $rss_limit);
     $config->save();
   }
 

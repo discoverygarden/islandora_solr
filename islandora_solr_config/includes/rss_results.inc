@@ -40,6 +40,9 @@ class IslandoraSolrConfigResultsRSS extends IslandoraSolrResults {
   public function printRss($islandora_solr_query, $title = "Search Results") {
     header('Content-Type: application/rss+xml; charset=utf-8');
 
+    $islandora_solr_query->solrLimit = \Drupal::config('islandora_solr_config.settings')->get('islandora_solr_config_rss_limit');
+    $islandora_solr_query->executeQuery();
+
     // Get raw results.
     $solr_result = $islandora_solr_query->islandoraSolrResult;
 

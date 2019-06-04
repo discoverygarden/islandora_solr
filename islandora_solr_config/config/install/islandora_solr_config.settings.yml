@@ -9,5 +9,6 @@ islandora_solr_config_rss_channel:
     copyright: ''
     managingEditor: ''
     webMaster: ''
+islandora_solr_config_rss_limit: 50
 islandora_solr_table_profile_display_row_no: 1
 islandora_solr_table_profile_table_class: ''
