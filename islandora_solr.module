@@ -96,7 +96,7 @@ function islandora_solr_islandora_solr_primary_display() {
       'module' => 'islandora_solr',
       'class' => "IslandoraSolrResults",
       'function' => "displayResults",
-      'description' => t("Display search results as a list view"),
+      'description' => t("Display search results as a list view."),
     ],
   ];
 }

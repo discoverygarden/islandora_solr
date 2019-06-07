@@ -41,8 +41,7 @@ class AdminBreadcrumbsSettings extends ConfigFormBase {
     $form['islandora_solr_breadcrumbs_admin']['islandora_solr_breadcrumbs_parent_fields'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Solr Parent Fields'),
-      '#description' => $this->t('A list of Solr fields containing the PIDs of parent objects,
-    one per line. Will search top to bottom and stop on the first hit.'),
+      '#description' => $this->t('A list of Solr fields containing the PIDs of parent objects, one per line. Will search top to bottom and stop on the first hit.'),
       '#default_value' => $this->config('islandora_solr.settings')->get('islandora_solr_breadcrumbs_parent_fields'),
     ];
     return parent::buildForm($form, $form_state);
