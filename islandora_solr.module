@@ -61,7 +61,6 @@ function islandora_solr_theme() {
       'variables' => ['buckets' => NULL, 'hidden' => FALSE, 'pid' => NULL],
     ],
     'islandora_solr_facet_wrapper' => [
-      'file' => "theme/$file",
       'template' => 'islandora-solr-facet-wrapper',
       'variables' => [
         'title' => '',
