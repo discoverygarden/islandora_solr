@@ -60,6 +60,13 @@ function islandora_solr_theme() {
       'template' => 'islandora-solr-facet',
       'variables' => ['buckets' => NULL, 'hidden' => FALSE, 'pid' => NULL],
     ],
+    'islandora_solr_facet_wrapper' => [
+      'template' => 'islandora-solr-facet-wrapper',
+      'variables' => [
+        'title' => '',
+        'content' => '',
+      ],
+    ],
      // Range slider.
     'islandora_solr_range_slider' => [
       'file' => "theme/$file",

@@ -131,9 +131,9 @@ class IslandoraSolrFacets {
       return [];
     }
     return [
-      '#prefix' => '<div class="islandora-solr-facet-wrapper"><h3>' . $this->title . '</h3>',
-      'content' => $this->content,
-      '#suffix' => '</div>',
+      '#theme' => 'islandora_solr_facet_wrapper',
+      '#title' => $this->title,
+      '#content' => $this->content,
     ];
   }
 
