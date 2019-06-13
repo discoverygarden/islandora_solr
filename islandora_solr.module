@@ -338,3 +338,54 @@ function islandora_solr_technical_difficulties(Exception $e) {
     $islandora_solr_error_reported = TRUE;
   }
 }
+
+/**
+ * Implements hook_help().
+ */
+function islandora_solr_help($route) {
+  switch ($route) {
+    // Main help page for the module.
+    case 'help.page.islandora_solr':
+      // About section.
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Islandora Solr group of modules includes:</br>') .
+        '<ul><li>' .
+        t('Islandora Solr:') .
+        '<ul><li>' .
+        t('<a href=":solr_wiki">wiki page*</a>', [
+          ":solr_wiki" => 'https://wiki.duraspace.org/display/ISLANDORA/Islandora+Solr',
+        ]) .
+        '</li></ul></li><li>' .
+        t('Islandora Solr Metadata:') .
+        '<ul><li>' .
+        t('<a href=":solr_metadata_wiki">wiki page*</a>', [
+          ":solr_metadata_wiki" => 'https://wiki.duraspace.org/display/ISLANDORA/Islandora+Solr+Metadata',
+        ]) .
+        '</li></ul></li><li>' .
+        t('Islandora Solr Facet Pages:') .
+        '<ul><li>' .
+        t('<a href=":solr_facet_pages_wiki">wiki page*</a>', [
+          ":solr_facet_pages_wiki" => 'https://wiki.duraspace.org/display/ISLANDORA/Islandora+Solr+Facet+Pages',
+        ]) .
+        '</li></ul></li><li>' .
+        t('Islandora Solr Display Manager') .
+        '</li></ul></br>' .
+        t('You can go to the help pages for any of these modules to learn more about each one.') .
+        '</br>' .
+        // Insert a simplified user-friendly summary of the Solr system, and
+        // a snippet of info about each part/module (they will have more on
+        // their help pages.)
+        t('') .
+        '</p>';
+      // Uses section.
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dt>' . t('') . '</dt><dd>';
+      '</dd>';
+
+      $output .= '</br></br><p>';
+      $output .= t('*Links go to documentation for the Drupal 7 version of the module, as documentation for the Drupal 8 version of the module has not yet been written. There may be some small discrepencies; however, most key points remain useful.') .
+      '</p>';
+      return $output;
+
+  }
+}
